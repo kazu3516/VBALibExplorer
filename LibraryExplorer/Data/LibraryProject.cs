@@ -209,8 +209,6 @@ namespace LibraryExplorer.Data {
     public interface ILibraryProjectItem {
 
 
-        #region フィールド(メンバ変数、プロパティ、イベント)
-
         /// <summary>
         /// 表示用のパスを取得します。
         /// </summary>
@@ -228,13 +226,7 @@ namespace LibraryExplorer.Data {
         /// 名前を取得します。
         /// </summary>
         string Name {get;}
-
-
         
-        #endregion
-
-
-
     }
 
 }
