@@ -227,6 +227,7 @@ namespace LibraryExplorer.Data {
         /// </summary>
         string Name {get;}
         
+
     }
 
 }
