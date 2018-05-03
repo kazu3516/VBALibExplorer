@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EE187693-B824-459C-95DC-41BDA09D5AB0}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LibraryExplorer</RootNamespace>
+    <AssemblyName>VBALibExplorer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\VBALibExplorer.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Kucl">
+      <HintPath>..\..\Kucl1.0.9.0\Kucl\bin\Release\Kucl.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WeifenLuo.WinFormsUI.Docking, Version=3.0.4.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
+      <HintPath>..\packages\DockPanelSuite.3.0.4\lib\net40\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+    </Reference>
+    <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2013, Version=3.0.4.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
+      <HintPath>..\packages\DockPanelSuite.ThemeVS2013.3.0.4\lib\net40\WeifenLuo.WinFormsUI.Docking.ThemeVS2013.dll</HintPath>
+    </Reference>
+    <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015, Version=3.0.4.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
+      <HintPath>..\packages\DockPanelSuite.ThemeVS2015.3.0.4\lib\net40\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\AppInfo.cs" />
+    <Compile Include="Common\ApplicationMessageQueue.cs" />
+    <Compile Include="Common\AppMain.cs" />
+    <Compile Include="Common\Commands.cs" />
+    <Compile Include="Common\Request\OutputLogRequest.cs" />
+    <Compile Include="Common\Request\Request.cs" />
+    <Compile Include="Controller\ExcelFileController.cs" />
+    <Compile Include="Controller\ILibraryController.cs" />
+    <Compile Include="Controller\LibraryFileController.cs" />
+    <Compile Include="Controller\LibraryFileControllerBase.cs" />
+    <Compile Include="Control\EditableWizardControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\EditableWizardControl.Designer.cs">
+      <DependentUpon>EditableWizardControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\FolderCompareWizard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\FolderCompareWizard.Designer.cs">
+      <DependentUpon>FolderCompareWizard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\LibraryExplorerList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\LibraryExplorerList.Designer.cs">
+      <DependentUpon>LibraryExplorerList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\LibraryExplorerTree.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\LibraryExplorerTree.Designer.cs">
+      <DependentUpon>LibraryExplorerTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\LibraryFileListViewItem.cs" />
+    <Compile Include="Control\LibraryFolderTreeNode.cs" />
+    <Compile Include="Data\OfficeFile.cs" />
+    <Compile Include="Data\Library.cs" />
+    <Compile Include="Data\LibraryFile.cs" />
+    <Compile Include="Data\LibraryFolder.cs" />
+    <Compile Include="Data\LibraryProject.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Window\Dialog\AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\Dialog\AboutBox.Designer.cs">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\Dialog\FolderCompareWizardDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\Dialog\FolderCompareWizardDialog.Designer.cs">
+      <DependentUpon>FolderCompareWizardDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\Dialog\LibraryPropertyDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\Dialog\LibraryPropertyDialog.Designer.cs">
+      <DependentUpon>LibraryPropertyDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\ExcelFileModuleListWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\ExcelFileModuleListWindow.Designer.cs">
+      <DependentUpon>ExcelFileModuleListWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\ExplorerListWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\ExplorerListWindow.Designer.cs">
+      <DependentUpon>ExplorerListWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\ExplorerTreeWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\ExplorerTreeWindow.Designer.cs">
+      <DependentUpon>ExplorerTreeWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\FolderCompareWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\FolderCompareWindow.Designer.cs">
+      <DependentUpon>FolderCompareWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\LibraryFileListWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\LibraryFileListWindow.Designer.cs">
+      <DependentUpon>LibraryFileListWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\OutputLogWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\OutputLogWindow.Designer.cs">
+      <DependentUpon>OutputLogWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\MainWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\MainWindow.Designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\Dialog\OptionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\Dialog\OptionDialog.Designer.cs">
+      <DependentUpon>OptionDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\Dialog\OptionDialogBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\Dialog\OptionDialogBase.Designer.cs">
+      <DependentUpon>OptionDialogBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\PreviewWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\PreviewWindow.Designer.cs">
+      <DependentUpon>PreviewWindow.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Control\EditableWizardControl.resx">
+      <DependentUpon>EditableWizardControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\FolderCompareWizard.resx">
+      <DependentUpon>FolderCompareWizard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\LibraryExplorerList.resx">
+      <DependentUpon>LibraryExplorerList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\LibraryExplorerTree.resx">
+      <DependentUpon>LibraryExplorerTree.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Window\Dialog\AboutBox.resx">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\Dialog\FolderCompareWizardDialog.resx">
+      <DependentUpon>FolderCompareWizardDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\Dialog\LibraryPropertyDialog.resx">
+      <DependentUpon>LibraryPropertyDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\ExcelFileModuleListWindow.resx">
+      <DependentUpon>ExcelFileModuleListWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\ExplorerListWindow.resx">
+      <DependentUpon>ExplorerListWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\ExplorerTreeWindow.resx">
+      <DependentUpon>ExplorerTreeWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\LibraryFileListWindow.resx">
+      <DependentUpon>LibraryFileListWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\OutputLogWindow.resx">
+      <DependentUpon>OutputLogWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\MainWindow.resx">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\Dialog\OptionDialog.resx">
+      <DependentUpon>OptionDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\Dialog\OptionDialogBase.resx">
+      <DependentUpon>OptionDialogBase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\PreviewWindow.resx">
+      <DependentUpon>PreviewWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\Resource\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
