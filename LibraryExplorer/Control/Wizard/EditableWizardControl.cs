@@ -23,30 +23,30 @@ namespace LibraryExplorer.Control.Wizard {
         private Panel m_CurrentPanel;
 
 
-        #region BeforePageChangeイベント
+        #region protected BeforePageChangeイベント
         /// <summary>
         /// Pageが変更される前に発生するイベントです。
         /// </summary>
-        public event EventHandler BeforePageChange;
+        protected event BeforePageChangeEventHandler BeforePageChange;
         /// <summary>
         /// BeforePageChangeイベントを発生させます。
         /// </summary>
         /// <param name="e"></param>
-        protected void OnBeforePageChange(EventArgs e) {
+        protected void OnBeforePageChange(BeforePageChangeEventArgs e) {
             this.BeforePageChange?.Invoke(this, e);
         } 
         #endregion
 
-        #region AfterPageChangeイベント
+        #region protected AfterPageChangeイベント
         /// <summary>
         /// Pageが変更された後に発生するイベントです。
         /// </summary>
-        public event EventHandler AfterPageChange;
+        protected event AfterPageChangeEventHandler AfterPageChange;
         /// <summary>
         /// AfterPageChangeイベントを発生させます。
         /// </summary>
         /// <param name="e"></param>
-        protected void OnAfterPageChange(EventArgs e) {
+        protected void OnAfterPageChange(AfterPageChangeEventArgs e) {
             this.AfterPageChange?.Invoke(this, e);
         }
         #endregion
@@ -98,8 +98,6 @@ namespace LibraryExplorer.Control.Wizard {
             }
         }
         #endregion
-
-        
 
         #region Initialized
         private bool m_Initialized;
@@ -219,19 +217,27 @@ namespace LibraryExplorer.Control.Wizard {
         public void Initialize() {
             //TabPageに配置されているコントロールを、Panelにまとめておく
             this.tabControl1.TabPages.Cast<TabPage>().ToList().ForEach(page => this.InitializePage(page));
-        }
-        private void InitializePage(TabPage page) {
-            //Panelを作成し、コントロールを移動
-            Panel panel = new Panel();
-            panel.BorderStyle = BorderStyle.None;
-            panel.Controls.AddRange(page.Controls.Cast<ctrl>().ToArray());
-
-            //もとのコントロールは移動されるため削除不要
-            //page.Controls.Clear();
-
-            page.Controls.Add(panel);
 
             this.m_Initialized = true;
+        }
+
+        /// <summary>
+        /// 各ページの初期化を行います。
+        /// </summary>
+        /// <param name="page"></param>
+        private void InitializePage(TabPage page) {
+            if (page.Controls.Count != 1 || (page.Controls.Count == 1 && !(page.Controls[0] is Panel))) {
+
+                //Panelを作成し、コントロールを移動
+                Panel panel = new Panel();
+                panel.BorderStyle = BorderStyle.None;
+                panel.Controls.AddRange(page.Controls.Cast<ctrl>().ToArray());
+
+                //もとのコントロールは移動されるため削除不要
+                //page.Controls.Clear();
+
+                page.Controls.Add(panel);
+            }
         } 
         #endregion
 
@@ -245,9 +251,11 @@ namespace LibraryExplorer.Control.Wizard {
             }
             this.tabControl1.Visible = false;
 
-            this.ChangePage(-1, 0);
+            if (this.ChangePage(-1, 0)) {
 
-            this.OnStart();
+                this.OnStart();
+
+            }
         }
 
         /// <summary>
@@ -258,9 +266,11 @@ namespace LibraryExplorer.Control.Wizard {
                 return;
             }
 
-            this.ChangePage(this.m_CurrentStepNo, m_CurrentStepNo + 1);
+            if (this.ChangePage(this.m_CurrentStepNo, m_CurrentStepNo + 1)){
 
-            this.OnGoNext();
+                this.OnGoNext();
+
+            }
         }
 
         /// <summary>
@@ -271,55 +281,73 @@ namespace LibraryExplorer.Control.Wizard {
                 return;
             }
 
-            this.ChangePage(this.m_CurrentStepNo, m_CurrentStepNo - 1);
+            if (this.ChangePage(this.m_CurrentStepNo, m_CurrentStepNo - 1)) {
 
-            this.OnGoBack();
+                this.OnGoBack();
+
+            }
         }
         /// <summary>
         /// ウィザードをキャンセルします。
         /// </summary>
         public void Cancel() {
 
-            this.ChangePage(this.m_CurrentStepNo, -1);
+            if (this.ChangePage(this.m_CurrentStepNo, -1)) {
 
-            this.OnCancel();
+                this.OnCancel();
 
-            this.OnWizardCanceled(EventArgs.Empty);
+                this.OnWizardCanceled(EventArgs.Empty);
+
+            }
         }
 
         /// <summary>
         /// ウィザードを終了します。
         /// </summary>
         public void Finish() {
-            this.ChangePage(this.m_CurrentStepNo, -1);
 
-            this.OnFinish();
+            if (this.ChangePage(this.m_CurrentStepNo, -1)) {
 
-            this.OnWizardFinished(EventArgs.Empty);
+                this.OnFinish();
+
+                this.OnWizardFinished(EventArgs.Empty);
+
+            }
         }
 
 
         #region ChangePage
-        private void ChangePage(int prevPageIndex, int nextPageIndex) {
+        private bool ChangePage(int prevPageIndex, int nextPageIndex) {
+            //nextPageはBeforePageChangeイベントハンドラにて変更される可能性があるため、変数にする
+            int nextPageIndex2 = nextPageIndex;
 
-            this.OnBeforePageChange(EventArgs.Empty);
+            BeforePageChangeEventArgs e = new BeforePageChangeEventArgs(prevPageIndex, nextPageIndex2);
+            this.OnBeforePageChange(e);
 
+
+            //変更されたNextPageの検証
+            bool validNextPage = (0 <= nextPageIndex2 && nextPageIndex2 < this.TabPages.Count);
+            //Page変更しない場合、falseを返す
+            if (e.Cancel || !validNextPage) {
+                return false;
+            }
+            
             //===========================================
             //現在表示しているページを元に戻す
-            if (prevPageIndex >= 0) {
+            if (0<= prevPageIndex) {
                 TabPage prevPage = this.TabPages[prevPageIndex];
                 prevPage.Controls.Add(this.m_CurrentPanel);
             }
 
             //===========================================
-            //次に表示するページの状態確認
-            if (nextPageIndex >= 0) {
-                TabPage nextPage = this.TabPages[nextPageIndex];
+            if (validNextPage) {
+                TabPage nextPage = this.TabPages[nextPageIndex2];
+                //次に表示するページの状態確認
                 if (nextPage.Controls.Count != 1) {
                     this.InitializePage(nextPage);
                 }
                 this.m_CurrentPanel = nextPage.Controls[0] as Panel;
-                this.m_CurrentStepNo = nextPageIndex;
+                this.m_CurrentStepNo = nextPageIndex2;
 
                 //---------------------------------
                 this.SuspendLayout();
@@ -333,8 +361,14 @@ namespace LibraryExplorer.Control.Wizard {
 
             this.ChangeButtonStatus();
 
-            this.OnAfterPageChange(EventArgs.Empty);
+            this.OnAfterPageChange(new AfterPageChangeEventArgs(prevPageIndex,nextPageIndex2));
+
+            return true;
         }
+
+        /// <summary>
+        /// ボタンの状態を変更します。
+        /// </summary>
         private void ChangeButtonStatus() {
             this.goNextButton.Text = this.CanGoNext ? "次へ" : "完了";
             this.goBackButton.Enabled = this.CanGoBack;
@@ -373,4 +407,146 @@ namespace LibraryExplorer.Control.Wizard {
         #endregion
 
     }
+
+    #region Before/After PageChangeイベント
+
+    #region  EventHandler
+    /// <summary>
+    /// BeforePageChangeイベントのデリゲートです。
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    public delegate void BeforePageChangeEventHandler(object sender, BeforePageChangeEventArgs e);
+
+    /// <summary>
+    /// AfterPageChangeイベントのデリゲートです。
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    public delegate void AfterPageChangeEventHandler(object sender, AfterPageChangeEventArgs e);
+    
+    #endregion
+
+    #region BeforePageChangeEventArgs
+    /// <summary>
+    /// BeforePageChangeイベントのデータを格納するクラスです。
+    /// イベントハンドラにてCancel、NextPageの設定を行うことで、ページ遷移のコントロールを行うことができます。
+    /// </summary>
+    public class BeforePageChangeEventArgs:EventArgs {
+
+        #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region PreviousPage
+        private int m_PreviousPage;
+        /// <summary>
+        /// PreviousPageを取得します。
+        /// </summary>
+        public int PreviousPage {
+            get {
+                return this.m_PreviousPage;
+            }
+        }
+        #endregion
+
+        #region NextPage
+        private int m_NextPage;
+        /// <summary>
+        /// NextPageを取得、設定します。
+        /// </summary>
+        public int NextPage {
+            get {
+                return this.m_NextPage;
+            }
+            set {
+                this.m_NextPage = value;
+            }
+        }
+        #endregion
+
+        #region Cancel
+        private bool m_Cancel;
+        /// <summary>
+        /// Cancelを取得、設定します。
+        /// </summary>
+        public bool Cancel {
+            get {
+                return this.m_Cancel;
+            }
+            set {
+                this.m_Cancel = value;
+            }
+        }
+        #endregion
+
+
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// BeforePageChangeEventArgsオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="prevPage"></param>
+        /// <param name="nextPage"></param>
+        public BeforePageChangeEventArgs(int prevPage,int nextPage) {
+            this.m_PreviousPage = prevPage;
+            this.m_NextPage = nextPage;
+            this.m_Cancel = false;
+        }
+        #endregion
+
+    }
+    #endregion
+
+    #region AfterPageChangeEventArgs
+    /// <summary>
+    /// AfterPageChangeイベントのデータを格納するクラスです。
+    /// </summary>
+    public class AfterPageChangeEventArgs : EventArgs {
+
+        #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region PreviousPage
+        private int m_PreviousPage;
+        /// <summary>
+        /// PreviousPageを取得します。
+        /// </summary>
+        public int PreviousPage {
+            get {
+                return this.m_PreviousPage;
+            }
+        }
+        #endregion
+
+        #region NextPage
+        private int m_NextPage;
+        /// <summary>
+        /// NextPageを取得します。
+        /// </summary>
+        public int NextPage {
+            get {
+                return this.m_NextPage;
+            }
+        }
+        #endregion
+
+
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// AfterPageChangeEventArgsオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="prevPage"></param>
+        /// <param name="nextPage"></param>
+        public AfterPageChangeEventArgs(int prevPage, int nextPage) {
+            this.m_PreviousPage = prevPage;
+            this.m_NextPage = nextPage;
+        }
+        #endregion
+
+    }
+    #endregion
+
+    #endregion
+
 }
