@@ -74,16 +74,16 @@
     <Compile Include="Controller\ILibraryController.cs" />
     <Compile Include="Controller\LibraryFileController.cs" />
     <Compile Include="Controller\LibraryFileControllerBase.cs" />
-    <Compile Include="Control\EditableWizardControl.cs">
+    <Compile Include="Control\Wizard\EditableWizardControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Control\EditableWizardControl.Designer.cs">
+    <Compile Include="Control\Wizard\EditableWizardControl.Designer.cs">
       <DependentUpon>EditableWizardControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Control\FolderCompareWizard.cs">
+    <Compile Include="Control\Wizard\FolderCompareWizard.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Control\FolderCompareWizard.Designer.cs">
+    <Compile Include="Control\Wizard\FolderCompareWizard.Designer.cs">
       <DependentUpon>FolderCompareWizard.cs</DependentUpon>
     </Compile>
     <Compile Include="Control\LibraryExplorerList.cs">
@@ -184,10 +184,10 @@
     <Compile Include="Window\DockWindow\PreviewWindow.Designer.cs">
       <DependentUpon>PreviewWindow.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Control\EditableWizardControl.resx">
+    <EmbeddedResource Include="Control\Wizard\EditableWizardControl.resx">
       <DependentUpon>EditableWizardControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Control\FolderCompareWizard.resx">
+    <EmbeddedResource Include="Control\Wizard\FolderCompareWizard.resx">
       <DependentUpon>FolderCompareWizard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Control\LibraryExplorerList.resx">

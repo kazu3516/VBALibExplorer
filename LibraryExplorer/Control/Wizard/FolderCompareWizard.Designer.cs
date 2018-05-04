@@ -1,4 +1,4 @@
-﻿namespace LibraryExplorer.Control {
+﻿namespace LibraryExplorer.Control.Wizard {
     partial class FolderCompareWizard {
         /// <summary> 
         /// 必要なデザイナー変数です。

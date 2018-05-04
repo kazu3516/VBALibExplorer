@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LibraryExplorer.Control {
+namespace LibraryExplorer.Control.Wizard {
 
     //TODO:フォルダ比較ウィザードの実装
 

@@ -23,7 +23,7 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.folderCompareWizard1 = new LibraryExplorer.Control.FolderCompareWizard();
+            this.folderCompareWizard1 = new LibraryExplorer.Control.Wizard.FolderCompareWizard();
             this.SuspendLayout();
             // 
             // folderCompareWizard1
@@ -51,6 +51,6 @@
 
         #endregion
 
-        private Control.FolderCompareWizard folderCompareWizard1;
+        private Control.Wizard.FolderCompareWizard folderCompareWizard1;
     }
 }

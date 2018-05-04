@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ctrl = System.Windows.Forms.Control;
 
-namespace LibraryExplorer.Control {
+namespace LibraryExplorer.Control.Wizard {
 
     /// <summary>
     /// TabControlに各ステップのUIを定義できるウィザードコントロール
