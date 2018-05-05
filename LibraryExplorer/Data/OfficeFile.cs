@@ -161,6 +161,18 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region TemporaryFolder
+        private LibraryFolder m_TemporaryFolder;
+        /// <summary>
+        /// TemporaryFolderを取得します。
+        /// </summary>
+        public LibraryFolder TemporaryFolder {
+            get {
+                return this.m_TemporaryFolder;
+            }
+        }
+        #endregion
+
 
 
         #region PropertyChanged/SetProperty
@@ -472,6 +484,9 @@ namespace LibraryExplorer.Data {
         public void CreateTemporaryFolder() {
             this.m_TemporaryFolderName = this.GetTemporaryFolderName();
             this.CreateTemporaryFolder(this.m_TemporaryFolderName);
+            //作成されたTemporaryFolderを表すLibraryFolderオブジェクトも作成しておく
+            this.m_TemporaryFolder = new LibraryFolder() { Path = this.m_TemporaryFolderName };
+
         }
 
         /// <summary>

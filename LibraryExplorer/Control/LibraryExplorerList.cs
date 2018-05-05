@@ -411,20 +411,18 @@ namespace LibraryExplorer.Control {
 
             if (Directory.Exists(targetPath)) {
                 List<LibraryFile> files = this.TargetFolder?.GetLibraryFiles();
-                if (files != null) {
-                    AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Show Files. count={files.Count}");
+                AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Show Files. count={files.Count()}");
 
-                    //ListViewItemがfilesになければ削除
-                    this.OnRemoveDiscardedItem(files);
+                //ListViewItemがfilesになければ削除
+                this.OnRemoveDiscardedItem(files);
 
-                    //ListViewに無いFileを追加
-                    this.OnAddRequisiteItem(files);
+                //ListViewに無いFileを追加
+                this.OnAddRequisiteItem(files);
 
-                    //列幅調整
-                    this.ResizeColumns();
+                //列幅調整
+                this.ResizeColumns();
 
-                    AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Add ListViewItem complete. count={this.listView1.Items.Count}");
-                }
+                AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Add ListViewItem complete. count={this.listView1.Items.Count}");
             }
 
         }

@@ -1136,8 +1136,11 @@ namespace LibraryExplorer.Window {
         //デバッグ用
         private void folderCompareWizardの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
             FolderCompareWizardDialog dialog = new FolderCompareWizardDialog();
+            dialog.TargetProject = this.m_Project;
+            dialog.TargetFile = this.SelectedOfficeFile;
             dialog.ShowDialog();
         }
+
         #endregion
     }
 

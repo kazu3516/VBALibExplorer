@@ -128,13 +128,25 @@ namespace LibraryExplorer.Data {
         /// </summary>
         /// <returns></returns>
         public List<LibraryFile> GetLibraryFiles() {
-            if (Directory.Exists(this.Path)) {
-                return Directory.GetFiles(this.Path).Where(x => LibraryFile.IsTargetFile(x))
-                    .Select<string, LibraryFile>(x => LibraryFile.FromFile(x)).ToList();
-            }
-            return null;
+            //if (Directory.Exists(this.Path)) {
+            //    return Directory.GetFiles(this.Path).Where(x => LibraryFile.IsTargetFile(x))
+            //        .Select<string, LibraryFile>(x => LibraryFile.FromFile(x)).ToList();
+            //}
+            //return null;
+
+            return this.GetLibraryFiles_Enumerable().ToList();
         }
 
-        
+        /// <summary>
+        /// このフォルダに含まれるライブラリファイルを列挙するIEnumerableを返します。
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<LibraryFile> GetLibraryFiles_Enumerable() {
+            if (Directory.Exists(this.Path)) {
+                return Directory.GetFiles(this.Path).Where(x => LibraryFile.IsTargetFile(x))
+                    .Select<string, LibraryFile>(x => LibraryFile.FromFile(x));
+            }
+            return Enumerable.Empty<LibraryFile>();
+        }
     }
 }

@@ -203,6 +203,7 @@ namespace LibraryExplorer.Data {
         /// <param name="predicate"></param>
         /// <returns></returns>
         public IList<LibraryFolder> FindAll(Predicate<LibraryFolder> predicate) {
+            //Tree.FndAllはTreeItemのリストを返すので、SelectでLibraryFolderに変換して返す
             return this.m_Tree.FindAll(x => predicate(x.Value)).Select(x => x.Value).ToList();
         } 
         #endregion

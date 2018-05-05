@@ -59,7 +59,7 @@ namespace LibraryExplorer.Window.DockWindow {
         }
 
         private void M_ExcelFileController_TargetFileChanged(object sender, Controller.EventArgs<ExcelFile> e) {
-            this.TargetFolder = new LibraryFolder() { Path = this.TargetFile.TemporaryFolderName };
+            this.TargetFolder = this.TargetFile.TemporaryFolder;
         }
 
 
@@ -82,7 +82,7 @@ namespace LibraryExplorer.Window.DockWindow {
 
             await this.TargetFile.ExportAll(true);
             //Exportが終わったらTargetFolderの設定を行う。
-            this.TargetFolder = new LibraryFolder() { Path = this.TargetFile.TemporaryFolderName };
+            this.TargetFolder = this.TargetFile.TemporaryFolder;
 
             this.Cursor = Cursors.Default;
             this.m_ExportComplete = true;

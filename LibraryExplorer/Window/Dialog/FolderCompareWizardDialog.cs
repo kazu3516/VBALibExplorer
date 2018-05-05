@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Control.Wizard;
+using LibraryExplorer.Data;
+
 namespace LibraryExplorer.Window.Dialog {
 
     /// <summary>
@@ -17,6 +19,36 @@ namespace LibraryExplorer.Window.Dialog {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region TargetFile
+        /// <summary>
+        /// TargetFileを取得、設定します。
+        /// </summary>
+        public OfficeFile TargetFile {
+            get {
+                return this.folderCompareWizard1.TargetFile;
+            }
+            set {
+                this.folderCompareWizard1.TargetFile = value;
+            }
+        }
+        #endregion
+        
+        #region TargetProject
+        /// <summary>
+        /// TargetProjectを取得、設定します。
+        /// </summary>
+        public LibraryProject TargetProject {
+            get {
+                return this.folderCompareWizard1.TargetProject;
+            }
+            set {
+                this.folderCompareWizard1.TargetProject = value;
+            }
+        }
+        #endregion
+
+
 
         #endregion
 

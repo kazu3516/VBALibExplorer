@@ -12,11 +12,15 @@ using ctrl = System.Windows.Forms.Control;
 namespace LibraryExplorer.Control.Wizard {
 
     /// <summary>
-    /// TabControlに各ステップのUIを定義できるウィザードコントロール
-    /// Startメソッドを呼ぶと、TabControlを非表示にし、TabPageの内容を順に表示していく。
+    /// TabControlに各ステップのUIを定義できるウィザードコントロールです。
+    /// Startメソッドを呼ぶと、TabControlを非表示にし、TabPageの内容を順に表示します。
+    /// 
+    /// 
     /// </summary>
+    /// <remarks>Anchorプロパティ等を使用したレイアウトをコントロールするためには、TabPage直下にPanelを定義し、ユーザはPanel上にコントロールを配置してください。</remarks>
     public partial class EditableWizardControl : UserControl {
 
+        //NOTE:InitializePageで各TabPageのコントロールをPanelに移し替えているが、Anchor等のレイアウトが一致しない。手動でPanelを追加し、その上にレイアウトすることで、パネルの移し替えが発生しなくなるため、回避できる。（条件：TabPage.Controls.Count == 1 && TabPage.Controls[0] is Panelであること）
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
@@ -129,25 +133,35 @@ namespace LibraryExplorer.Control.Wizard {
 
 
         #region CanGoNext
+        private bool m_CanGoNext;
         /// <summary>
         /// 次へ進めるかどうかを取得します。
         /// </summary>
         [Browsable(false)]
         public bool CanGoNext {
             get {
-                return this.m_CurrentStepNo < this.tabControl1.TabPages.Count - 1;
+                return this.m_CanGoNext && this.m_CurrentStepNo < this.tabControl1.TabPages.Count - 1;
+            }
+            protected set {
+                this.m_CanGoNext = value;
+                this.ChangeButtonStatus();
             }
         }
         #endregion
 
         #region CanGoBack
+        private bool m_CanGoBack;
         /// <summary>
         /// 前に戻れるかどうかを取得します。
         /// </summary>
         [Browsable(false)]
         public bool CanGoBack {
             get {
-                return 0 < this.m_CurrentStepNo;
+                return this.m_CanGoBack && 0 < this.m_CurrentStepNo;
+            }
+            protected set {
+                this.m_CanGoBack = value;
+                this.ChangeButtonStatus();
             }
         }
 
@@ -166,6 +180,8 @@ namespace LibraryExplorer.Control.Wizard {
 
             this.m_CurrentStepNo = 0;
             this.m_Initialized = false;
+            this.m_CanGoNext = true;
+            this.m_CanGoBack = true;
             this.m_CurrentPanel = null;
 
         }
@@ -231,7 +247,11 @@ namespace LibraryExplorer.Control.Wizard {
                 //Panelを作成し、コントロールを移動
                 Panel panel = new Panel();
                 panel.BorderStyle = BorderStyle.None;
+                panel.Size = this.Size;
+
+                panel.SuspendLayout();
                 panel.Controls.AddRange(page.Controls.Cast<ctrl>().ToArray());
+                panel.ResumeLayout();
 
                 //もとのコントロールは移動されるため削除不要
                 //page.Controls.Clear();
@@ -331,7 +351,11 @@ namespace LibraryExplorer.Control.Wizard {
             if (e.Cancel || !validNextPage) {
                 return false;
             }
-            
+
+            //遷移条件のリセット
+            this.m_CanGoBack = true;
+            this.m_CanGoNext = true;
+
             //===========================================
             //現在表示しているページを元に戻す
             if (0<= prevPageIndex) {
@@ -351,10 +375,12 @@ namespace LibraryExplorer.Control.Wizard {
 
                 //---------------------------------
                 this.SuspendLayout();
+                this.MainPanel.SuspendLayout();
 
                 this.m_CurrentPanel.Dock = DockStyle.Fill;
 
                 this.MainPanel.Controls.Add(this.m_CurrentPanel);
+                this.MainPanel.ResumeLayout();
                 this.ResumeLayout();
                 //---------------------------------
             }
@@ -370,7 +396,15 @@ namespace LibraryExplorer.Control.Wizard {
         /// ボタンの状態を変更します。
         /// </summary>
         private void ChangeButtonStatus() {
-            this.goNextButton.Text = this.CanGoNext ? "次へ" : "完了";
+            if (this.m_CurrentStepNo == this.TabPages.Count - 1) {
+                this.goNextButton.Text = "完了";
+                this.goNextButton.Enabled = true;
+            }
+            else {
+                this.goNextButton.Text = "次へ";
+                this.goNextButton.Enabled = this.CanGoNext;
+            }
+            
             this.goBackButton.Enabled = this.CanGoBack;
         }
 
