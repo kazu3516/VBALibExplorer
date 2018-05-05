@@ -30,6 +30,10 @@ namespace LibraryExplorer.Control.Wizard {
         //対象ライブラリ
         private List<Library> m_TargetLibraries;
 
+        //一時フォルダにコピーするファイルのリスト
+        private List<string> m_ModulePathList;
+
+
         #region TargetFile
         private OfficeFile m_TargetFile;
         /// <summary>
@@ -60,6 +64,19 @@ namespace LibraryExplorer.Control.Wizard {
         }
         #endregion
 
+
+        #region OutputFolder
+        private LibraryFolder m_OutputFolder;
+        /// <summary>
+        /// OutputFolderを取得します。
+        /// </summary>
+        public LibraryFolder OutputFolder {
+            get {
+                return this.m_OutputFolder;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region コンストラクタ
@@ -78,14 +95,9 @@ namespace LibraryExplorer.Control.Wizard {
         /// </summary>
         protected override void OnStart() {
             base.OnStart();
-            //対象ファイル
-            this.targetFileNameTextBox1.Text = Path.GetFileName(this.TargetFile?.FileName ?? "");
-            this.targetFileNameTextBox1.SelectionStart = 0;
-            //対象プロジェクト
-            this.targetLibraryNameListView1.Items.Clear();
-            this.TargetProject.Libraries.ForEach(lib => {
-                this.targetLibraryNameListView1.Items.Add(new ListViewItem(Path.GetFileName(lib.TargetFolder)) { Tag = lib});
-            });
+
+            this.OnShowStartPage();
+
         }
 
         /// <summary>
@@ -97,26 +109,92 @@ namespace LibraryExplorer.Control.Wizard {
             //TODO:以下、ウィザードのページNo毎に処理を記載する。
             switch (this.CurrentStepNo) {
                 case 0:
-                    //GoNextで0に遷移することは無い
+                    //GoNextで0に遷移することは無いため処理無し
                     break;
                 case 1:
                     //モジュールの検索
                     this.SearchLibraryModules();
                     break;
                 case 2:
-                    //対応するモジュールのリストを作成(OnFinishで一時フォルダを作成しコピーする。
+                    //対応するモジュールのリストを作成
                     this.CreateModuleList();
+                    break;
+                case 3:
+                    //一時フォルダにファイルをコピー
+                    //ファイルの比較
+                    //一時フォルダのパスを表示
+                    this.ShowResultPage();
                     break;
             }
         }
-        /// <summary>
-        /// Finish時の動作をオーバーライドします。
-        /// </summary>
-        protected override void OnFinish() {
-            base.OnFinish();
 
-            this.CopyFileToTempFolder();
+        /// <summary>
+        /// 次へボタンのテキストを設定します。
+        /// </summary>
+        /// <param name="text"></param>
+        protected override void SetGoNextButtonText(string text) {
+            switch (this.CurrentStepNo) {
+                case 2:
+                    //2ページのみ[次へ]を[開始]に変更します。3ページは後戻り不可。
+                    text = "開始";
+                    break;
+                default:
+                    //その他はデフォルトのテキストから変更しない
+                    break;
+            }
+            base.SetGoNextButtonText(text);
         }
+        #endregion
+
+        #region Page0:スタートページ
+
+        #region イベントハンドラ
+        /// <summary>
+        /// 対象ライブラリのチェック状態が変更されたとき
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void targetLibraryNameListView1_ItemChecked(object sender, ItemCheckedEventArgs e) {
+            //ボタン状態、エラー表示のために、検証を行う
+            this.Validate_Page0();
+        }
+
+        #endregion
+
+        #region OnShowStartPage
+        /// <summary>
+        /// スタートページを表示します。
+        /// </summary>
+        private void OnShowStartPage() {
+            //対象ファイル
+            this.targetFileNameTextBox1.Text = Path.GetFileName(this.TargetFile?.FileName ?? "");
+            this.targetFileNameTextBox1.SelectionStart = 0;
+            //対象プロジェクト
+            this.targetLibraryNameListView1.Items.Clear();
+            this.TargetProject.Libraries.ForEach(lib => {
+                this.targetLibraryNameListView1.Items.Add(new ListViewItem(Path.GetFileName(lib.TargetFolder)) { Tag = lib, Checked = true });
+            });
+            //ボタン状態、エラー表示のために、検証を行う
+            this.Validate_Page0();
+        } 
+        #endregion
+
+        #region Validate_Page0
+        /// <summary>
+        /// Page0の検証を行います。
+        /// </summary>
+        private void Validate_Page0() {
+            //対象ライブラリ0個は不可
+            bool librarySelected = this.targetLibraryNameListView1.CheckedItems.Count != 0;
+            //対象ファイルが指定されていること
+            bool isNullTarget = (this.TargetFile == null);
+
+            this.errorLabel1.Visible = isNullTarget;
+            this.errorLabel2.Visible = !librarySelected;
+
+            this.CanGoNext = !isNullTarget && librarySelected;
+        } 
+        #endregion
 
         #endregion
 
@@ -132,7 +210,7 @@ namespace LibraryExplorer.Control.Wizard {
             this.ChangeTargetLibraryModuleSelectedStatus();
         }
         private void ファイルを開くOToolStripMenuItem_Click(object sender, EventArgs e) {
-            //ライブラリのModuleを開く
+            //TODO:ライブラリのModuleを開く
         }
 
         #endregion
@@ -537,16 +615,69 @@ namespace LibraryExplorer.Control.Wizard {
         #endregion
 
         #region Page2:対応するモジュールのリスト作成
+
         private void CreateModuleList() {
-            //TODO:モジュールのリスト作成
+            //====================================================================================
+            //1ページ終了の処理
+
+            //モジュールのリスト作成
+            this.m_ModulePathList = this.m_TargetLibraryPairs?
+                .Where(pair => pair.PairFileList.Count > 0)
+                .Select(pair => {
+                    if (pair.PairFileList.Count == 1) {
+                        return pair.PairFileList[0].TargetFile.FileName;
+                    }
+                    else {
+                        return pair.PairFileList.First(file => file.Selected).TargetFile.FileName;
+                    }
+                })
+                .ToList();
+            //該当ファイル無しはスキップ
+            //該当ファイルが一つならば無条件で採用。
+            //そうでない場合、Selected==trueのファイルを採用
+
+            //====================================================================================
+            //2ページ開始の処理
+            
+            //特になし
         }
         #endregion
 
-        #region 完了
+        #region Page3:一時フォルダへコピーして比較 (完了ページの表示)
 
-        private void CopyFileToTempFolder() {
+        private void ShowResultPage() {
+            //このページが表示された段階で、戻る/キャンセル不可。
+            this.CanGoBack = false;
+            this.CanCancel = false;
+            //====================================================================================
+            //2ページ終了の処理
+
+            //特になし
+
+            //====================================================================================
+            //3ページ開始の処理
+            TemporaryFolder tempFolder = new TemporaryFolder();
+            tempFolder.Create();
+
+            this.m_OutputFolder = tempFolder;
+            
             //TODO:一時フォルダへファイルをコピー
+
+            //TODO:一時フォルダのパスを表示
+
+            //TODO:ファイル比較を実行
+            //TODO:外部ツール機能を実装する。
+
         }
+
+        private void CopyTemporaryFolder() {
+        }
+
+        private void CheckDiff() {
+        }
+
+
+
 
         #endregion
 

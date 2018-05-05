@@ -167,6 +167,23 @@ namespace LibraryExplorer.Control.Wizard {
 
         #endregion
 
+        #region CanCancel
+        private bool m_CanCancel;
+        /// <summary>
+        /// Cancelボタンが有効かどうかを取得します。
+        /// </summary>
+        public bool CanCancel {
+            get {
+                return this.m_CanCancel;
+            }
+            protected set {
+                this.m_CanCancel = value;
+                this.ChangeButtonStatus();
+            }
+        }
+        #endregion
+
+
 
         #endregion
 
@@ -182,6 +199,8 @@ namespace LibraryExplorer.Control.Wizard {
             this.m_Initialized = false;
             this.m_CanGoNext = true;
             this.m_CanGoBack = true;
+            this.m_CanCancel = true;
+
             this.m_CurrentPanel = null;
 
         }
@@ -311,10 +330,15 @@ namespace LibraryExplorer.Control.Wizard {
         /// ウィザードをキャンセルします。
         /// </summary>
         public void Cancel() {
+            if (!this.CanCancel) {
+                return;
+            }
+            
+            int canceledStepNo = this.m_CurrentStepNo;
 
             if (this.ChangePage(this.m_CurrentStepNo, -1)) {
 
-                this.OnCancel();
+                this.OnCancel(canceledStepNo);
 
                 this.OnWizardCanceled(EventArgs.Empty);
 
@@ -344,7 +368,6 @@ namespace LibraryExplorer.Control.Wizard {
             BeforePageChangeEventArgs e = new BeforePageChangeEventArgs(prevPageIndex, nextPageIndex2);
             this.OnBeforePageChange(e);
 
-
             //変更されたNextPageの検証
             bool validNextPage = (0 <= nextPageIndex2 && nextPageIndex2 < this.TabPages.Count);
             //Page変更しない場合、falseを返す
@@ -355,10 +378,11 @@ namespace LibraryExplorer.Control.Wizard {
             //遷移条件のリセット
             this.m_CanGoBack = true;
             this.m_CanGoNext = true;
+            this.m_CanCancel = true;
 
             //===========================================
             //現在表示しているページを元に戻す
-            if (0<= prevPageIndex) {
+            if (0 <= prevPageIndex) {
                 TabPage prevPage = this.TabPages[prevPageIndex];
                 prevPage.Controls.Add(this.m_CurrentPanel);
             }
@@ -391,21 +415,33 @@ namespace LibraryExplorer.Control.Wizard {
 
             return true;
         }
+        #endregion
 
+        #region ChangeButtonStatus
         /// <summary>
         /// ボタンの状態を変更します。
         /// </summary>
         private void ChangeButtonStatus() {
             if (this.m_CurrentStepNo == this.TabPages.Count - 1) {
-                this.goNextButton.Text = "完了";
+                this.SetGoNextButtonText("完了");
                 this.goNextButton.Enabled = true;
             }
             else {
-                this.goNextButton.Text = "次へ";
+                this.SetGoNextButtonText("次へ");
                 this.goNextButton.Enabled = this.CanGoNext;
             }
             
             this.goBackButton.Enabled = this.CanGoBack;
+            this.cancelButton.Enabled = this.CanCancel;
+        }
+
+        /// <summary>
+        /// 次へボタンのテキストを設定します。
+        /// 派生クラスでオーバーライドされると、次へボタンのテキストを独自に変更することができます。
+        /// </summary>
+        /// <param name="text"></param>
+        protected virtual void SetGoNextButtonText(string text) {
+            this.goNextButton.Text = text;
         }
 
         #endregion
@@ -415,26 +451,34 @@ namespace LibraryExplorer.Control.Wizard {
         #region 各ページ遷移のタイミングで呼び出されるvirtualメソッド
         /// <summary>
         /// 派生クラスでオーバーライドされると、Start時の動作を定義します。
+        /// このメソッドが呼び出されたタイミングでは、CurrentStepNoプロパティの値は0が設定されています。
         /// </summary>
         protected virtual void OnStart() {
         }
         /// <summary>
         /// 派生クラスでオーバーライドされると、GoNext時の動作を定義します。
+        /// このメソッドが呼び出されたタイミングでは、CurrentStepNoプロパティの値は次のページに移っています。
         /// </summary>
         protected virtual void OnGoNext() {
         }
         /// <summary>
         /// 派生クラスでオーバーライドされると、GoBack時の動作を定義します。
-        /// </summary>
+        /// このメソッドが呼び出されたタイミングでは、CurrentStepNoプロパティの値は前のページに移っています。
+        /// /// </summary>
         protected virtual void OnGoBack() {
         }
         /// <summary>
         /// 派生クラスでオーバーライドされると、Cancel時の動作を定義します。
+        /// このメソッドが呼び出されたタイミングでは、CurrentStepNoプロパティの値は-1が設定されています。
+        /// キャンセル前のStepNoは引数 canceledStepNoとして渡されます。
         /// </summary>
-        protected virtual void OnCancel() {
+        /// <param name="canceledStepNo"></param>
+        protected virtual void OnCancel(int canceledStepNo) {
         }
         /// <summary>
         /// 派生クラスでオーバーライドされると、Finish時の動作を定義します。
+        /// このメソッドが呼び出されたタイミングでは、CurrentStepNoプロパティの値は-1が設定されています。
+        /// Finishは必ず最終Stepで実行されます。最終StepNoはTabPages.Count - 1を使用してください。
         /// </summary>
         protected virtual void OnFinish() {
         }
