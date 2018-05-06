@@ -32,6 +32,23 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region FolderNameFormatString
+        private string m_FolderNameFormatString;
+        /// <summary>
+        /// FolderNameFormatStringを取得、設定します。
+        /// </summary>
+        public string FolderNameFormatString {
+            get {
+                return this.m_FolderNameFormatString;
+            }
+            set {
+                this.m_FolderNameFormatString = value;
+            }
+        }
+        #endregion
+
+
+
         #endregion
 
         #region コンストラクタ
@@ -40,6 +57,7 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public TemporaryFolder():base() {
             this.m_TemporaryFolderName = "";
+            this.m_FolderNameFormatString = $"yyyyMMdd_HHmmss";
         }
 
         #region IDisposable Support
@@ -176,7 +194,7 @@ namespace LibraryExplorer.Data {
         /// </summary>
         /// <returns></returns>
         protected virtual string GenerateTemporaryFolderName() {
-            return DateTime.Now.ToString($"yyyyMMdd_HHmmss");
+            return DateTime.Now.ToString(this.m_FolderNameFormatString);
         }
 
         /// <summary>

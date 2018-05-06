@@ -284,9 +284,8 @@ namespace LibraryExplorer.Control {
             this.エクスプローラを開くOToolStripMenuItem.Visible = this.SelectedFolder != null;
 
 
-            this.全て展開EToolStripMenuItem.Enabled = this.m_LibraryRootNode.Nodes.Count != 0;
-            this.全て折りたたむCToolStripMenuItem.Enabled = this.m_LibraryRootNode.Nodes.Count != 0;
-
+            this.全て展開EToolStripMenuItem.Enabled = (this.treeView1.Nodes.Cast<TreeNode>().Select(node=>node.Nodes.Count).Sum()) != 0;
+            this.全て折りたたむCToolStripMenuItem.Enabled = (this.treeView1.Nodes.Cast<TreeNode>().Select(node => node.Nodes.Count).Sum()) != 0;
         }
 
         private void エクスプローラを開くOToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -433,7 +432,6 @@ namespace LibraryExplorer.Control {
 
                     //ノードのクリア
                     this.treeView1.Nodes.Clear();
-                    this.m_LibraryRootNode.Nodes.Clear();
                     //ノードの再構築
                     this.treeView1.Nodes.Add(this.m_LibraryRootNode);
                     this.treeView1.Nodes.Add(this.m_FileRootNode);

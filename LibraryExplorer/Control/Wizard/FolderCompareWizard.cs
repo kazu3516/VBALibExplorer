@@ -18,6 +18,9 @@ namespace LibraryExplorer.Control.Wizard {
 
     /// <summary>
     /// フォルダ比較ウィザードを表すクラスです。
+    /// 対象のOfficeFileからエクスポートされたModuleをベースに、
+    /// 同じファイル名を持つファイルをライブラリから検索し、テキストとして比較します。
+    /// 同じファイル名のファイルが複数見つかった場合、どのファイルを使用するかを手動で選択することができます。
     /// </summary>
     public partial class FolderCompareWizard : EditableWizardControl {
 
@@ -656,17 +659,25 @@ namespace LibraryExplorer.Control.Wizard {
 
             //====================================================================================
             //3ページ開始の処理
-            TemporaryFolder tempFolder = new TemporaryFolder();
-            tempFolder.Create();
 
+            TemporaryFolder tempFolder = new TemporaryFolder();
+            tempFolder.FolderNameFormatString = $"Lib_yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
+            tempFolder.Create();
+            this.m_ModulePathList.ForEach(filename => {
+                string dstName = Path.Combine(tempFolder.Path, Path.GetFileName(filename));
+                File.Copy(filename, dstName, true);
+            });
             this.m_OutputFolder = tempFolder;
-            
-            //TODO:一時フォルダへファイルをコピー
+
 
             //TODO:一時フォルダのパスを表示
+            this.targetFileTempFolderTextBox1.Text = this.TargetFile.TemporaryFolder.Path;
+            this.targetLibraryTempFolderTextBox1.Text = tempFolder.Path;
 
             //TODO:ファイル比較を実行
             //TODO:外部ツール機能を実装する。
+
+            //TODO:一時フォルダをいつ削除するのかを検討(OfficeFileと同様にProjectに登録して、アプリケーション終了時に削除？⇒ファイナライザを実装したので終了時には消えた。。。再比較や閉じるにも対応したい。)
 
         }
 
