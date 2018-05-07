@@ -308,11 +308,73 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
+        #endregion
+
+        #region 比較ツール設定
+
+        #region DiffToolPath
+        private string m_DiffToolPath;
+        /// <summary>
+        /// DiffToolPathが変更された場合に発生するイベントです。
+        /// </summary>
+        public event EventHandler<EventArgs<string>> DiffToolPathChanged;
+        /// <summary>
+        /// DiffToolPathが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnDiffToolPathChanged(EventArgs<string> e) {
+            this.DiffToolPathChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// DiffToolPathを取得、設定します。
+        /// </summary>
+        public string DiffToolPath {
+            get {
+                return this.m_DiffToolPath;
+            }
+            set {
+                this.SetProperty(ref this.m_DiffToolPath, value, ((oldValue) => {
+                    if (this.DiffToolPathChanged != null) {
+                        this.OnDiffToolPathChanged(new EventArgs<string>(oldValue));
+                    }
+                }));
+            }
+        }
+        #endregion
+
+        #region DiffToolArguments
+        private string m_DiffToolArguments;
+        /// <summary>
+        /// DiffToolArgumentsが変更された場合に発生するイベントです。
+        /// </summary>
+        public event EventHandler<EventArgs<string>> DiffToolArgumentsChanged;
+        /// <summary>
+        /// DiffToolArgumentsが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnDiffToolArgumentsChanged(EventArgs<string> e) {
+            this.DiffToolArgumentsChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// DiffToolArgumentsを取得、設定します。
+        /// </summary>
+        public string DiffToolArguments {
+            get {
+                return this.m_DiffToolArguments;
+            }
+            set {
+                this.SetProperty(ref this.m_DiffToolArguments, value, ((oldValue) => {
+                    if (this.DiffToolArgumentsChanged != null) {
+                        this.OnDiffToolArgumentsChanged(new EventArgs<string>(oldValue));
+                    }
+                }));
+            }
+        }
+        #endregion
 
         #endregion
 
         #region Script
-
 
         #region ExcelModuleExportScriptName
         private string m_ExcelModuleExportScriptName;
@@ -344,8 +406,9 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
-
         #endregion
+
+
 
 
         #region PropertyChanged/SetProperty
@@ -495,6 +558,10 @@ namespace LibraryExplorer.Common {
             this.m_EditorPath = srcAppInfo.m_EditorPath;
             this.m_EditorArguments = srcAppInfo.m_EditorArguments;
 
+            //比較ツール設定
+            this.m_DiffToolPath = srcAppInfo.m_DiffToolPath;
+            this.m_DiffToolArguments = srcAppInfo.m_DiffToolArguments;
+
             //スクリプト
             this.m_ExcelModuleExportScriptName = srcAppInfo.m_ExcelModuleExportScriptName;
             this.m_ExcelModuleImportScriptName = srcAppInfo.m_ExcelModuleImportScriptName;
@@ -589,6 +656,9 @@ namespace LibraryExplorer.Common {
             //エディタ設定
             this.OnApplyEditorInfo();
 
+            //比較ツール設定
+            this.OnApplyDiffToolInfo();
+
             //スクリプト
             this.OnApplyScriptInfo();
 
@@ -612,6 +682,9 @@ namespace LibraryExplorer.Common {
 
             //エディタ設定
             this.OnReflectEditorInfo(config);
+
+            //比較ツール設定
+            this.OnReflectDiffToolInfo(config);
 
             //スクリプト
             this.OnReflectScriptInfo(config);
@@ -744,6 +817,27 @@ namespace LibraryExplorer.Common {
 
         #endregion
 
+        #region 比較ツール設定
+        /// <summary>
+        /// 比較ツール設定
+        /// </summary>
+        private void OnApplyDiffToolInfo() {
+            this.m_DiffToolPath = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:DiffTool.Path");
+            this.m_DiffToolArguments = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:DiffTool.Arguments");
+        }
+
+
+        /// <summary>
+        /// 比較ツール設定
+        /// </summary>
+        /// <param name="config"></param>
+        private void OnReflectDiffToolInfo(XmlConfigModel config) {
+            Config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Path", this.m_DiffToolPath);
+            Config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Arguments", this.m_DiffToolArguments);
+        }
+
+        #endregion
+
         #region スクリプト
         /// <summary>
         /// スクリプト
@@ -812,6 +906,10 @@ namespace LibraryExplorer.Common {
             //エディタ設定
             config.AddXmlContentsItem("setting.LibraryExplorer:Editor.Path", "");
             config.AddXmlContentsItem("setting.LibraryExplorer:Editor.Arguments", "");
+
+            //比較ツール設定
+            config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Path", "");
+            config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Arguments", "");
 
             //スクリプト
             config.AddXmlContentsItem("setting.LibraryExplorer:Script.ExcelModuleExport", "ExcelModuleExport.vbs");

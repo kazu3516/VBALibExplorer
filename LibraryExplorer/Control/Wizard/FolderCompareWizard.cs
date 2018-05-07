@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LibraryExplorer.Common;
 using LibraryExplorer.Data;
-
+using LibraryExplorer.Window;
 namespace LibraryExplorer.Control.Wizard {
 
     //TODO:フォルダ比較ウィザードの実装
@@ -660,6 +662,21 @@ namespace LibraryExplorer.Control.Wizard {
             //====================================================================================
             //3ページ開始の処理
 
+            //一時フォルダを作成してファイルをコピー
+            this.CopyTemporaryFolder();
+
+            //一時フォルダのパスを表示
+            this.ShowTemporaryFolderPath();
+
+            //TODO:ファイル比較を実行
+            //TODO:外部ツール機能を実装する。
+            this.CheckDiff();
+
+            //TODO:一時フォルダをいつ削除するのかを検討(OfficeFileと同様にProjectに登録して、アプリケーション終了時に削除？⇒ファイナライザを実装したので終了時には消えた。。。再比較や閉じるにも対応したい。)
+
+        }
+
+        private void CopyTemporaryFolder() {
             TemporaryFolder tempFolder = new TemporaryFolder();
             tempFolder.FolderNameFormatString = $"Lib_yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
             tempFolder.Create();
@@ -668,26 +685,103 @@ namespace LibraryExplorer.Control.Wizard {
                 File.Copy(filename, dstName, true);
             });
             this.m_OutputFolder = tempFolder;
-
-
-            //TODO:一時フォルダのパスを表示
-            this.targetFileTempFolderTextBox1.Text = this.TargetFile.TemporaryFolder.Path;
-            this.targetLibraryTempFolderTextBox1.Text = tempFolder.Path;
-
-            //TODO:ファイル比較を実行
-            //TODO:外部ツール機能を実装する。
-
-            //TODO:一時フォルダをいつ削除するのかを検討(OfficeFileと同様にProjectに登録して、アプリケーション終了時に削除？⇒ファイナライザを実装したので終了時には消えた。。。再比較や閉じるにも対応したい。)
-
         }
-
-        private void CopyTemporaryFolder() {
+        private void ShowTemporaryFolderPath() {
+            this.targetFileTempFolderTextBox1.Text = this.TargetFile.TemporaryFolder.Path;
+            this.targetLibraryTempFolderTextBox1.Text = this.m_OutputFolder.Path;
         }
 
         private void CheckDiff() {
+            //パスの設定
+            string diffToolPath = this.GetDiffToolPath();
+
+            if (diffToolPath != "") {
+
+                //引数の設定
+                string diffToolArguments = this.GetDiffToolArguments(this.TargetFile.TemporaryFolder, this.m_OutputFolder);
+                //プロセスの起動
+                this.StartProcess(diffToolPath, diffToolArguments);
+
+            }
+            else {
+                //外部ツールが指定されていない場合、標準機能(FolderCompareWindow)を使用する
+
+                LibraryExplorer.Window.DockWindow.FolderCompareWindow window = new LibraryExplorer.Window.DockWindow.FolderCompareWindow();
+                window.SourceFolderPath = this.TargetFile.TemporaryFolder.Path;
+                window.DestinationFolderPath = this.m_OutputFolder.Path;
+
+                window.Show();
+
+            }
         }
 
 
+        #region CheckDiff
+
+        /// <summary>
+        /// 比較ツールのパスと引数を起動してプロセスを起動します。
+        /// </summary>
+        /// <param name="diffToolPath"></param>
+        /// <param name="diffToolArguments"></param>
+        private void StartProcess(string diffToolPath, string diffToolArguments) {
+            ProcessStartInfo info = new ProcessStartInfo() { FileName = diffToolPath, Arguments = diffToolArguments };
+            Process process = new Process() { StartInfo = info };
+            try {
+                process.Start();
+            }
+            catch (Exception ex) {
+                string errorMessage = $"{this.GetType().Name}.CheckDiff プロセスの起動に失敗しました。Exception={ex.GetType().Name}, Message={ex.Message}, Path={diffToolPath}, Arguments={diffToolArguments}";
+                AppMain.logger.Error(errorMessage, ex);
+                throw new ApplicationException(errorMessage, ex);
+            }
+        }
+
+        /// <summary>
+        /// 比較ツールのパスを取得します。
+        /// 比較ツールが指定されていない場合、空文字列を返し、標準機能を使用します。
+        /// </summary>
+        /// <returns></returns>
+        private string GetDiffToolPath() {
+            string editorPath = AppMain.g_AppMain.AppInfo.DiffToolPath;
+            if (!File.Exists(editorPath)) {
+                editorPath = "";
+            }
+            return editorPath;
+        }
+
+        /// <summary>
+        /// 比較ツールの引数を指定します。
+        /// 引数内の%foldername1%,%foldername2%は指定したLibraryFolderのPathに置き換えられます。
+        /// </summary>
+        /// <param name="folder1"></param>
+        /// <param name="folder2"></param>
+        /// <returns></returns>
+        private string GetDiffToolArguments(LibraryFolder folder1,LibraryFolder folder2) {
+            string DiffToolArguments = AppMain.g_AppMain.AppInfo.DiffToolArguments;
+
+            if (!DiffToolArguments.Contains("%foldername1%")) {
+                //引数に%foldername1%が含まれていない場合、末尾に追加する
+                if (DiffToolArguments.Length > 0) {
+                    DiffToolArguments += " ";
+                }
+                DiffToolArguments += "%foldername1%";
+            }
+            if (!DiffToolArguments.Contains("%foldername2%")) {
+                //引数に%foldername2%が含まれていない場合、末尾に追加する
+                if (DiffToolArguments.Length > 0) {
+                    DiffToolArguments += " ";
+                }
+                DiffToolArguments += "%foldername2%";
+            }
+
+            DiffToolArguments = DiffToolArguments.Replace("%foldername1%", "\"" + folder1.Path + "\"");
+            DiffToolArguments = DiffToolArguments.Replace("%foldername2%", "\"" + folder2.Path + "\"");
+
+            return DiffToolArguments;
+        }
+        
+
+        #endregion
 
 
         #endregion

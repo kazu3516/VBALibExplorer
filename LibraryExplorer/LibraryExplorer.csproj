@@ -225,6 +225,9 @@
     <EmbeddedResource Include="Window\DockWindow\ExplorerTreeWindow.resx">
       <DependentUpon>ExplorerTreeWindow.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\FolderCompareWindow.resx">
+      <DependentUpon>FolderCompareWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Window\DockWindow\LibraryFileListWindow.resx">
       <DependentUpon>LibraryFileListWindow.cs</DependentUpon>
     </EmbeddedResource>

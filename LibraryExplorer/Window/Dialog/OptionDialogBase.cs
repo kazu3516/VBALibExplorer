@@ -40,7 +40,9 @@ namespace LibraryExplorer.Window.Dialog {
         /// <param name="propertyName"></param>
         /// <param name="bindObject"></param>
         /// <param name="bindPropertyName"></param>
-        protected void AddSingleDataBind(System.Windows.Forms.Control control,string propertyName,object bindObject,string bindPropertyName) {
+        /// <param name="clearDataBindings">trueを指定すると、既存のデータバインドを全て削除した後に、指定されたデータバインドを設定します。規定値はtrueです。</param>
+        protected void AddSingleDataBind(System.Windows.Forms.Control control,string propertyName,object bindObject,string bindPropertyName,bool clearDataBindings = true) {
+            control.DataBindings.Clear();
             control.DataBindings.Add(propertyName, bindObject, bindPropertyName, true, DataSourceUpdateMode.OnPropertyChanged);
         }
     }

@@ -268,7 +268,7 @@ namespace LibraryExplorer.Controller {
             string editorPath = this.GetEditorPath();
             //引数の設定
             string editorArguments = this.GetEditorArguments(file);
-            //プロセスの軌道
+            //プロセスの起動
             this.StartProcess(editorPath, editorArguments);
         }
 

@@ -370,8 +370,10 @@ namespace LibraryExplorer.Control.Wizard {
 
             //変更されたNextPageの検証
             bool validNextPage = (0 <= nextPageIndex2 && nextPageIndex2 < this.TabPages.Count);
+            //終了判定
+            bool finishedPage = (nextPageIndex2 == -1);
             //Page変更しない場合、falseを返す
-            if (e.Cancel || !validNextPage) {
+            if (e.Cancel || (!validNextPage && !finishedPage) ) {
                 return false;
             }
 

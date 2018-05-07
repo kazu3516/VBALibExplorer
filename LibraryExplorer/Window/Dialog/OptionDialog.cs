@@ -134,13 +134,15 @@ namespace LibraryExplorer.Window.Dialog {
         
         #region AppInfo
         private void OptionDialog_AppInfoChanged(object sender, EventArgs<AppInfo> e) {
-            if (this.m_AppInfo != null) {
-                
-                this.editorPathTextBox.DataBindings.Clear();
-                this.editorArgumentsTextBox.DataBindings.Clear();
+            if (this.m_AppInfo != null) {                
 
+                //エディタ設定
                 this.AddSingleDataBind(this.editorPathTextBox,"Text", this.m_AppInfo, "EditorPath");
                 this.AddSingleDataBind(this.editorArgumentsTextBox, "Text", this.m_AppInfo, "EditorArguments");
+                //ファイル比較
+                this.AddSingleDataBind(this.diffToolPathTextBox, "Text", this.m_AppInfo, "DiffToolPath");
+                this.AddSingleDataBind(this.diffToolArgumentsTextBox,"Text", this.m_AppInfo,"DiffToolArguments");
+
             }
         }
         #endregion
@@ -152,12 +154,24 @@ namespace LibraryExplorer.Window.Dialog {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void editorPathReferenceButton_Click(object sender, EventArgs e) {
-            this.openFileDialog1.FileName = this.editorPathTextBox.Text;
-            if (this.openFileDialog1.ShowDialog() == DialogResult.OK) {
-                this.editorPathTextBox.Text = this.openFileDialog1.FileName;
+            this.edhitorPathOpenFileDialog1.FileName = this.editorPathTextBox.Text;
+            if (this.edhitorPathOpenFileDialog1.ShowDialog() == DialogResult.OK) {
+                this.editorPathTextBox.Text = this.edhitorPathOpenFileDialog1.FileName;
             }
         }
 
+        /// <summary>
+        /// 比較ツールの参照ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void diffToolPathReferenceButton_Click(object sender, EventArgs e) {
+            this.diffToolPathOpenFileDialog1.FileName = this.diffToolPathTextBox.Text;
+            if (this.diffToolPathOpenFileDialog1.ShowDialog() == DialogResult.OK) {
+                this.diffToolPathTextBox.Text = this.diffToolPathOpenFileDialog1.FileName;
+            }
+
+        }
 
         #endregion
 
