@@ -328,7 +328,7 @@ namespace LibraryExplorer.Window {
                 this.Size = new Size(AppMain.g_AppMain.AppInfo.MainWindowWidth, AppMain.g_AppMain.AppInfo.MainWindowHeight);
                 this.Location = new Point(AppMain.g_AppMain.AppInfo.MainWindowLeft, AppMain.g_AppMain.AppInfo.MainWindowTop);
 
-                this.m_Project.Libraries.AddRange(AppMain.g_AppMain.AppInfo.LibraryFolders.Select(path=>Library.FromFolder(path)));
+                this.m_Project.Libraries.AddRange(AppMain.g_AppMain.AppInfo.LibraryFolders.Select(path=>Library.FromFolder(path)).Where(x=>x != null));
 
                 this.m_FirstShowWindow = false;
             }
