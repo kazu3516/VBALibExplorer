@@ -48,7 +48,7 @@
             this.libraryExplorerTree1.Size = new System.Drawing.Size(390, 406);
             this.libraryExplorerTree1.TabIndex = 0;
             this.libraryExplorerTree1.TargetProject = libraryProject1;
-            this.libraryExplorerTree1.NotifyLibraryRequest += new LibraryExplorer.Common.Request.RequestEventHandler(this.libraryExplorerTree1_NotifyLibraryRequest);
+            this.libraryExplorerTree1.NotifyParentRequest += new LibraryExplorer.Common.Request.RequestEventHandler(this.libraryExplorerTree1_NotifyParentRequest);
             // 
             // ExplorerTreeWindow
             // 

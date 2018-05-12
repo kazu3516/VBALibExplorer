@@ -68,8 +68,12 @@
     <Compile Include="Common\ApplicationMessageQueue.cs" />
     <Compile Include="Common\AppMain.cs" />
     <Compile Include="Common\Commands.cs" />
+    <Compile Include="Common\Request\ExportModuleRequest.cs" />
     <Compile Include="Common\Request\OutputLogRequest.cs" />
     <Compile Include="Common\Request\Request.cs" />
+    <Compile Include="Common\Request\ShowCompareWindowRequest.cs" />
+    <Compile Include="Common\Request\ShowLibraryFolderPropertyRequest.cs" />
+    <Compile Include="Common\Request\ShowOfficeFilePropertyRequest.cs" />
     <Compile Include="Controller\ExcelFileController.cs" />
     <Compile Include="Controller\ILibraryController.cs" />
     <Compile Include="Controller\LibraryFileController.cs" />

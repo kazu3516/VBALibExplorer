@@ -26,17 +26,17 @@ namespace LibraryExplorer.Control {
         private ExplorerTreeNode m_FileRootNode;
 
 
-        #region NotifyLibraryRequestイベント
+        #region NotifyParentRequestイベント
         /// <summary>
-        /// Libraryへの要求を行うイベントです。
+        /// 親コントロールへの要求を行うイベントです。
         /// </summary>
-        public event RequestEventHandler NotifyLibraryRequest;
+        public event RequestEventHandler NotifyParentRequest;
         /// <summary>
-        /// NotifyLibraryRequestイベントを発生させます。
+        /// NotifyParentRequestイベントを発生させます。
         /// </summary>
         /// <param name="e"></param>
-        protected void OnNotifyLibraryRequest(RequestEventArgs e) {
-            this.NotifyLibraryRequest?.Invoke(this, e);
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
         }
         #endregion
 
@@ -379,7 +379,7 @@ namespace LibraryExplorer.Control {
         }
         private void ReExport() {
             if (this.SelectedFile != null) {
-                this.OnNotifyLibraryRequest(new ExportModuleRequestEventArgs(this.SelectedFile, this.GetType().Name));
+                this.OnNotifyParentRequest(new ExportModuleRequestEventArgs(this.SelectedFile, this.GetType().Name));
             }
         }
         private void CloseItem() {
@@ -408,10 +408,10 @@ namespace LibraryExplorer.Control {
         }
         private void ShowProperty() {
             if (this.SelectedFolder != null) {
-                this.OnNotifyLibraryRequest(new ShowLibraryFolderPropertyRequestEventArgs(this.SelectedFolder));
+                this.OnNotifyParentRequest(new ShowLibraryFolderPropertyRequestEventArgs(this.SelectedFolder));
             }
             if (this.SelectedFile != null) {
-                this.OnNotifyLibraryRequest(new ShowOfficeFilePropertyRequestEventArgs(this.SelectedFile));
+                this.OnNotifyParentRequest(new ShowOfficeFilePropertyRequestEventArgs(this.SelectedFile));
             }
 
         }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Common;
+using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
 using LibraryExplorer.Window;
 namespace LibraryExplorer.Control.Wizard {
@@ -37,6 +38,20 @@ namespace LibraryExplorer.Control.Wizard {
 
         //一時フォルダにコピーするファイルのリスト
         private List<string> m_ModulePathList;
+
+        #region NotifyParentRequestイベント
+        /// <summary>
+        /// 親コントロールに対して要求を送信するイベントです。
+        /// </summary>
+        public event RequestEventHandler NotifyParentRequest;
+        /// <summary>
+        /// NotifyParentRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
+        }
+        #endregion
 
 
         #region TargetFile
@@ -669,7 +684,7 @@ namespace LibraryExplorer.Control.Wizard {
             this.ShowTemporaryFolderPath();
 
             //TODO:ファイル比較を実行
-            //TODO:外部ツール機能を実装する。
+            //外部ツール機能を実装する。
             this.CheckDiff();
 
             //TODO:一時フォルダをいつ削除するのかを検討(OfficeFileと同様にProjectに登録して、アプリケーション終了時に削除？⇒ファイナライザを実装したので終了時には消えた。。。再比較や閉じるにも対応したい。)
@@ -705,12 +720,10 @@ namespace LibraryExplorer.Control.Wizard {
             }
             else {
                 //外部ツールが指定されていない場合、標準機能(FolderCompareWindow)を使用する
+                string sourceFolderPath = this.TargetFile.TemporaryFolder.Path;
+                string destinationFolderPath = this.m_OutputFolder.Path;
 
-                LibraryExplorer.Window.DockWindow.FolderCompareWindow window = new LibraryExplorer.Window.DockWindow.FolderCompareWindow();
-                window.SourceFolderPath = this.TargetFile.TemporaryFolder.Path;
-                window.DestinationFolderPath = this.m_OutputFolder.Path;
-
-                window.Show();
+                this.OnNotifyParentRequest(new ShowCompareWindowRequestEventArgs(sourceFolderPath,destinationFolderPath));
 
             }
         }

@@ -302,6 +302,8 @@ namespace LibraryExplorer.Window {
         #region MainWindow
         //*******************************************************************************************************
         //*******************************************************************************************************
+        
+        #region FormClosed
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e) {
             //全ての子ウインドウを閉じる
             dockPanel.Contents.Cast<DockContent>().ToList().ForEach(dock => dock.Close());
@@ -320,22 +322,26 @@ namespace LibraryExplorer.Window {
 
             //Excelファイルを閉じ、テンポラリフォルダを削除する。
             this.m_Project.ExcelFiles.ForEach(file => file.Close());
-        }
+        } 
+        #endregion
 
+        #region VisibleChanged
         private void MainWindow_VisibleChanged(object sender, EventArgs e) {
             //初回表示時のみConfigに従ってSize,Locationを設定する
             if (this.m_FirstShowWindow == true) {
                 this.Size = new Size(AppMain.g_AppMain.AppInfo.MainWindowWidth, AppMain.g_AppMain.AppInfo.MainWindowHeight);
                 this.Location = new Point(AppMain.g_AppMain.AppInfo.MainWindowLeft, AppMain.g_AppMain.AppInfo.MainWindowTop);
 
-                this.m_Project.Libraries.AddRange(AppMain.g_AppMain.AppInfo.LibraryFolders.Select(path=>Library.FromFolder(path)).Where(x=>x != null));
+                this.m_Project.Libraries.AddRange(AppMain.g_AppMain.AppInfo.LibraryFolders.Select(path => Library.FromFolder(path)).Where(x => x != null));
 
                 this.m_FirstShowWindow = false;
             }
 
             this.RefreshDisplay();
-        }
+        } 
+        #endregion
 
+        #region SelectedFolderChanged
         /// <summary>
         /// SelectedFolderが変更されたとき
         /// </summary>
@@ -355,6 +361,9 @@ namespace LibraryExplorer.Window {
                 }
             }
         }
+        #endregion
+
+        #region SelectedOfficeFileChanged
         /// <summary>
         /// SelectedOfficeFileが変更されたとき
         /// </summary>
@@ -385,7 +394,9 @@ namespace LibraryExplorer.Window {
                 }
             }
         }
+        #endregion
 
+        #region SelectedLibraryFileChanged
         /// <summary>
         /// SelectedLibraryFileが変更されたとき
         /// </summary>
@@ -401,6 +412,57 @@ namespace LibraryExplorer.Window {
                 this.m_PreviewWindow.TargetFile = this.m_SelectedLibraryFile;
             }
         }
+        #endregion
+
+        #region ReceiveOutputLogRequest
+        /// <summary>
+        /// IOutputLogRequest.OutputLogRequestイベントを受け取る共通のイベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReceiveOutputLogRequest(object sender, OutputLogRequestEventArgs e) {
+            OutputLogRequestData data = (OutputLogRequestData)e.RequestData;
+            this.m_OutputLogWindow.AppendLogMessage(data.Message);
+
+            AppMain.logger.Info($"[Output Message({e.OwnerName})]{data.Message}");
+        }
+        #endregion
+
+        #region ReceiveNotifyParentRequest
+        /// <summary>
+        /// NotifyParentRequestイベントを受け取る共通のイベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        private async void ReceiveNotifyParentRequest(object sender, RequestEventArgs e) {
+            AppMain.logger.Info($"Receive event from {sender.GetType().Name}. EventType = {e.RequestData.GetType().Name}");
+            switch (e.RequestData) {
+                case ExportModuleRequestData data_export:
+                    //モジュールの再エクスポート
+                    await this.ReloadFile(data_export.TargetFile);
+                    break;
+                case ShowLibraryFolderPropertyRequestData data_property1:
+                    //フォルダのプロパティ
+                    this.m_LibraryPropertyDialog.TargetFolder = this.SelectedFolder;
+                    this.m_LibraryPropertyDialog.ShowDialog();
+                    break;
+                case ShowOfficeFilePropertyRequestData data_property2:
+                    //ファイルのプロパティ
+                    this.m_LibraryPropertyDialog.TargetOfficeFile = this.SelectedOfficeFile;
+                    this.m_LibraryPropertyDialog.ShowDialog();
+                    break;
+                case ShowCompareWindowRequestData data_compareWindow:
+                    //フォルダ比較ウインドウの表示
+                    FolderCompareWindow window = this.CreateFolderCompareWindow();
+                    window.SourceFolderPath = data_compareWindow.SourceFolderPath;
+                    window.DestinationFolderPath = data_compareWindow.DestinationFolderPath;
+                    window.CheckDiff();
+                    this.ShowFolderCompareWindow(window);
+                    break;
+            }
+        } 
+        #endregion
 
         #endregion
 
@@ -430,56 +492,13 @@ namespace LibraryExplorer.Window {
         }
         #endregion
 
-        #region 共通
-
-        /// <summary>
-        /// IOutputLogRequest.OutputLogRequestイベントを受け取る共通のイベントハンドラ
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RecieveOutputLogRequest(object sender, OutputLogRequestEventArgs e) {
-            OutputLogRequestData data = (OutputLogRequestData)e.RequestData;
-            this.m_OutputLogWindow.AppendLogMessage(data.Message);
-
-            AppMain.logger.Info($"[Output Message({e.OwnerName})]{data.Message}");
-        }
-
-        /// <summary>
-        /// NotifyLibraryRequestイベントを受け取る共通のイベントハンドラ
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        private async void ReceiveNotifyLibraryRequest(object sender, RequestEventArgs e) {
-            AppMain.logger.Info($"Receive event from {sender.GetType().Name}. EventType = {e.RequestData.GetType().Name}");
-            switch (e.RequestData) {
-                case ExportModuleRequestData data_export:
-                    //モジュールの再エクスポート
-                    await this.ReloadFile(data_export.TargetFile);
-                    break;
-                case ShowLibraryFolderPropertyRequestData data_property1:
-                    //フォルダのプロパティ
-                    this.m_LibraryPropertyDialog.TargetFolder = this.SelectedFolder;
-                    this.m_LibraryPropertyDialog.ShowDialog();
-                    break;
-                case ShowOfficeFilePropertyRequestData data_property2:
-                    //ファイルのプロパティ
-                    this.m_LibraryPropertyDialog.TargetOfficeFile = this.SelectedOfficeFile;
-                    this.m_LibraryPropertyDialog.ShowDialog();
-                    break;
-
-            }
-        }
-
-        #endregion
-
         #region ExplorerTreeWindow
         //*******************************************************************************************************
         private void M_ExplorerTreeWindow_FormClosed(object sender, FormClosedEventArgs e) {
             this.m_ExplorerTreeWindow.RefreshLibrariesRequest -= this.M_ExplorerTreeWindow_RefreshLibrariesRequest;
             this.m_ExplorerTreeWindow.SelectedNodeChanged -= this.M_ExplorerTreeWindow_SelectedNodeChanged;
             this.m_ExplorerTreeWindow.VisibleChanged -= this.M_ExplorerTreeWindow_VisibleChanged;
-            this.m_ExplorerTreeWindow.NotifyLibraryRequest -= this.ReceiveNotifyLibraryRequest;
+            this.m_ExplorerTreeWindow.NotifyParentRequest -= this.ReceiveNotifyParentRequest;
 
             this.m_ExplorerTreeWindow = null;
         }
@@ -512,7 +531,7 @@ namespace LibraryExplorer.Window {
         //*******************************************************************************************************
         private void M_LibraryFileListWindow_FormClosed(object sender, FormClosedEventArgs e) {
             this.m_LibraryFileListWindow.SelectedItemChanged -= this.M_LibraryFileListWindow_SelectedItemChanged;
-            this.m_LibraryFileListWindow.OutputLogRequest -= this.RecieveOutputLogRequest;
+            this.m_LibraryFileListWindow.OutputLogRequest -= this.ReceiveOutputLogRequest;
 
             this.m_LibraryFileListWindow = null;
         }
@@ -538,7 +557,7 @@ namespace LibraryExplorer.Window {
         private void ExcelFileModuleListWindow_FormClosed(object sender, FormClosedEventArgs e) {
             ExcelFileModuleListWindow window = (ExcelFileModuleListWindow)sender;
             window.SelectedItemChanged -= this.excelFileModuleListWindow_SelectedItemChanged;
-            window.OutputLogRequest -= this.RecieveOutputLogRequest;
+            window.OutputLogRequest -= this.ReceiveOutputLogRequest;
 
             //表示しているウインドウのリストから削除
             this.m_ExcelFileModuleListWindows.Remove(window);
@@ -867,11 +886,15 @@ namespace LibraryExplorer.Window {
         /// モジュールのバージョン確認を行う
         /// </summary>
         private void CheckModuleVersion() {
-            //TODO:モジュールのバージョン確認
-
             if (this.SelectedOfficeFile == null) {
                 return;
             }
+            //フォルダ比較ウィザードを使用してバージョン確認を行う。
+            FolderCompareWizardDialog dialog = new FolderCompareWizardDialog();
+            dialog.TargetProject = this.m_Project;
+            dialog.TargetFile = this.SelectedOfficeFile;
+            dialog.NotifyParentRequest += this.ReceiveNotifyParentRequest;
+            dialog.ShowDialog();
         }
 
         /// <summary>
@@ -966,7 +989,7 @@ namespace LibraryExplorer.Window {
                 this.m_ExplorerTreeWindow.RefreshLibrariesRequest += this.M_ExplorerTreeWindow_RefreshLibrariesRequest;
                 this.m_ExplorerTreeWindow.SelectedNodeChanged += this.M_ExplorerTreeWindow_SelectedNodeChanged;
                 this.m_ExplorerTreeWindow.VisibleChanged += this.M_ExplorerTreeWindow_VisibleChanged;
-                this.m_ExplorerTreeWindow.NotifyLibraryRequest += this.ReceiveNotifyLibraryRequest;
+                this.m_ExplorerTreeWindow.NotifyParentRequest += this.ReceiveNotifyParentRequest;
                 
             }
             return this.m_ExplorerTreeWindow;
@@ -986,7 +1009,7 @@ namespace LibraryExplorer.Window {
                 this.m_LibraryFileListWindow = new LibraryFileListWindow();
                 this.m_LibraryFileListWindow.FormClosed += this.M_LibraryFileListWindow_FormClosed;
                 this.m_LibraryFileListWindow.SelectedItemChanged += this.M_LibraryFileListWindow_SelectedItemChanged;
-                this.m_LibraryFileListWindow.OutputLogRequest += this.RecieveOutputLogRequest;
+                this.m_LibraryFileListWindow.OutputLogRequest += this.ReceiveOutputLogRequest;
             }
             return this.m_LibraryFileListWindow;
         }
@@ -1030,7 +1053,7 @@ namespace LibraryExplorer.Window {
             window.FormClosed += this.ExcelFileModuleListWindow_FormClosed;
             window.SelectedItemChanged += this.excelFileModuleListWindow_SelectedItemChanged;
             window.Activated += this.excelFileModuleListWindow_Activated;
-            window.OutputLogRequest += this.RecieveOutputLogRequest;
+            window.OutputLogRequest += this.ReceiveOutputLogRequest;
             return window;
         }
 
@@ -1063,11 +1086,26 @@ namespace LibraryExplorer.Window {
 
         #endregion
 
+        #region FolderCompareWindow
+
+        private FolderCompareWindow CreateFolderCompareWindow() {
+            FolderCompareWindow window = new FolderCompareWindow();
+
+            return window;
+        }
+
+        private void ShowFolderCompareWindow(FolderCompareWindow window) {
+            window.Show(this.dockPanel, DockState.Document);
+            //this.RefreshDisplay(true);
+            //FolderCompareWindowはLibraryとは独立して動くので、RefershDisplayは不要
+        }
+        #endregion
+
         #endregion
 
         #region デバッグメニュー
         //■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        
+
         //デバッグ用
         private void explorerTreeViewの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
             ExplorerTreeWindow window = this.CreateExplorerTreeWindow();
@@ -1138,8 +1176,10 @@ namespace LibraryExplorer.Window {
             FolderCompareWizardDialog dialog = new FolderCompareWizardDialog();
             dialog.TargetProject = this.m_Project;
             dialog.TargetFile = this.SelectedOfficeFile;
+            dialog.NotifyParentRequest += this.ReceiveNotifyParentRequest;
             dialog.ShowDialog();
         }
+
 
         #endregion
     }

@@ -565,7 +565,7 @@ namespace LibraryExplorer.Control {
         #endregion
 
         #region OpenFile
-        //TODO:OpenFileもNotifyLibraryRequestに乗せて、MainWindow側で実装するか検討(各ウインドウは表示系がメインの方がよいはず。LibraryFileControllerの要否と合わせて検討)
+        //TODO:OpenFileもNotifyParentRequestに乗せて、MainWindow側で実装するか検討(各ウインドウは表示系がメインの方がよいはず。LibraryFileControllerの要否と合わせて検討)
         private void OpenFile(LibraryFile file) {
             try {
                 this.LibraryFileController.OpenFile(file);

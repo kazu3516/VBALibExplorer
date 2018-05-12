@@ -67,6 +67,8 @@ namespace LibraryExplorer.Common.Request {
     /// <param name="e"></param>
     public delegate void OutputLogRequestEventHandler(object sender, OutputLogRequestEventArgs e);
 
+    #endregion
+
     #region OutputLogRequestEventArgs
     /// <summary>
     /// 出力ウィンドウへのメッセージ出力要求を表すイベントで使用する、RequestEventArgsクラスの派生クラスです。
@@ -101,7 +103,6 @@ namespace LibraryExplorer.Common.Request {
     }
     #endregion
 
-    #endregion
 
 
 }

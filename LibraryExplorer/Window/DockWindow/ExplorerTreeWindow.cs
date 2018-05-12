@@ -25,17 +25,17 @@ namespace LibraryExplorer.Window.DockWindow {
         #region フィールド(メンバ変数、プロパティ、イベント)
 
 
-        #region NotifyLibraryRequestイベント
+        #region NotifyParentRequestイベント
         /// <summary>
-        /// Libraryに対して要求を送信するイベントです。
+        /// 親コントロールに対して要求を送信するイベントです。
         /// </summary>
-        public event RequestEventHandler NotifyLibraryRequest;
+        public event RequestEventHandler NotifyParentRequest;
         /// <summary>
-        /// NotifyLibraryRequestイベントを発生させます。
+        /// NotifyParentRequestイベントを発生させます。
         /// </summary>
         /// <param name="e"></param>
-        protected void OnNotifyLibraryRequest(RequestEventArgs e) {
-            this.NotifyLibraryRequest?.Invoke(this, e);
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
         } 
         #endregion
 
@@ -236,12 +236,12 @@ namespace LibraryExplorer.Window.DockWindow {
         }
 
         /// <summary>
-        /// コントロールで発生したLibraryへのRequestを中継します。
+        /// コントロールで発生した親コントロールへのRequestを中継します。
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void libraryExplorerTree1_NotifyLibraryRequest(object sender, RequestEventArgs e) {
-            this.OnNotifyLibraryRequest(e);
+        private void libraryExplorerTree1_NotifyParentRequest(object sender, RequestEventArgs e) {
+            this.OnNotifyParentRequest(e);
         }
 
         #endregion

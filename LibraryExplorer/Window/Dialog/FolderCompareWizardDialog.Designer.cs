@@ -37,6 +37,7 @@
             this.folderCompareWizard1.TabIndex = 0;
             this.folderCompareWizard1.TargetFile = null;
             this.folderCompareWizard1.TargetProject = null;
+            this.folderCompareWizard1.NotifyParentRequest += new LibraryExplorer.Common.Request.RequestEventHandler(this.folderCompareWizard1_NotifyParentRequest);
             this.folderCompareWizard1.WizardFinished += new System.EventHandler(this.folderCompareWizard1_WizardFinished);
             this.folderCompareWizard1.WizardCanceled += new System.EventHandler(this.folderCompareWizard1_WizardCanceled);
             // 

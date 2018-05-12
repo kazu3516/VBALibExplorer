@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Control.Wizard;
+using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
 
 namespace LibraryExplorer.Window.Dialog {
@@ -19,6 +20,21 @@ namespace LibraryExplorer.Window.Dialog {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region NotifyParentRequestイベント
+        /// <summary>
+        /// 親コントロールに対して要求を送信するイベントです。
+        /// </summary>
+        public event RequestEventHandler NotifyParentRequest;
+        /// <summary>
+        /// NotifyParentRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
+        }
+        #endregion
+
 
         #region TargetFile
         /// <summary>
@@ -83,7 +99,14 @@ namespace LibraryExplorer.Window.Dialog {
             this.DialogResult = DialogResult.OK;
         }
 
-
+        /// <summary>
+        /// NotifyParentChangedを中継します。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void folderCompareWizard1_NotifyParentRequest(object sender, RequestEventArgs e) {
+            this.OnNotifyParentRequest(e);
+        }
 
         #endregion
 
