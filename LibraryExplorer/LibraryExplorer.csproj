@@ -68,6 +68,7 @@
     <Compile Include="Common\ApplicationMessageQueue.cs" />
     <Compile Include="Common\AppMain.cs" />
     <Compile Include="Common\Commands.cs" />
+    <Compile Include="Common\ExTool\ExternalTool.cs" />
     <Compile Include="Common\Request\ExportModuleRequest.cs" />
     <Compile Include="Common\Request\OutputLogRequest.cs" />
     <Compile Include="Common\Request\Request.cs" />

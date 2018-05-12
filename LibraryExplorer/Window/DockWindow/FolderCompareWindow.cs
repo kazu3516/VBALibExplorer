@@ -217,7 +217,6 @@ namespace LibraryExplorer.Window.DockWindow {
         public void CheckDiff() {
             this.m_FileDiffInfos = new List<FileDiffInfo>();
 
-            //TODO:CheckDiffの実装
             if (!Directory.Exists(this.m_SourceFolderPath)) {
                 return;
             }

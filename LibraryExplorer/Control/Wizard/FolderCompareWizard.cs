@@ -14,9 +14,7 @@ using LibraryExplorer.Data;
 using LibraryExplorer.Window;
 namespace LibraryExplorer.Control.Wizard {
 
-    //TODO:フォルダ比較ウィザードの実装
 
-    
     //TODO:ContextMenu1,2の実装
 
     /// <summary>
@@ -126,7 +124,7 @@ namespace LibraryExplorer.Control.Wizard {
         protected override void OnGoNext() {
             base.OnGoNext();
 
-            //TODO:以下、ウィザードのページNo毎に処理を記載する。
+            //以下、ウィザードのページNo毎に処理を記載する。
             switch (this.CurrentStepNo) {
                 case 0:
                     //GoNextで0に遷移することは無いため処理無し
@@ -683,7 +681,7 @@ namespace LibraryExplorer.Control.Wizard {
             //一時フォルダのパスを表示
             this.ShowTemporaryFolderPath();
 
-            //TODO:ファイル比較を実行
+            //ファイル比較を実行
             //外部ツール機能を実装する。
             this.CheckDiff();
 
