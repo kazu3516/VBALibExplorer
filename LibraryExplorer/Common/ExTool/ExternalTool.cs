@@ -19,9 +19,8 @@ namespace LibraryExplorer.Common.ExTool {
         /// <summary>
         /// 派生クラスでオーバーライドされると、外部ツールを非同期で起動します。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public abstract Task<T> StartAsync<T>();
+        public abstract Task StartAsync();
 
     }
 

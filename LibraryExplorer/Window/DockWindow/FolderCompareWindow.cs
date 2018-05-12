@@ -13,8 +13,6 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace LibraryExplorer.Window.DockWindow {
 
-    //TODO:バージョン確認の実装
-
     /// <summary>
     /// フォルダ比較を行うウィンドウを表すクラスです。
     /// </summary>
