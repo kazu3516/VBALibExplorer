@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Common;
+using LibraryExplorer.Common.ExTool;
 using LibraryExplorer.Common.Request;
-using LibraryExplorer.Controller;
 using LibraryExplorer.Data;
 
 namespace LibraryExplorer.Control {
@@ -29,6 +29,8 @@ namespace LibraryExplorer.Control {
 
         private ApplicationMessageQueue m_ApplicationMessageQueue;
 
+        private TextEditor m_TextEditor;
+
         #region OutputLogRequestイベント
         /// <summary>
         /// 出力ウィンドウへのメッセージ出力要求を表すイベントです。
@@ -44,17 +46,32 @@ namespace LibraryExplorer.Control {
 
         #endregion
 
-
         #region TargetFolder
+        private LibraryFolder m_TargetFolder;
         /// <summary>
-        /// TargetFolderPathを取得、設定します。
+        /// TargetFolderが変更された場合に発生するイベントです。
         /// </summary>
-        public virtual LibraryFolder TargetFolder {
+        public event EventHandler<EventArgs<LibraryFolder>> TargetFolderChanged;
+        /// <summary>
+        /// TargetFolderが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnTargetFolderChanged(EventArgs<LibraryFolder> e) {
+            this.TargetFolderChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// TargetFolderを取得、設定します。
+        /// </summary>
+        public LibraryFolder TargetFolder {
             get {
-                return this.LibraryFileController.TargetFolder;
+                return this.m_TargetFolder;
             }
-            protected internal set {
-                this.LibraryFileController.TargetFolder = value;
+            set {
+                this.SetProperty(ref this.m_TargetFolder, value, ((oldValue) => {
+                    if (this.TargetFolderChanged != null) {
+                        this.OnTargetFolderChanged(new EventArgs<LibraryFolder>(oldValue));
+                    }
+                }));
             }
         }
         #endregion
@@ -111,37 +128,6 @@ namespace LibraryExplorer.Control {
                 else {
                     throw new ArgumentException($"指定したファイルは、現在のLibraryFolderには存在しません。LibraryFolder={this.TargetFolder?.Path ?? ""} , FileName={value?.FileName ?? ""}");
                 }
-            }
-        }
-        #endregion
-
-
-        #region LibraryFileController
-        private ILibraryController m_LibraryFileController;
-        /// <summary>
-        /// LibraryFileControllerが変更された場合に発生するイベントです。
-        /// </summary>
-        public event EventHandler<EventArgs<ILibraryController>> LibraryFileControllerChanged;
-        /// <summary>
-        /// LibraryFileControllerが変更された場合に呼び出されます。
-        /// </summary>
-        /// <param name="e">イベントパラメータ</param>
-        protected void OnLibraryFileControllerChanged(EventArgs<ILibraryController> e) {
-            this.LibraryFileControllerChanged?.Invoke(this, e);
-        }
-        /// <summary>
-        /// LibraryFileControllerを取得、設定します。
-        /// </summary>
-        public ILibraryController LibraryFileController {
-            get {
-                return this.m_LibraryFileController;
-            }
-            set {
-                this.SetProperty(ref this.m_LibraryFileController, value, ((oldValue) => {
-                    if (this.LibraryFileControllerChanged != null) {
-                        this.OnLibraryFileControllerChanged(new EventArgs<ILibraryController>(oldValue));
-                    }
-                }));
             }
         }
         #endregion
@@ -216,15 +202,17 @@ namespace LibraryExplorer.Control {
         public LibraryExplorerList() {
             this.m_SuspendedRefresh = false;
             this.m_DisplayedFolderPath = "";
+            this.m_TextEditor = new TextEditor();
             this.m_ApplicationMessageQueue = new ApplicationMessageQueue(this);
             this.m_ApplicationMessageQueue.Start();
 
             InitializeComponent();
 
-            this.LibraryFileControllerChanged += this.LibraryExplorerList_LibraryFileControllerChanged;
 
-            this.LibraryFileController = new LibraryFileController();
+            this.TargetFolderChanged += this.LibraryExplorerList_TargetFolderChanged;
+
         }
+
 
 
 
@@ -232,68 +220,11 @@ namespace LibraryExplorer.Control {
 
         #region イベントハンドラ
 
-        #region LibraryFileController
-        private void LibraryExplorerList_LibraryFileControllerChanged(object sender, EventArgs<ILibraryController> e) {
-            ILibraryController oldController = e.OldValue;
-            if (oldController != null) {
-                oldController.BeforeRefresh -= this.LibraryFileController_BeforeRefresh;
-                oldController.AfterRefresh -= this.LibraryFileController_AfterRefresh;
-                oldController.TargetFolderChanged -= this.LibraryFileController_TargetFolderChanged;
-                oldController.RequestRefresh -= this.LibraryFileController_RequestRefresh;
-                oldController.OutputLogRequest -= this.LibraryFileController_OutputLogRequest;
-            }
-
-            if (this.LibraryFileController != null) {
-                this.LibraryFileController.BeforeRefresh += this.LibraryFileController_BeforeRefresh;
-                this.LibraryFileController.AfterRefresh += this.LibraryFileController_AfterRefresh;
-                this.LibraryFileController.TargetFolderChanged += this.LibraryFileController_TargetFolderChanged;
-                this.LibraryFileController.RequestRefresh += this.LibraryFileController_RequestRefresh;
-                this.LibraryFileController.OutputLogRequest += this.LibraryFileController_OutputLogRequest;
-            }
-        }
-
-        private void LibraryFileController_OutputLogRequest(object sender, OutputLogRequestEventArgs e) {
-            //ExcelFileからのエクスポート処理など、ログが発生した場合、出力要求を上位に上げる
-            this.OnOutputLogRequest(e);
-        }
-
-        private void LibraryFileController_RequestRefresh(object sender, EventArgs e) {
-            //ControllerのRefreshが必要になった場合、ListもRefreshする必要があるため
-            this.RefreshDisplay();
-        }
-
-        private void LibraryFileController_TargetFolderChanged(object sender, Controller.EventArgs<LibraryFolder> e) {
+        private void LibraryExplorerList_TargetFolderChanged(object sender, EventArgs<LibraryFolder> e) {
             this.ShowTargetFolderPath(this.TargetFolder?.Path ?? "");
             this.RefreshDisplay();
         }
 
-        #region Before/After Refresh
-        private void LibraryFileController_BeforeRefresh(object sender, EventArgs e) {
-            //if (this.LibraryFileController.IsRequiredAsyncRefresh) {
-            //    //非同期更新の場合、カーソル変更
-            //    if (this.ParentForm != null) {
-            //        this.ParentForm.Cursor = Cursors.WaitCursor;
-            //        AppMain.logger.Debug($"{this.ParentForm?.GetType().Name} : Change Cursor - WaitCursor");
-            //    }
-            //}
-        }
-        private void LibraryFileController_AfterRefresh(object sender, EventArgs e) {
-            //if (this.LibraryFileController.IsRequiredAsyncRefresh) {
-            //    //非同期更新の場合、カーソル変更
-            //    if (this.ParentForm != null) {
-            //        if (this.LibraryFileController.RefreshComplete) {
-            //            //更新中に再度呼び出された場合、カーソル変更しない
-            //            this.ParentForm.Cursor = Cursors.Default;
-            //            AppMain.logger.Debug($"{this.ParentForm?.GetType().Name} : Change Cursor - DefaultCursor");
-            //        }
-            //    }
-            //}
-        }
-
-        #endregion
-
-
-        #endregion
 
         #region ListView
         private void listView1_SelectedIndexChanged(object sender, EventArgs e) {
@@ -355,7 +286,7 @@ namespace LibraryExplorer.Control {
         /// 表示の更新
         /// </summary>
         /// <param name="keep"></param>
-        public async void RefreshDisplay(bool keep = false) {
+        public void RefreshDisplay(bool keep = false) {
             if (this.m_SuspendedRefresh) {
                 return;
             }
@@ -365,9 +296,6 @@ namespace LibraryExplorer.Control {
                 //アイテムの初期化が必要かどうかを判定し、初期化を行う。
                 this.OnClearListViewItem(keep);
 
-                //表示の更新をする前に、Controllerの更新を行う
-                await this.RefreshFileController(keep);
-
                 //表示の更新
                 this.OnRefreshDisplay(keep);
             }
@@ -375,30 +303,6 @@ namespace LibraryExplorer.Control {
                 this.listView1.EndUpdate();
             }
         }
-
-        #region RefreshFileController
-        /// <summary>
-        /// FileControllerの更新
-        /// </summary>
-        /// <param name="keep"></param>
-        /// <returns></returns>
-        private async Task RefreshFileController(bool keep) {
-            this.SuspendRefresh();
-            try {
-
-                if (this.LibraryFileController.IsRequiredAsyncRefresh) {
-                    //更新処理に非同期が必要かどうかの判定
-                    await this.LibraryFileController.RefreshAsync(keep);
-                }
-                else {
-                    this.LibraryFileController.Refresh(keep);
-                }
-            }
-            finally {
-                this.ResumeRefresh(keep, false);
-            }
-        }
-        #endregion
 
         #region OnRefreshDisplay
 
@@ -483,7 +387,7 @@ namespace LibraryExplorer.Control {
         /// <returns></returns>
         protected virtual bool IsRequiredClearItem(bool keep) {
             string targetPath = this.TargetFolder?.Path ?? "";
-            return !keep || this.m_DisplayedFolderPath != targetPath || this.LibraryFileController.IsRequiredClearItem(keep);
+            return !keep || this.m_DisplayedFolderPath != targetPath;
         }
 
         #endregion
@@ -532,6 +436,8 @@ namespace LibraryExplorer.Control {
         #endregion
 
         #region Suspend/Resume Refresh
+        //NOTE:Excelファイルが自動エクスポートではなくなったので、Suspend/Resume Refreshは不要かも。
+
         /// <summary>
         /// Refreshを中断します。このメソッドが呼ばれると、Refreshメソッドが呼び出されたとしても更新処理は行われません。
         /// 再開する場合、ResumeRefreshメソッドを呼び出してください。
@@ -568,7 +474,7 @@ namespace LibraryExplorer.Control {
         //TODO:OpenFileもNotifyParentRequestに乗せて、MainWindow側で実装するか検討(各ウインドウは表示系がメインの方がよいはず。LibraryFileControllerの要否と合わせて検討)
         private void OpenFile(LibraryFile file) {
             try {
-                this.LibraryFileController.OpenFile(file);
+                this.m_TextEditor.Start(new TextEditorInfo(file));
             }
             catch (ApplicationException ex) {
                 MessageBox.Show(ex.Message, "エディタ起動エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
