@@ -27,6 +27,7 @@ namespace LibraryExplorer.Control.Wizard {
         #region フィールド(メンバ変数、プロパティ、イベント)
 
         private TextEditor m_TextEditor;
+        private DiffTool m_DiffTool;
 
         //対象ファイルのModuleとライブラリのModuleのペア
         private List<TargetLibraryPair> m_TargetLibraryPairs;
@@ -104,6 +105,7 @@ namespace LibraryExplorer.Control.Wizard {
             InitializeComponent();
 
             this.m_TextEditor = new TextEditor();
+            this.m_DiffTool = new DiffTool();
         }
         #endregion
 
@@ -731,95 +733,26 @@ namespace LibraryExplorer.Control.Wizard {
         }
 
         private void CheckDiff() {
-            //パスの設定
-            string diffToolPath = this.GetDiffToolPath();
+            DiffToolInfo info = new DiffToolInfo(this.TargetFile.TemporaryFolder.Path, this.m_OutputFolder.Path);
+            ExternalToolResult result = this.m_DiffTool.Start(info);
 
-            if (diffToolPath != "") {
-
-                //引数の設定
-                string diffToolArguments = this.GetDiffToolArguments(this.TargetFile.TemporaryFolder, this.m_OutputFolder);
-                //プロセスの起動
-                this.StartProcess(diffToolPath, diffToolArguments);
-
-            }
-            else {
-                //外部ツールが指定されていない場合、標準機能(FolderCompareWindow)を使用する
-                string sourceFolderPath = this.TargetFile.TemporaryFolder.Path;
-                string destinationFolderPath = this.m_OutputFolder.Path;
-
-                this.OnNotifyParentRequest(new ShowCompareWindowRequestEventArgs(sourceFolderPath,destinationFolderPath));
-
-            }
-        }
-
-
-        #region CheckDiff
-
-        /// <summary>
-        /// 比較ツールのパスと引数を起動してプロセスを起動します。
-        /// </summary>
-        /// <param name="diffToolPath"></param>
-        /// <param name="diffToolArguments"></param>
-        private void StartProcess(string diffToolPath, string diffToolArguments) {
-            ProcessStartInfo info = new ProcessStartInfo() { FileName = diffToolPath, Arguments = diffToolArguments };
-            Process process = new Process() { StartInfo = info };
-            try {
-                process.Start();
-            }
-            catch (Exception ex) {
-                string errorMessage = $"{this.GetType().Name}.CheckDiff プロセスの起動に失敗しました。Exception={ex.GetType().Name}, Message={ex.Message}, Path={diffToolPath}, Arguments={diffToolArguments}";
-                AppMain.logger.Error(errorMessage, ex);
-                throw new ApplicationException(errorMessage, ex);
-            }
-        }
-
-        /// <summary>
-        /// 比較ツールのパスを取得します。
-        /// 比較ツールが指定されていない場合、空文字列を返し、標準機能を使用します。
-        /// </summary>
-        /// <returns></returns>
-        private string GetDiffToolPath() {
-            string editorPath = AppMain.g_AppMain.AppInfo.DiffToolPath;
-            if (!File.Exists(editorPath)) {
-                editorPath = "";
-            }
-            return editorPath;
-        }
-
-        /// <summary>
-        /// 比較ツールの引数を指定します。
-        /// 引数内の%foldername1%,%foldername2%は指定したLibraryFolderのPathに置き換えられます。
-        /// </summary>
-        /// <param name="folder1"></param>
-        /// <param name="folder2"></param>
-        /// <returns></returns>
-        private string GetDiffToolArguments(LibraryFolder folder1,LibraryFolder folder2) {
-            string DiffToolArguments = AppMain.g_AppMain.AppInfo.DiffToolArguments;
-
-            if (!DiffToolArguments.Contains("%foldername1%")) {
-                //引数に%foldername1%が含まれていない場合、末尾に追加する
-                if (DiffToolArguments.Length > 0) {
-                    DiffToolArguments += " ";
+            if (result.ResultCode == ExternalToolResultCode.Failed) {
+                //Failedの場合、詳細を確認
+                if (result is DiffToolResult diffResult) {
+                    //ツールが存在しなかった場合（未指定含む）、標準のFolderCompareWindowを表示
+                    if (!diffResult.ExistTool) {
+                        this.ShowCompareWindow();
+                    }
                 }
-                DiffToolArguments += "%foldername1%";
-            }
-            if (!DiffToolArguments.Contains("%foldername2%")) {
-                //引数に%foldername2%が含まれていない場合、末尾に追加する
-                if (DiffToolArguments.Length > 0) {
-                    DiffToolArguments += " ";
-                }
-                DiffToolArguments += "%foldername2%";
             }
 
-            DiffToolArguments = DiffToolArguments.Replace("%foldername1%", "\"" + folder1.Path + "\"");
-            DiffToolArguments = DiffToolArguments.Replace("%foldername2%", "\"" + folder2.Path + "\"");
-
-            return DiffToolArguments;
         }
+        private void ShowCompareWindow() {
+            string sourceFolderPath = this.TargetFile.TemporaryFolder.Path;
+            string destinationFolderPath = this.m_OutputFolder.Path;
 
-
-
-        #endregion
+            this.OnNotifyParentRequest(new ShowCompareWindowRequestEventArgs(sourceFolderPath, destinationFolderPath));
+        }
 
         #endregion
 

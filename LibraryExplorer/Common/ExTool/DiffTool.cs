@@ -37,7 +37,10 @@ namespace LibraryExplorer.Common.ExTool {
         /// 比較ツールを実行します。
         /// </summary>
         public override ExternalToolResult Start(ExternalToolInfo info) {
-            throw new NotImplementedException();
+            if (!(info is DiffToolInfo editorInfo)) {
+                return ExternalToolResult.Failed;
+            }
+            return this.CheckDiff(editorInfo.SourceFolderPath,editorInfo.DestinationFolderPath);
         }
 
         /// <summary>
@@ -45,11 +48,34 @@ namespace LibraryExplorer.Common.ExTool {
         /// </summary>
         /// <returns></returns>
         public override Task<ExternalToolResult> StartAsync(ExternalToolInfo info) {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew<ExternalToolResult>(() => {
+                return this.Start(info);
+            });
         }
 
 
         #region CheckDiff
+
+        private ExternalToolResult CheckDiff(string sourceFolderPath, string destinationFolderPath) {
+            //パスの設定
+            string diffToolPath = this.GetDiffToolPath();
+
+            if (diffToolPath != "") {
+
+                //引数の設定
+                string diffToolArguments = this.GetDiffToolArguments(sourceFolderPath,destinationFolderPath);
+                //プロセスの起動
+                this.StartProcess(diffToolPath, diffToolArguments);
+
+                return ExternalToolResult.Success;
+            }
+            else {
+                return new DiffToolResult() { ResultCode = ExternalToolResultCode.Failed, ExistTool = false };
+            }
+
+
+        }
+
 
         /// <summary>
         /// 比較ツールのパスと引数を起動してプロセスを起動します。
@@ -89,7 +115,7 @@ namespace LibraryExplorer.Common.ExTool {
         /// <param name="folder1"></param>
         /// <param name="folder2"></param>
         /// <returns></returns>
-        private string GetDiffToolArguments(LibraryFolder folder1, LibraryFolder folder2) {
+        private string GetDiffToolArguments(string folder1, string folder2) {
             string DiffToolArguments = AppMain.g_AppMain.AppInfo.DiffToolArguments;
 
             if (!DiffToolArguments.Contains("%foldername1%")) {
@@ -107,8 +133,8 @@ namespace LibraryExplorer.Common.ExTool {
                 DiffToolArguments += "%foldername2%";
             }
 
-            DiffToolArguments = DiffToolArguments.Replace("%foldername1%", "\"" + folder1.Path + "\"");
-            DiffToolArguments = DiffToolArguments.Replace("%foldername2%", "\"" + folder2.Path + "\"");
+            DiffToolArguments = DiffToolArguments.Replace("%foldername1%", "\"" + folder1 + "\"");
+            DiffToolArguments = DiffToolArguments.Replace("%foldername2%", "\"" + folder2 + "\"");
 
             return DiffToolArguments;
         }
@@ -117,4 +143,100 @@ namespace LibraryExplorer.Common.ExTool {
         #endregion
 
     }
+
+
+    #region DiffToolInfo
+    /// <summary>
+    /// 比較ツールを表すクラスです。
+    /// </summary>
+    public class DiffToolInfo :ExternalToolInfo{
+
+        #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region SourceFolderPath
+        private string m_SourceFolderPath;
+        /// <summary>
+        /// SourceFolderPathを取得、設定します。
+        /// </summary>
+        public string SourceFolderPath {
+            get {
+                return this.m_SourceFolderPath;
+            }
+            set {
+                this.m_SourceFolderPath = value;
+            }
+        }
+        #endregion
+
+        #region DestinationFolderPath
+        private string m_DestinationFolderPath;
+        /// <summary>
+        /// DestinationFolderPathを取得、設定します。
+        /// </summary>
+        public string DestinationFolderPath {
+            get {
+                return this.m_DestinationFolderPath;
+            }
+            set {
+                this.m_DestinationFolderPath = value;
+            }
+        }
+        #endregion
+        
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// DiffToolInfoオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="sourceFolderPath"></param>
+        /// <param name="destinationFolderPath"></param>
+        public DiffToolInfo(string sourceFolderPath, string destinationFolderPath) {
+            this.m_SourceFolderPath = sourceFolderPath;
+            this.m_DestinationFolderPath = destinationFolderPath;
+        }
+        #endregion
+        
+    }
+    #endregion
+
+
+    #region DiffToolResult
+    /// <summary>
+    /// 比較ツールの結果を表すクラスです。
+    /// </summary>
+    public class DiffToolResult:ExternalToolResult {
+
+        #region フィールド(メンバ変数、プロパティ、イベント)
+
+
+        #region ExistTool
+        private bool m_ExistTool;
+        /// <summary>
+        /// ExistToolを取得、設定します。
+        /// </summary>
+        public bool ExistTool {
+            get {
+                return this.m_ExistTool;
+            }
+            set {
+                this.m_ExistTool = value;
+            }
+        }
+        #endregion
+
+
+
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// DiffToolResultオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        public DiffToolResult() {
+        }
+        #endregion
+        
+    }
+    #endregion
 }
