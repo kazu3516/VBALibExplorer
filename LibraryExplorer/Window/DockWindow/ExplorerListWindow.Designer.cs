@@ -23,15 +23,12 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            LibraryExplorer.Controller.LibraryFileController libraryFileController1 = new LibraryExplorer.Controller.LibraryFileController();
             this.libraryExplorerList1 = new LibraryExplorer.Control.LibraryExplorerList();
             this.SuspendLayout();
             // 
             // libraryExplorerList1
             // 
             this.libraryExplorerList1.Dock = System.Windows.Forms.DockStyle.Fill;
-            libraryFileController1.TargetFolder = null;
-            this.libraryExplorerList1.LibraryFileController = libraryFileController1;
             this.libraryExplorerList1.Location = new System.Drawing.Point(0, 0);
             this.libraryExplorerList1.Name = "libraryExplorerList1";
             this.libraryExplorerList1.SelectedFile = null;
