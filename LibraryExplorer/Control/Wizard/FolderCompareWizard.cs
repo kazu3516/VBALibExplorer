@@ -9,13 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Common;
+using LibraryExplorer.Common.ExTool;
 using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
-using LibraryExplorer.Window;
 namespace LibraryExplorer.Control.Wizard {
 
-
-    //TODO:ContextMenu1,2の実装
 
     /// <summary>
     /// フォルダ比較ウィザードを表すクラスです。
@@ -27,6 +25,8 @@ namespace LibraryExplorer.Control.Wizard {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        private TextEditor m_TextEditor;
 
         //対象ファイルのModuleとライブラリのModuleのペア
         private List<TargetLibraryPair> m_TargetLibraryPairs;
@@ -82,7 +82,6 @@ namespace LibraryExplorer.Control.Wizard {
         }
         #endregion
 
-
         #region OutputFolder
         private LibraryFolder m_OutputFolder;
         /// <summary>
@@ -103,9 +102,10 @@ namespace LibraryExplorer.Control.Wizard {
         /// </summary>
         public FolderCompareWizard() {
             InitializeComponent();
+
+            this.m_TextEditor = new TextEditor();
         }
         #endregion
-
 
         #region ウィザードの動作
         /// <summary>
@@ -211,7 +211,7 @@ namespace LibraryExplorer.Control.Wizard {
             this.errorLabel2.Visible = !librarySelected;
 
             this.CanGoNext = !isNullTarget && librarySelected;
-        } 
+        }
         #endregion
 
         #endregion
@@ -223,19 +223,45 @@ namespace LibraryExplorer.Control.Wizard {
         #region ContextMenu
 
         #region ContextMenu1(ライブラリのModule)
+        private void contextMenuStrip1_Opened(object sender, EventArgs e) {
+            bool selected = this.targetLibraryModuleListView1.SelectedItems.Count == 1;
+            this.選択SToolStripMenuItem.Enabled = selected;
+            this.ファイルを開くOToolStripMenuItem.Enabled = selected;
+        }
 
         private void 選択SToolStripMenuItem_Click(object sender, EventArgs e) {
             this.ChangeTargetLibraryModuleSelectedStatus();
         }
         private void ファイルを開くOToolStripMenuItem_Click(object sender, EventArgs e) {
-            //TODO:ライブラリのModuleを開く
+            //ライブラリのModuleを開く
+            bool selected = this.targetLibraryModuleListView1.SelectedItems.Count == 1;
+            if (!selected) {
+                return;
+            }
+            if (!(this.targetLibraryModuleListView1.SelectedItems[0] is TargetLibraryModuleListViewItem item)) {
+                return;
+            }
+            this.m_TextEditor.Start(new TextEditorInfo(item.TargetFile.TargetFile));
         }
 
         #endregion
 
         #region ContextMenu2(ファイルのModule)
+        private void contextMenuStrip2_Opened(object sender, EventArgs e) {
+            bool selected = this.targetFileModuleListView1.SelectedItems.Count == 1;
+            this.ファイルを開くOToolStripMenuItem1.Enabled = selected;
+        }
+
         private void ファイルを開くOToolStripMenuItem1_Click(object sender, EventArgs e) {
-            //TODO:ファイルのModuleを開く
+            //ファイルのModuleを開く
+            bool selected = this.targetFileModuleListView1.SelectedItems.Count == 1;
+            if (!selected) {
+                return;
+            }
+            if (!(this.targetFileModuleListView1.SelectedItems[0] is TargetFileModuleListViewItem item)) {
+                return;
+            }
+            this.m_TextEditor.Start(new TextEditorInfo(item.TargetFile));
         }
 
         #endregion
@@ -790,10 +816,10 @@ namespace LibraryExplorer.Control.Wizard {
 
             return DiffToolArguments;
         }
-        
+
+
 
         #endregion
-
 
         #endregion
 

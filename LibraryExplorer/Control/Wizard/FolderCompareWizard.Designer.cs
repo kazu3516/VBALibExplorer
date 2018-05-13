@@ -286,6 +286,7 @@
             this.ファイルを開くOToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(155, 54);
+            this.contextMenuStrip1.Opened += new System.EventHandler(this.contextMenuStrip1_Opened);
             // 
             // 選択SToolStripMenuItem
             // 
@@ -341,6 +342,7 @@
             this.ファイルを開くOToolStripMenuItem1});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
             this.contextMenuStrip2.Size = new System.Drawing.Size(155, 26);
+            this.contextMenuStrip2.Opened += new System.EventHandler(this.contextMenuStrip2_Opened);
             // 
             // ファイルを開くOToolStripMenuItem1
             // 
@@ -471,7 +473,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(946, 451);
+            this.tabPage4.Size = new System.Drawing.Size(426, 206);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "tabPage4";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -487,7 +489,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(3, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(940, 445);
+            this.panel4.Size = new System.Drawing.Size(420, 200);
             this.panel4.TabIndex = 18;
             // 
             // label15
@@ -508,7 +510,7 @@
             this.targetFileTempFolderTextBox1.Location = new System.Drawing.Point(247, 112);
             this.targetFileTempFolderTextBox1.Name = "targetFileTempFolderTextBox1";
             this.targetFileTempFolderTextBox1.ReadOnly = true;
-            this.targetFileTempFolderTextBox1.Size = new System.Drawing.Size(621, 12);
+            this.targetFileTempFolderTextBox1.Size = new System.Drawing.Size(101, 12);
             this.targetFileTempFolderTextBox1.TabIndex = 17;
             this.targetFileTempFolderTextBox1.Text = "***";
             // 
@@ -530,7 +532,7 @@
             this.targetLibraryTempFolderTextBox1.Location = new System.Drawing.Point(247, 156);
             this.targetLibraryTempFolderTextBox1.Name = "targetLibraryTempFolderTextBox1";
             this.targetLibraryTempFolderTextBox1.ReadOnly = true;
-            this.targetLibraryTempFolderTextBox1.Size = new System.Drawing.Size(621, 12);
+            this.targetLibraryTempFolderTextBox1.Size = new System.Drawing.Size(101, 12);
             this.targetLibraryTempFolderTextBox1.TabIndex = 17;
             this.targetLibraryTempFolderTextBox1.Text = "***";
             // 
