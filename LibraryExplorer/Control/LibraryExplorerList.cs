@@ -236,16 +236,12 @@ namespace LibraryExplorer.Control {
         private void LibraryExplorerList_LibraryFileControllerChanged(object sender, EventArgs<ILibraryController> e) {
             ILibraryController oldController = e.OldValue;
             if (oldController != null) {
-                oldController.BeforeRefresh -= this.LibraryFileController_BeforeRefresh;
-                oldController.AfterRefresh -= this.LibraryFileController_AfterRefresh;
                 oldController.TargetFolderChanged -= this.LibraryFileController_TargetFolderChanged;
                 oldController.RequestRefresh -= this.LibraryFileController_RequestRefresh;
                 oldController.OutputLogRequest -= this.LibraryFileController_OutputLogRequest;
             }
 
             if (this.LibraryFileController != null) {
-                this.LibraryFileController.BeforeRefresh += this.LibraryFileController_BeforeRefresh;
-                this.LibraryFileController.AfterRefresh += this.LibraryFileController_AfterRefresh;
                 this.LibraryFileController.TargetFolderChanged += this.LibraryFileController_TargetFolderChanged;
                 this.LibraryFileController.RequestRefresh += this.LibraryFileController_RequestRefresh;
                 this.LibraryFileController.OutputLogRequest += this.LibraryFileController_OutputLogRequest;
@@ -266,32 +262,6 @@ namespace LibraryExplorer.Control {
             this.ShowTargetFolderPath(this.TargetFolder?.Path ?? "");
             this.RefreshDisplay();
         }
-
-        #region Before/After Refresh
-        private void LibraryFileController_BeforeRefresh(object sender, EventArgs e) {
-            //if (this.LibraryFileController.IsRequiredAsyncRefresh) {
-            //    //非同期更新の場合、カーソル変更
-            //    if (this.ParentForm != null) {
-            //        this.ParentForm.Cursor = Cursors.WaitCursor;
-            //        AppMain.logger.Debug($"{this.ParentForm?.GetType().Name} : Change Cursor - WaitCursor");
-            //    }
-            //}
-        }
-        private void LibraryFileController_AfterRefresh(object sender, EventArgs e) {
-            //if (this.LibraryFileController.IsRequiredAsyncRefresh) {
-            //    //非同期更新の場合、カーソル変更
-            //    if (this.ParentForm != null) {
-            //        if (this.LibraryFileController.RefreshComplete) {
-            //            //更新中に再度呼び出された場合、カーソル変更しない
-            //            this.ParentForm.Cursor = Cursors.Default;
-            //            AppMain.logger.Debug($"{this.ParentForm?.GetType().Name} : Change Cursor - DefaultCursor");
-            //        }
-            //    }
-            //}
-        }
-
-        #endregion
-
 
         #endregion
 
