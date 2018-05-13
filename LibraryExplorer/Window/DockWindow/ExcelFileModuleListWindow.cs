@@ -23,23 +23,38 @@ namespace LibraryExplorer.Window.DockWindow {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
-        private ExcelFileController m_ExcelFileController;
-
         private bool m_ExportComplete;
 
         #region TargetFile
+        private ExcelFile m_TargetFile;
         /// <summary>
-        /// TargetFileを取得または設定します。
+        /// TargetFileが変更された場合に発生するイベントです。
+        /// </summary>
+        public event EventHandler<EventArgs<ExcelFile>> TargetFileChanged;
+        /// <summary>
+        /// TargetFileが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnTargetFileChanged(EventArgs<ExcelFile> e) {
+            this.TargetFileChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// TargetFileを取得、設定します。
         /// </summary>
         public ExcelFile TargetFile {
             get {
-                return this.m_ExcelFileController.TargetFile;
+                return this.m_TargetFile;
             }
             set {
-                this.m_ExcelFileController.TargetFile = value;
+                this.SetProperty(ref this.m_TargetFile, value, ((oldValue) => {
+                    if (this.TargetFileChanged != null) {
+                        this.OnTargetFileChanged(new EventArgs<ExcelFile>(oldValue));
+                    }
+                }));
             }
         }
         #endregion
+
 
         #endregion
 
@@ -50,18 +65,23 @@ namespace LibraryExplorer.Window.DockWindow {
         public ExcelFileModuleListWindow() {
             InitializeComponent();
 
-            this.m_ExcelFileController = new ExcelFileController();
-            this.m_ExcelFileController.TargetFileChanged += this.M_ExcelFileController_TargetFileChanged;
-
-            this.libraryExplorerList1.LibraryFileController = this.m_ExcelFileController;
+            this.TargetFileChanged += this.ExcelFileModuleListWindow_TargetFileChanged;
 
             this.m_ExportComplete = true;
         }
 
-        private void M_ExcelFileController_TargetFileChanged(object sender, Controller.EventArgs<ExcelFile> e) {
-            this.TargetFolder = this.TargetFile.TemporaryFolder;
+        private void ExcelFileModuleListWindow_TargetFileChanged(object sender, EventArgs<ExcelFile> e) {
+            if (e.OldValue != null) {
+                e.OldValue.OutputLogRequest -= this.TargetFile_OutputLogRequest;
+            }
+            if (this.TargetFile != null) {
+                this.TargetFile.OutputLogRequest += this.TargetFile_OutputLogRequest;
+            }
         }
 
+        private void TargetFile_OutputLogRequest(object sender, Common.Request.OutputLogRequestEventArgs e) {
+            this.OnOutputLogRequest(e);
+        }
 
         #endregion
 
