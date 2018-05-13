@@ -3,13 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LibraryExplorer.Common.Request;
 
 namespace LibraryExplorer.Common.ExTool {
 
     /// <summary>
     /// 外部ツールを表すクラスの基本クラスです。
     /// </summary>
-    public abstract class ExternalTool {
+    public abstract class ExternalTool:IOutputLogRequest {
+
+        #region OutputLogRequestイベント
+        /// <summary>
+        /// 出力ウィンドウへのメッセージ出力要求を表すイベントです。
+        /// </summary>
+        public event OutputLogRequestEventHandler OutputLogRequest;
+        /// <summary>
+        /// OutputLogRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnOutputLogRequest(OutputLogRequestEventArgs e) {
+            this.OutputLogRequest?.Invoke(this, e);
+        }
+        #endregion
 
         /// <summary>
         /// 派生クラスでオーバーライドされると、外部ツールを起動します。
@@ -46,7 +61,6 @@ namespace LibraryExplorer.Common.ExTool {
 
     }
     #endregion
-
 
     #region ExternalToolResult
     /// <summary>
@@ -123,6 +137,7 @@ namespace LibraryExplorer.Common.ExTool {
     }
     #endregion
 
+    #region ExternalToolResultCode
     /// <summary>
     /// 外部ツールの結果の分類を表す列挙型です。
     /// </summary>
@@ -138,4 +153,5 @@ namespace LibraryExplorer.Common.ExTool {
 
     }
 
+    #endregion
 }
