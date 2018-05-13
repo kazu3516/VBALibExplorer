@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LibraryExplorer.Data;
 using LibraryExplorer.Common;
+using LibraryExplorer.Common.ExTool;
 using LibraryExplorer.Common.Request;
 namespace LibraryExplorer.Controller {
 
@@ -18,6 +19,11 @@ namespace LibraryExplorer.Controller {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        /// <summary>
+        /// 外部のエディタ
+        /// </summary>
+        private TextEditor m_TextEditor;
 
         #region BeforeRefreshイベント
         /// <summary>
@@ -190,6 +196,7 @@ namespace LibraryExplorer.Controller {
         /// LibraryFileControllerBaseオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
         protected LibraryFileControllerBase() {
+            this.m_TextEditor = new TextEditor();
         }
         #endregion
 
@@ -264,64 +271,10 @@ namespace LibraryExplorer.Controller {
         /// </summary>
         /// <param name="file"></param>
         public void OpenFile(LibraryFile file) {
-            //パスの設定
-            string editorPath = this.GetEditorPath();
-            //引数の設定
-            string editorArguments = this.GetEditorArguments(file);
-            //プロセスの起動
-            this.StartProcess(editorPath, editorArguments);
-        }
+            TextEditorInfo info = new TextEditorInfo(file);
 
-        /// <summary>
-        /// エディタのパスと引数を起動してプロセスを起動します。
-        /// </summary>
-        /// <param name="editorPath"></param>
-        /// <param name="editorArguments"></param>
-        private void StartProcess(string editorPath, string editorArguments) {
-            ProcessStartInfo info = new ProcessStartInfo() { FileName = editorPath, Arguments = editorArguments };
-            Process process = new Process() { StartInfo = info };
-            try {
-                process.Start();
-            }
-            catch (Exception ex) {
-                string errorMessage = $"{this.GetType().Name}.OpenFile プロセスの起動に失敗しました。Exception={ex.GetType().Name}, Message={ex.Message}, Path={editorPath}, Arguments={editorArguments}";
-                AppMain.logger.Error(errorMessage, ex);
-                throw new ApplicationException(errorMessage, ex);
-            }
+            this.m_TextEditor.Start(info);
         }
-
-        /// <summary>
-        /// エディタのパスを取得します。
-        /// エディタが指定されていない場合、Windows標準のメモ帳を使用します。
-        /// </summary>
-        /// <returns></returns>
-        private string GetEditorPath() {
-            string editorPath = AppMain.g_AppMain.AppInfo.EditorPath;
-            if (!File.Exists(editorPath)) {
-                editorPath = "NotePad";
-            }
-            return editorPath;
-        }
-
-        /// <summary>
-        /// エディタの引数を指定します。
-        /// 引数内の%filename%は指定したLibraryFileのFileNameに置き換えられます。
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        private string GetEditorArguments(LibraryFile file) {
-            string editorArguments = AppMain.g_AppMain.AppInfo.EditorArguments;
-            if (!editorArguments.Contains("%filename%")) {
-                //引数に%filename%が含まれていない場合、末尾に追加する
-                if (editorArguments.Length > 0) {
-                    editorArguments += " ";
-                }
-                editorArguments += "%filename%";
-            }
-            editorArguments = editorArguments.Replace("%filename%", "\"" + file.FileName + "\"");
-            return editorArguments;
-        }
-
 
         #endregion
 

@@ -169,7 +169,8 @@ namespace LibraryExplorer.Common.ExTool {
         /// TextEditorInfoオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
         /// <param name="targetFile"></param>
-        public TextEditorInfo(OfficeFile targetFile) {
+        public TextEditorInfo(LibraryFile targetFile) {
+            this.m_TargetFile = targetFile;
         }
         #endregion
 
