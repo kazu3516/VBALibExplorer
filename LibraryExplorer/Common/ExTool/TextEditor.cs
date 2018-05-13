@@ -17,7 +17,6 @@ namespace LibraryExplorer.Common.ExTool {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
-
         #region TargetFile
         private LibraryFile m_TargetFile;
         /// <summary>
@@ -33,8 +32,6 @@ namespace LibraryExplorer.Common.ExTool {
         }
         #endregion
 
-
-
         #endregion
 
         #region コンストラクタ
@@ -49,28 +46,25 @@ namespace LibraryExplorer.Common.ExTool {
 
         #endregion
 
+        
         /// <summary>
         /// エディタを起動します。
         /// </summary>
-        /// <param name="file"></param>
-        public void Start(LibraryFile file) {
-            this.OpenFile(file);
-        }
-        /// <summary>
-        /// エディタを起動します。
-        /// </summary>
-        public override void Start() {
-            this.Start(this.TargetFile);
+        public override ExternalToolResult Start(ExternalToolInfo info) {
+            if (!(info is TextEditorInfo editorInfo)) {
+                return ExternalToolResult.Failed;
+            }
+            this.OpenFile(editorInfo.TargetFile);
+            return ExternalToolResult.Success;
         }
 
         /// <summary>
         /// エディタを非同期に実行します。
         /// </summary>
         /// <returns></returns>
-        public override Task StartAsync() {
-            return Task.Factory.StartNew(()=> {
-                this.Start();
-                return false;
+        public override Task<ExternalToolResult> StartAsync(ExternalToolInfo info) {
+            return Task.Factory.StartNew<ExternalToolResult>(()=> {
+                return this.Start(info);
             });
         }
 
@@ -143,4 +137,65 @@ namespace LibraryExplorer.Common.ExTool {
         #endregion
 
     }
+
+    #region TextEditorInfo
+    /// <summary>
+    /// 外部のエディタを起動する時の付加情報を表すクラスです。
+    /// </summary>
+    public class TextEditorInfo :ExternalToolInfo{
+
+        #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region TargetFile
+        private LibraryFile m_TargetFile;
+        /// <summary>
+        /// TargetFileを取得、設定します。
+        /// </summary>
+        public LibraryFile TargetFile {
+            get {
+                return this.m_TargetFile;
+            }
+            set {
+                this.m_TargetFile = value;
+            }
+        }
+        #endregion
+
+
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// TextEditorInfoオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="targetFile"></param>
+        public TextEditorInfo(OfficeFile targetFile) {
+        }
+        #endregion
+
+    }
+    #endregion
+
+    #region TextEditorResult
+    /// <summary>
+    /// 外部のエディタを起動した時の結果を表すクラスです。
+    /// </summary>
+    public class TextEditorResult:ExternalToolResult {
+
+        #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// TextEditorResultオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        public TextEditorResult() {
+        }
+        #endregion
+
+        
+    }
+    #endregion
+
 }

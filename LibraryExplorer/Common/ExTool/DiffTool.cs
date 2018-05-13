@@ -36,7 +36,7 @@ namespace LibraryExplorer.Common.ExTool {
         /// <summary>
         /// 比較ツールを実行します。
         /// </summary>
-        public override void Start() {
+        public override ExternalToolResult Start(ExternalToolInfo info) {
             throw new NotImplementedException();
         }
 
@@ -44,7 +44,7 @@ namespace LibraryExplorer.Common.ExTool {
         /// 比較ツールを非同期に実行します。
         /// </summary>
         /// <returns></returns>
-        public override Task StartAsync() {
+        public override Task<ExternalToolResult> StartAsync(ExternalToolInfo info) {
             throw new NotImplementedException();
         }
 
