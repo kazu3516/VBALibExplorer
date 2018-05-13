@@ -12,7 +12,6 @@ using System.Windows.Forms;
 using LibraryExplorer.Common;
 using LibraryExplorer.Common.ExTool;
 using LibraryExplorer.Common.Request;
-using LibraryExplorer.Controller;
 using LibraryExplorer.Data;
 
 namespace LibraryExplorer.Control {

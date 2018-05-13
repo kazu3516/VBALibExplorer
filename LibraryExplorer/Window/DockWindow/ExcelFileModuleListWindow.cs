@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Common;
 using LibraryExplorer.Control;
-using LibraryExplorer.Controller;
 using LibraryExplorer.Data;
 using WeifenLuo.WinFormsUI.Docking;
 

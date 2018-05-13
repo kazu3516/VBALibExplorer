@@ -77,10 +77,6 @@
     <Compile Include="Common\Request\ShowCompareWindowRequest.cs" />
     <Compile Include="Common\Request\ShowLibraryFolderPropertyRequest.cs" />
     <Compile Include="Common\Request\ShowOfficeFilePropertyRequest.cs" />
-    <Compile Include="Controller\ExcelFileController.cs" />
-    <Compile Include="Controller\ILibraryController.cs" />
-    <Compile Include="Controller\LibraryFileController.cs" />
-    <Compile Include="Controller\LibraryFileControllerBase.cs" />
     <Compile Include="Control\Wizard\EditableWizardControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
