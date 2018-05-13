@@ -26,10 +26,16 @@ namespace LibraryExplorer.Window {
     /// </summary>
     public partial class MainWindow : Form {
 
+
+        //TODO:フォルダ操作機能の実装（新規作成、名前の変更、コピー、切り取り、貼り付け、削除）
+        //TODO:LibraryFileの操作機能の実装（コピー、切り取り、貼り付け、削除、フォルダ移動）
+
         //TODO:MainMenuの実装
         //TODO:ToolBarの実装
         //TODO:ヘルプファイルの作成
         //TODO:外部ツール機能の検討(Grep,WinMerge,Textエディタなどを想定)
+
+        //TODO:検索機能の実装
 
         //TODO:Excelファイルを指定し、ライブラリへの取り込み機能を作成する。(テンポラリフォルダからのコピー)
         //⇒ドラッグ＆ドロップでファイルのエクスポート/インポートを実施(ProjectHandlingのイメージ？)
@@ -37,7 +43,7 @@ namespace LibraryExplorer.Window {
 
 
         //TODO:Excel以外のOfficeファイルの対応(ライブラリが別になり、使用頻度も低いので優先度低。Exportのみ対応でも可)
-        
+
         //TODO:個人用マクロブック用のエクスポート機能を検討
 
 

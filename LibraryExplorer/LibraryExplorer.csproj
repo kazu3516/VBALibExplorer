@@ -265,8 +265,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Common\Resource\" />
+    <Content Include="Common\Resource\ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>COPY "$(ProjectDir)Common\Resource\ReadMe.txt" "$(TargetDir)ReadMe.txt"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
