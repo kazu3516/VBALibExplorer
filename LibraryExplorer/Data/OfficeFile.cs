@@ -15,7 +15,7 @@ namespace LibraryExplorer.Data {
     /// <summary>
     /// Moduleを内部に保持するOfficeファイルを表します。
     /// </summary>
-    public abstract class OfficeFile:IDisposable,IOutputLogRequest {
+    public abstract class OfficeFile:IOutputLogRequest {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
@@ -260,60 +260,9 @@ namespace LibraryExplorer.Data {
 
         #endregion
 
-        #region IDisposable Support
-        private bool disposedValue = false; // 重複する呼び出しを検出するには
-        /// <summary>
-        /// このインスタンスが保持するリソースを破棄します。
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
-            if (!disposedValue) {
-                if (disposing) {
-                    // マネージ状態を破棄します (マネージ オブジェクト)。
-                }
-
-                // アンマネージ リソース (アンマネージ オブジェクト) を解放し、下のファイナライザーをオーバーライドします。
-                //大きなフィールドを null に設定します。
-                this.DeleteTemporaryFolder();
-
-                disposedValue = true;
-            }
-        }
-
-        // 上の Dispose(bool disposing) にアンマネージ リソースを解放するコードが含まれる場合にのみ、ファイナライザーをオーバーライドします。
-        /// <summary>
-        /// このインスタンスのファイナライズを行います。
-        /// </summary>
-        ~OfficeFile() {
-        // このコードを変更しないでください。クリーンアップ コードを上の Dispose(bool disposing) に記述します。
-            Dispose(false);
-        }
-
-        // このコードは、破棄可能なパターンを正しく実装できるように追加されました。
-        /// <summary>
-        /// このファイルを閉じます。
-        /// </summary>
-        public void Close() {
-            // このコードを変更しないでください。クリーンアップ コードを上の Dispose(bool disposing) に記述します。
-            Dispose(true);
-            // 上のファイナライザーがオーバーライドされる場合は、次の行のコメントを解除してください。
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// IDisposableインターフェースを実装します。
-        /// このメソッドはCloseメソッド呼び出しと同じです。
-        /// </summary>
-        void IDisposable.Dispose() {
-            this.Close();
-        }
-        #endregion
-
-
         #region イベントハンドラ
 
         #endregion
-
 
         #region StartScript
         /// <summary>
@@ -422,9 +371,18 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-
-        #region TemporaryFolder
+        #region Close
+        /// <summary>
+        /// このファイルを閉じます。
+        /// 既定ではテンポラリフォルダを削除します。
+        /// </summary>
+        public virtual void Close() {
+            this.DeleteTemporaryFolder();
+        }
+        #endregion
         
+        #region TemporaryFolder
+
         #region ClearFilesInTemporaryFolder
         /// <summary>
         /// 一時フォルダ内のファイル、フォルダをすべて削除します。
