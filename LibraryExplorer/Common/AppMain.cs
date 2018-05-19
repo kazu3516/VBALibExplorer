@@ -88,6 +88,22 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
+        #region WorkspaceFolderPath
+        private string m_WorkspaceFolderPath;
+        /// <summary>
+        /// WorkspaceFolderPathを取得、設定します。
+        /// </summary>
+        public string WorkspaceFolderPath {
+            get {
+                return this.m_WorkspaceFolderPath;
+            }
+            set {
+                this.m_WorkspaceFolderPath = value;
+            }
+        }
+        #endregion
+
+
 
 
         #region AppInfo
@@ -115,6 +131,7 @@ namespace LibraryExplorer.Common {
             int logFolderIndex = this.AddUserPath("log");   //フルパス不要だが、念のためindexを保存
             int tempFolderIndex = this.AddUserPath("temp");
             int scriptFolderIndex = this.AddUserPath("script");
+            int workspaceFolderIndex = this.AddUserPath("Workspace");
             //int dataFolderIndex = this.AddUserPath("Data");
 
             base.OnStart();
@@ -122,6 +139,7 @@ namespace LibraryExplorer.Common {
             //初期化したフォルダのフルパスを取得
             this.m_TemporaryFolderPath = this.UserPathCollection[tempFolderIndex];
             this.m_ScriptFolderPath = this.UserPathCollection[scriptFolderIndex];
+            this.m_WorkspaceFolderPath = this.UserPathCollection[workspaceFolderIndex];
             //this.m_DataDirectory = this.UserPathCollection[dataFolderIndex];
 
             //***************************
