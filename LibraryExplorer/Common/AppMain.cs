@@ -17,7 +17,7 @@ namespace LibraryExplorer.Common {
     /// <summary>
     /// アプリケーションのエントリポイントを提供するクラスです。
     /// </summary>
-    public class AppMain:AppMainBase,IUseConfig {
+    public class AppMain:AppMainBase {
 
         #region Main
         /// <summary>
@@ -50,13 +50,8 @@ namespace LibraryExplorer.Common {
 
         #endregion
 
-        #region フィールド
-        private UseConfigHelper m_ConfigHelper;
 
-        #endregion
-
-        #region プロパティ
-
+        #region フィールド(メンバ変数、プロパティ、イベント)
 
         #region TemporaryFolderPath
         private string m_TemporaryFolderPath;
@@ -118,9 +113,6 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
-
-
-
         #region AppInfo
         private AppInfo m_AppInfo;
         /// <summary>
@@ -148,7 +140,6 @@ namespace LibraryExplorer.Common {
             int scriptFolderIndex = this.AddUserPath("script");
             int workspaceFolderIndex = this.AddUserPath("Workspace");
             int historyFolderIndex = this.AddUserPath("History");
-            //int dataFolderIndex = this.AddUserPath("Data");
 
             base.OnStart();
 
@@ -157,24 +148,19 @@ namespace LibraryExplorer.Common {
             this.m_ScriptFolderPath = this.UserPathCollection[scriptFolderIndex];
             this.m_WorkspaceFolderPath = this.UserPathCollection[workspaceFolderIndex];
             this.m_HistoryFolderPath = this.UserPathCollection[historyFolderIndex];
-            //this.m_DataDirectory = this.UserPathCollection[dataFolderIndex];
 
             //***************************
             //初期化
 
             //AppInfo
             this.m_AppInfo = new AppInfo();
-            this.RegisterUseConfigObject(this.m_AppInfo);
-
 
             //Window
             MainWindow form = new MainWindow();
             this.MainWindow = form;
 
-            //config
-            this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
 
-            this.RegisterUseConfigObject(this);
+            this.RegisterUseConfigObject(this.m_AppInfo);
             this.RegisterUseConfigObject(form.Project);
         }
         #endregion
@@ -223,75 +209,6 @@ namespace LibraryExplorer.Common {
             AppMain.logger.Info("LibraryExplorer:End\r\n");
         }
         #endregion
-
-        #region Config
-
-        #region IUseConfig
-        /// <summary>
-        /// configとして保存するデフォルト設定を作成します。
-        /// </summary>
-        /// <returns></returns>
-        public XmlConfigModel CreateDefaultConfig() {
-            XmlConfigModel config = new XmlConfigModel();
-            this.OnCreateDefaultConfig(config);
-            return config;
-        }
-        /// <summary>
-        /// 使用するConfigを取得または設定します。
-        /// </summary>
-        public XmlConfigModel Config {
-            get {
-                return this.m_ConfigHelper.Config;
-            }
-            set {
-                this.m_ConfigHelper.Config = value;
-            }
-        }
-        /// <summary>
-        /// configを読み込んで適用します。
-        /// </summary>
-        /// <param name="value"></param>
-        public void ApplyConfig(XmlConfigModel value) {
-            this.m_ConfigHelper.Config = value;
-            this.OnApplyConfig(value);
-        }
-        /// <summary>
-        /// 現在の設定をconfigに反映します。
-        /// </summary>
-        /// <param name="config"></param>
-        public void ReflectConfig(XmlConfigModel config) {
-            this.OnReflectConfig(config);
-        }
-        /// <summary>
-        /// configの値がデフォルト値かどうかを判定します。
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public bool IsDefaultValue(string name,XmlContentsItem value) {
-            return this.m_ConfigHelper.IsDefaultValue(name,value);
-        }
-        #endregion
-
-        #region Configの適用と更新
-        //Configの適用
-        private void OnApplyConfig(XmlConfigModel config) {
-            //this.m_DataDirectory = this.m_ConfigHelper.GetStringValue("setting.AccountBook:Data.Directory");
-        }
-        //Configの更新
-        private void OnReflectConfig(XmlConfigModel config) {
-            //config.AddXmlContentsItem("setting.AccountBook:Data.Directory",this.m_DataDirectory);
-        }
-        //既定のConfig
-        private void OnCreateDefaultConfig(XmlConfigModel config) {
-            //config.AddXmlContentsItem("setting.AccountBook:Data.Directory","Data");
-        }
-
-
-        #endregion
-
-        #endregion
-
 
     }
 }
