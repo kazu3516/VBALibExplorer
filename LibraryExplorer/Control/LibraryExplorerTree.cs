@@ -300,6 +300,10 @@ namespace LibraryExplorer.Control {
 
             this.エクスプローラを開くOToolStripMenuItem.Visible = this.SelectedFolder != null;
 
+            //一番上のセパレータ
+            this.toolStripMenuItem4.Visible = (this.SelectedFile != null) || (this.SelectedFolder != null);
+
+            this.閉じるCToolStripMenuItem.Enabled = (this.SelectedFile != null) || (this.SelectedFolder != null);
 
             this.全て展開EToolStripMenuItem.Enabled = (this.treeView1.Nodes.Cast<TreeNode>().Select(node=>node.Nodes.Count).Sum()) != 0;
             this.全て折りたたむCToolStripMenuItem.Enabled = (this.treeView1.Nodes.Cast<TreeNode>().Select(node => node.Nodes.Count).Sum()) != 0;

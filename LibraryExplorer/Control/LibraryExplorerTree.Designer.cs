@@ -41,7 +41,6 @@
             this.プロパティPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -210,6 +209,5 @@
         private System.Windows.Forms.ToolStripMenuItem 閉じるCToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem プロパティPToolStripMenuItem;
-        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
