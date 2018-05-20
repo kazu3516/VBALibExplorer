@@ -33,7 +33,6 @@ namespace LibraryExplorer.Window {
         //TODO:MainMenuの実装
         //TODO:ToolBarの実装
         //TODO:ヘルプファイルの作成
-        //TODO:外部ツール機能の検討(Grep,WinMerge,Textエディタなどを想定)
 
         //TODO:検索機能の実装
 
