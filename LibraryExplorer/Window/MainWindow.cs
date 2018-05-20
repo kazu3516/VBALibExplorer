@@ -293,11 +293,13 @@ namespace LibraryExplorer.Window {
 
 
             //各ウインドウを表示しておく
-            this.ShowExplorerTree();
-            this.ShowExplorerList();
-            this.ShowPreview();
-            this.ShowOutput();
-            
+            //表示処理中のエラーを出力するために、OutputWindowを最初に作成しておく
+            this.ShowOutput(true);
+            this.ShowExplorerTree(true);
+            this.ShowExplorerList(true);
+            this.ShowPreview(true);
+
+            this.RefreshDisplay(true);
             //
             //AccountBook
             //
@@ -608,6 +610,8 @@ namespace LibraryExplorer.Window {
         #region PreviewWindow
         //*******************************************************************************************************
         private void M_PreviewWindow_FormClosed(object sender, FormClosedEventArgs e) {
+            this.m_PreviewWindow.OutputLogRequest -= this.ReceiveOutputLogRequest;
+
             this.m_PreviewWindow = null;
         }
         private void M_PreviewWindow_VisibleChanged(object sender, EventArgs e) {
@@ -868,37 +872,57 @@ namespace LibraryExplorer.Window {
         #region 表示
         //*******************************************************************************************************
         //*******************************************************************************************************
-        private void ShowExplorerTree() {
+        /// <summary>
+        /// ツリー表示
+        /// </summary>
+        /// <param name="suspendRefreshDisplay"></param>
+        private void ShowExplorerTree(bool suspendRefreshDisplay = false) {
             ExplorerTreeWindow window = this.CreateExplorerTreeWindow();
             if (window.Visible) {
                 window.Hide();
             }
             else {
-                this.ShowExplorerTreeWindow(window);
+                this.ShowExplorerTreeWindow(window, suspendRefreshDisplay);
             }
         }
-        private void ShowExplorerList() {
+        /// <summary>
+        /// ライブラリ一覧
+        /// </summary>
+        /// <param name="suspendRefreshDisplay"></param>
+        private void ShowExplorerList(bool suspendRefreshDisplay = false) {
             LibraryFileListWindow window = this.CreateLibraryFileListWindow();
-            this.ShowLibraryFileListWindow(window);
+            this.ShowLibraryFileListWindow(window, suspendRefreshDisplay);
         }
-        private void ShowPreview() {
+        /// <summary>
+        /// プレビュー表示
+        /// </summary>
+        /// <param name="suspendRefreshDisplay"></param>
+        private void ShowPreview(bool suspendRefreshDisplay = false) {
             PreviewWindow window = this.CreatePreviewWindow();
             if (window.Visible) {
                 window.Hide();
             }
             else {
-                this.ShowPreviewWindow(window);
+                this.ShowPreviewWindow(window, suspendRefreshDisplay);
             }
         }
-        private void ShowOutput() {
+        /// <summary>
+        /// 出力
+        /// </summary>
+        /// <param name="suspendRefreshDisplay"></param>
+        private void ShowOutput(bool suspendRefreshDisplay = false) {
             OutputLogWindow window = this.CreateOutputLogWindow();
             if (window.Visible) {
                 window.Hide();
             }
             else {
-                this.ShowOutputLogWindow(window);
+                this.ShowOutputLogWindow(window, suspendRefreshDisplay);
             }
         }
+        /// <summary>
+        /// 最新の情報に更新
+        /// </summary>
+        /// <param name="keep"></param>
         private void RefreshDisplay(bool keep = false) {
             //Libraryを更新
             this.m_Project.Libraries.ForEach(x => x.Refresh());
@@ -1037,9 +1061,12 @@ namespace LibraryExplorer.Window {
         }
 
 
-        private void ShowExplorerTreeWindow(ExplorerTreeWindow window) {
+        private void ShowExplorerTreeWindow(ExplorerTreeWindow window, bool suspendRefreshDisplay = false) {
             window.Show(this.dockPanel, DockState.DockLeft);
-            this.RefreshDisplay(true);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
         }
         #endregion
 
@@ -1056,9 +1083,12 @@ namespace LibraryExplorer.Window {
         }
 
 
-        private void ShowLibraryFileListWindow(LibraryFileListWindow window) {
+        private void ShowLibraryFileListWindow(LibraryFileListWindow window,bool suspendRefreshDisplay = false) {
             window.Show(this.dockPanel, DockState.Document);
-            this.RefreshDisplay(true);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
         }
         #endregion
 
@@ -1070,12 +1100,13 @@ namespace LibraryExplorer.Window {
                 this.m_PreviewWindow = new PreviewWindow();
                 this.m_PreviewWindow.FormClosed += this.M_PreviewWindow_FormClosed;
                 this.m_PreviewWindow.VisibleChanged += this.M_PreviewWindow_VisibleChanged;
+                this.m_PreviewWindow.OutputLogRequest += this.ReceiveOutputLogRequest;
             }
             return this.m_PreviewWindow;
         }
 
 
-        private void ShowPreviewWindow(PreviewWindow window) {
+        private void ShowPreviewWindow(PreviewWindow window, bool suspendRefreshDisplay = false) {
             if (this.m_ActiveDocument == null) {
                 window.Show(this.dockPanel, DockState.DockBottom);
             }
@@ -1083,7 +1114,10 @@ namespace LibraryExplorer.Window {
                 DockPane pane = this.m_ActiveDocument.Pane;
                 window.Show(pane, DockAlignment.Bottom, 0.5);
             }
-            this.RefreshDisplay(true);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
         }
         #endregion
 
@@ -1099,12 +1133,15 @@ namespace LibraryExplorer.Window {
         }
 
 
-        private void ShowExcelFileModuleListWindow(ExcelFileModuleListWindow window) {
-            //表示したウインドウを記録
+        private void ShowExcelFileModuleListWindow(ExcelFileModuleListWindow window, bool suspendRefreshDisplay = false) {
+            //表示したウインドウを保持しておく（再表示用）
             this.m_ExcelFileModuleListWindows.Add(window);
 
             window.Show(this.dockPanel, DockState.Document);
-            this.RefreshDisplay(true);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
         }
         #endregion
 
@@ -1120,9 +1157,12 @@ namespace LibraryExplorer.Window {
             return this.m_OutputLogWindow;
         }
 
-        private void ShowOutputLogWindow(OutputLogWindow window) {
+        private void ShowOutputLogWindow(OutputLogWindow window, bool suspendRefreshDisplay = false) {
             window.Show(this.dockPanel, DockState.DockBottom);
-            this.RefreshDisplay(true);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
         }
 
         #endregion

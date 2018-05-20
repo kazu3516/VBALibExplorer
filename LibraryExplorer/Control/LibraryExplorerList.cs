@@ -328,7 +328,6 @@ namespace LibraryExplorer.Control {
 
                 AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Add ListViewItem complete. count={this.listView1.Items.Count}");
             }
-
         }
 
         #region ResizeColumns

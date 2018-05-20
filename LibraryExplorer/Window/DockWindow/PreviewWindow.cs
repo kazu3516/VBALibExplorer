@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Data;
+using LibraryExplorer.Common.Request;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace LibraryExplorer.Window.DockWindow {
@@ -15,10 +16,25 @@ namespace LibraryExplorer.Window.DockWindow {
     /// <summary>
     /// LibraryFileの内容をプレビューするウインドウを表すクラスです。
     /// </summary>
-    public partial class PreviewWindow : DockContent,IRefreshDisplay {
+    public partial class PreviewWindow : DockContent,IRefreshDisplay,IOutputLogRequest {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region OutputLogRequestイベント
+        /// <summary>
+        /// 出力ウィンドウへのメッセージ出力要求を表すイベントです。
+        /// </summary>
+        public event OutputLogRequestEventHandler OutputLogRequest;
+        /// <summary>
+        /// OutputLogRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnOutputLogRequest(OutputLogRequestEventArgs e) {
+            this.OutputLogRequest?.Invoke(this, e);
+        }
+
+        #endregion
 
 
         #region TargetFile
@@ -148,11 +164,17 @@ namespace LibraryExplorer.Window.DockWindow {
             else {
                 this.label2.Text = this.TargetFile.FileName;
                 this.toolTip1.SetToolTip(this.label2, this.TargetFile.FileName);
+                try {
 
-                string source = this.TargetFile.ReadFile();
+                    string source = this.TargetFile.ReadFile();
 
-                if (!keep || this.richTextBox1.Text != source) {
-                    this.richTextBox1.Text = source;
+                    if (!keep || this.richTextBox1.Text != source) {
+                        this.richTextBox1.Text = source;
+                    }
+                }
+                catch (Exception) {
+                    string msg = $"Error : failed to open file. filename = {this.TargetFile.FileName}\n";
+                    this.OnOutputLogRequest(new OutputLogRequestEventArgs(msg,this.GetType().Name));
                 }
             }
         }
