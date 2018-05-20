@@ -11,6 +11,12 @@ using LibraryExplorer.Common.Request;
 using System.Windows.Forms;
 namespace LibraryExplorer.Data {
 
+    //TODO:ExportDateを保持するように改造したので、起動時にOfficeFileのインスタンスが作られる。⇒TemporaryFolderが不正な状態になることが無いか再検討(フォルダが無い、ファイルが無い等)
+    //ファイルを手動で削除：問題なし。(残っているファイルのみ表示OK。再エクスポートにより復元)
+    //フォルダが無い：空の一時フォルダが再作成される。再エクスポートで復元：要検討★
+    //再エクスポートするとExportDateが変更される。この時点では、以前の一時フォルダにエクスポートされるが、
+    //再起動すると、ExportDateをもとにフォルダ名を生成するため、また空のフォルダが作られてしまう。：要修正★★
+
     #region OfficeFile
     /// <summary>
     /// Moduleを内部に保持するOfficeファイルを表します。
@@ -90,6 +96,36 @@ namespace LibraryExplorer.Data {
                 this.SetProperty(ref this.m_FileName, value, ((oldValue) => {
                     if (this.FileNameChanged != null) {
                         this.OnFileNameChanged(new EventArgs<string>(oldValue));
+                    }
+                }));
+            }
+        }
+        #endregion
+
+        #region ExportDate
+        private DateTime? m_ExportDate;
+        /// <summary>
+        /// ExportDateが変更された場合に発生するイベントです。
+        /// </summary>
+        public event EventHandler<EventArgs<DateTime?>> ExportDateChanged;
+        /// <summary>
+        /// ExportDateが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnExportDateChanged(EventArgs<DateTime?> e) {
+            this.ExportDateChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// ExportDateを取得、設定します。
+        /// </summary>
+        public DateTime? ExportDate {
+            get {
+                return this.m_ExportDate;
+            }
+            set {
+                this.SetProperty(ref this.m_ExportDate, value, ((oldValue) => {
+                    if (this.ExportDateChanged != null) {
+                        this.OnExportDateChanged(new EventArgs<DateTime?>(oldValue));
                     }
                 }));
             }
@@ -247,7 +283,11 @@ namespace LibraryExplorer.Data {
             this.m_FileType = fileType;    
             this.m_FileName = "";
             this.m_TemporaryFolderName = "";
+            this.m_ExportDate = null;
+
         }
+
+
         /// <summary>
         /// OfficeFileオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
@@ -336,8 +376,10 @@ namespace LibraryExplorer.Data {
         /// スクリプトは非同期に実行されます。
         /// </summary>
         /// <returns></returns>
-        public async Task ExportAll() {
+        private async Task ExportAll() {
             string scriptPath = Path.Combine(AppMain.g_AppMain.ScriptFolderPath, this.ExportScriptName);
+
+            this.m_ExportDate = DateTime.Now;
 
             await this.StartScript(scriptPath).ConfigureAwait(false);
 
@@ -436,15 +478,26 @@ namespace LibraryExplorer.Data {
 
         #region CreateTemporaryFolder
         /// <summary>
-        /// 一時フォルダを作成します。
+        /// 既定のフォルダ名を使用して、一時フォルダを作成します。
         /// 作成されたフォルダのパスはこのインスタンスが保持します。
         /// </summary>
         public void CreateTemporaryFolder() {
-            this.m_TemporaryFolderName = this.GetTemporaryFolderName();
-            this.CreateTemporaryFolder(this.m_TemporaryFolderName);
-            //作成されたTemporaryFolderを表すLibraryFolderオブジェクトも作成しておく
-            this.m_TemporaryFolder = new LibraryFolder() { Path = this.m_TemporaryFolderName };
-
+            this.CreateTemporaryFolder(this.GetTemporaryFolderName());
+        }
+        /// <summary>
+        /// 指定されたフォルダ名で一時フォルダを作成します。
+        /// 作成されたフォルダのパスはこのインスタンスが保持します。
+        /// </summary>
+        /// <param name="temporaryFolderPath"></param>
+        public void CreateTemporaryFolder(string temporaryFolderPath) {
+            if (temporaryFolderPath == "") {
+                //空文字列の場合は無効なパスとみなし、引数なしのCreateTemporaryFolderメソッド経由で再度呼び出される
+                this.CreateTemporaryFolder();
+            }
+            else {
+                this.m_TemporaryFolderName = temporaryFolderPath;
+                this._CreateTemporaryFolder(this.m_TemporaryFolderName);
+            }
         }
 
         /// <summary>
@@ -453,22 +506,24 @@ namespace LibraryExplorer.Data {
         /// <returns></returns>
         protected virtual string GetTemporaryFolderName() {
             string tempFolderName = this.GenerateTemporaryFolderName();
-            return Path.Combine(AppMain.g_AppMain.TemporaryFolderPath, tempFolderName);
+            return Path.Combine(AppMain.g_AppMain.WorkspaceFolderPath, tempFolderName);
         }
         /// <summary>
         /// 一時フォルダのフォルダ名を生成します。
-        /// 既定ではDateTime.Now.ToString($"yyyyMMdd_hhmmss")を返します。
+        /// date.ToString($"yyyyMMdd_hhmmss")を返します。
+        /// dateの既定値はnullです。dateがnullの場合、DateTime.Nowを使用します。
         /// </summary>
+        /// <param name="date"></param>
         /// <returns></returns>
-        protected virtual string GenerateTemporaryFolderName() {
-            return DateTime.Now.ToString($"yyyyMMdd_HHmmss");
+        protected virtual string GenerateTemporaryFolderName(DateTime? date = null) {
+            return (date ?? (DateTime.Now)).ToString($"yyyyMMdd_HHmmss");
         }
 
         /// <summary>
         /// パスを指定して、一時フォルダを作成します。
         /// </summary>
         /// <param name="path"></param>
-        protected void CreateTemporaryFolder(string path) {
+        protected void _CreateTemporaryFolder(string path) {
             try {
                 if (!Directory.Exists(path)) {
                     Directory.CreateDirectory(path);
@@ -479,6 +534,8 @@ namespace LibraryExplorer.Data {
                 AppMain.logger.Warn($"error occured when create temp folder.", ex);
                 throw new ApplicationException("一時フォルダの作成時に例外が発生しました。", ex);
             }
+            //作成されたTemporaryFolderを表すLibraryFolderオブジェクトも作成しておく
+            this.m_TemporaryFolder = new LibraryFolder() { Path = this.m_TemporaryFolderName };
         }
 
         #endregion
@@ -608,8 +665,8 @@ namespace LibraryExplorer.Data {
         /// TemporaryFolderの名前を生成します。
         /// </summary>
         /// <returns></returns>
-        protected override string GenerateTemporaryFolderName() {
-            return DateTime.Now.ToString($"yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.FileName)}");
+        protected override string GenerateTemporaryFolderName(DateTime? date = null) {
+            return (date ?? (DateTime.Now)).ToString($"yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.FileName)}");
         }
     }
     #endregion

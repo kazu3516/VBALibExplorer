@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kucl.Xml;
+using Kucl.Xml.XmlCfg;
 
 namespace LibraryExplorer.Data {
 
@@ -13,10 +15,11 @@ namespace LibraryExplorer.Data {
     /// Libraryは保存されますが、ファイルは実行時に読み込むため、
     /// Projectの情報は保存されず、実行時に動的に構成されます。
     /// </summary>
-    public class LibraryProject {
+    public class LibraryProject: IUseConfig {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+        private UseConfigHelper m_ConfigHelper;
 
 
         #region FolderClosedイベント
@@ -140,6 +143,8 @@ namespace LibraryExplorer.Data {
         /// LibraryProjectオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
         public LibraryProject() {
+            this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
+
             this.m_Libraries = new List<Library>();
             this.m_ExcelFiles = new List<OfficeFile>();
         }
@@ -192,7 +197,118 @@ namespace LibraryExplorer.Data {
                 //イベント発生
                 this.OnFileClosed(new EventArgs<OfficeFile>(file));
             }
-        } 
+        }
+        #endregion
+
+
+
+        #region Config
+
+        #region IUseConfig
+        /// <summary>
+        /// configとして保存するデフォルト設定を作成します。
+        /// </summary>
+        /// <returns></returns>
+        public XmlConfigModel CreateDefaultConfig() {
+            XmlConfigModel config = new XmlConfigModel();
+            this.OnCreateDefaultConfig(config);
+            return config;
+        }
+        /// <summary>
+        /// 使用するConfigを取得または設定します。
+        /// </summary>
+        public XmlConfigModel Config {
+            get {
+                return this.m_ConfigHelper.Config;
+            }
+            set {
+                this.m_ConfigHelper.Config = value;
+            }
+        }
+        /// <summary>
+        /// configを読み込んで適用します。
+        /// </summary>
+        /// <param name="value"></param>
+        public void ApplyConfig(XmlConfigModel value) {
+            this.m_ConfigHelper.Config = value;
+            this.OnApplyConfig(value);
+        }
+        /// <summary>
+        /// 現在の設定をconfigに反映します。
+        /// </summary>
+        /// <param name="config"></param>
+        public void ReflectConfig(XmlConfigModel config) {
+            this.OnReflectConfig(config);
+        }
+        /// <summary>
+        /// configの値がデフォルト値かどうかを判定します。
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool IsDefaultValue(string name, XmlContentsItem value) {
+            return this.m_ConfigHelper.IsDefaultValue(name, value);
+        }
+        #endregion
+
+        #region Configの適用と更新
+
+        //Configの適用
+        private void OnApplyConfig(XmlConfigModel config) {
+            //LibraryFolders
+            this.m_Libraries.Clear();
+            int folder_count = this.m_ConfigHelper.GetIntValue("LibraryExplorer.project:Project.LibraryFolders.Count");
+            for (int i = 0; i < folder_count; i++) {
+                string path = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.LibraryFolders.{i + 1}");
+                this.m_Libraries.Add(Library.FromFolder(path));
+            }
+            //OfficeFiles
+            this.m_ExcelFiles.Clear();
+            int file_count = this.m_ConfigHelper.GetIntValue("LibraryExplorer.project:Project.OfficeFiles.Count");
+            for (int i = 0; i < file_count; i++) {
+                string path = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.Path");
+                string exportPath = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportPath");
+                string dateString = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportDate");
+                DateTime? exportDate = (dateString != "" ? DateTime.Parse(dateString) : (DateTime?)null);
+
+                OfficeFile file = new ExcelFile() { FileName = path,ExportDate = exportDate };
+                file.CreateTemporaryFolder(exportPath);
+
+                this.m_ExcelFiles.Add(file);
+            }
+
+        }
+
+
+        //Configの更新
+        private void OnReflectConfig(XmlConfigModel config) {
+            //LibraryFolders
+            config.AddXmlContentsItem("LibraryExplorer.project:Project.LibraryFolders.Count", this.m_Libraries.Count);
+            for (int i = 0; i < this.m_Libraries.Count; i++) {
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.LibraryFolders.{i + 1}", this.m_Libraries[i].TargetFolder);
+            }
+            //OfficeFiels
+            config.AddXmlContentsItem("LibraryExplorer.project:Project.OfficeFiles.Count", this.m_ExcelFiles.Count);
+            for (int i = 0; i < this.m_ExcelFiles.Count; i++) {
+                OfficeFile file = this.m_ExcelFiles[i];
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.Path", file.FileName);
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportPath", file.TemporaryFolderName);
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportDate", file.ExportDate?.ToString() ?? "");
+            }
+
+
+        }
+
+        //既定のConfig
+        private void OnCreateDefaultConfig(XmlConfigModel config) {
+            //LibraryProject
+            config.AddXmlContentsItem("LibraryExplorer.project:Project.LibraryFolders.Count", 0);
+            config.AddXmlContentsItem("LibraryExplorer.project:Project.OfficeFiles.Count", 0);
+        }
+
+
+        #endregion
+
         #endregion
 
     }

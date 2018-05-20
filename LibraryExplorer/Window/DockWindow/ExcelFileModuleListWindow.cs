@@ -69,22 +69,26 @@ namespace LibraryExplorer.Window.DockWindow {
             this.m_ExportComplete = true;
         }
 
+
+        #endregion
+
+        #region イベントハンドラ
         private void ExcelFileModuleListWindow_TargetFileChanged(object sender, EventArgs<ExcelFile> e) {
             if (e.OldValue != null) {
                 e.OldValue.OutputLogRequest -= this.TargetFile_OutputLogRequest;
             }
             if (this.TargetFile != null) {
                 this.TargetFile.OutputLogRequest += this.TargetFile_OutputLogRequest;
+
+                //TargetFolderに設定しておく。
+                //Exportする場合、Export後に再設定される。
+                this.TargetFolder = this.TargetFile.TemporaryFolder;
             }
         }
 
         private void TargetFile_OutputLogRequest(object sender, Common.Request.OutputLogRequestEventArgs e) {
             this.OnOutputLogRequest(e);
         }
-
-        #endregion
-
-        #region イベントハンドラ
 
 
         #endregion

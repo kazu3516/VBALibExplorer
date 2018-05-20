@@ -64,13 +64,22 @@ namespace LibraryExplorer.Window {
         private OptionDialog m_OptionDialog;
         private AboutBox m_AboutBox;
         private LibraryPropertyDialog m_LibraryPropertyDialog;
-
-        //private List<Library> m_Libraries;
-        private LibraryProject m_Project;
-
+        
 
         private bool m_FirstShowWindow;
 
+
+        #region Project
+        private LibraryProject m_Project;
+        /// <summary>
+        /// Projectを取得します。
+        /// </summary>
+        public LibraryProject Project {
+            get {
+                return this.m_Project;
+            }
+        }
+        #endregion
 
         #region SelectedFolder
         private LibraryFolder m_SelectedFolder;
@@ -323,9 +332,11 @@ namespace LibraryExplorer.Window {
             //Libraryフォルダの保存
             AppMain.g_AppMain.AppInfo.LibraryFolders.Clear();
             AppMain.g_AppMain.AppInfo.LibraryFolders.AddRange(this.m_Project.Libraries.Select(lib => lib.TargetFolder));
-
-            //Excelファイルを閉じ、テンポラリフォルダを削除する。
-            this.m_Project.ExcelFiles.ForEach(file => file.Close());
+            //開いていたExcelファイルの保存
+            AppMain.g_AppMain.AppInfo.OfficeFiles.Clear();
+            AppMain.g_AppMain.AppInfo.OfficeFileExportDates.Clear();
+            AppMain.g_AppMain.AppInfo.OfficeFiles.AddRange(this.m_Project.ExcelFiles.Select(file => file.FileName));
+            AppMain.g_AppMain.AppInfo.OfficeFileExportDates.AddRange(this.m_Project.ExcelFiles.Select(file => file.ExportDate));
         } 
         #endregion
 
@@ -336,7 +347,9 @@ namespace LibraryExplorer.Window {
                 this.Size = new Size(AppMain.g_AppMain.AppInfo.MainWindowWidth, AppMain.g_AppMain.AppInfo.MainWindowHeight);
                 this.Location = new Point(AppMain.g_AppMain.AppInfo.MainWindowLeft, AppMain.g_AppMain.AppInfo.MainWindowTop);
 
+                //LibraryProjectの復元
                 this.m_Project.Libraries.AddRange(AppMain.g_AppMain.AppInfo.LibraryFolders.Select(path => Library.FromFolder(path)).Where(x => x != null));
+                this.m_Project.ExcelFiles.AddRange(AppMain.g_AppMain.AppInfo.OfficeFiles.Select((path, i) => new ExcelFile() { FileName = path, ExportDate = AppMain.g_AppMain.AppInfo.OfficeFileExportDates[i] }));
 
                 this.m_FirstShowWindow = false;
             }
@@ -759,14 +772,22 @@ namespace LibraryExplorer.Window {
             this.folderBrowserDialog1.SelectedPath = initialPath;
             if (this.folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
                 string path = this.folderBrowserDialog1.SelectedPath;
-                //重複登録のためのクロスチェック
-                if (!this.m_Project.Libraries.Any(x => x.TargetFolder.Contains(path) || path.Contains(x.TargetFolder))) {
-                    this.m_Project.Libraries.Add(Library.FromFolder(path));
-                    this.RefreshDisplay(true);
-                }
-                else {
-                    MessageBox.Show("指定されたフォルダまたはその一部がすでに登録されているため登録できません。", "重複登録エラー", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                //フォルダを開く
+                this.OpenFolder(path);
+            }
+        }
+        /// <summary>
+        /// 指定されたフォルダを開きます。
+        /// </summary>
+        /// <param name="folderPath"></param>
+        private void OpenFolder(string folderPath) {
+            //重複登録のためのクロスチェック
+            if (!this.m_Project.Libraries.Any(x => x.TargetFolder.Contains(folderPath) || folderPath.Contains(x.TargetFolder))) {
+                this.m_Project.Libraries.Add(Library.FromFolder(folderPath));
+                this.RefreshDisplay(true);
+            }
+            else {
+                MessageBox.Show("指定されたフォルダまたはその一部がすでに登録されているため登録できません。", "重複登録エラー", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         /// <summary>
@@ -776,25 +797,40 @@ namespace LibraryExplorer.Window {
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK) {
                 string filename = this.openFileDialog1.FileName;
 
-                //重複オープンは不可
-                if (!this.m_Project.ExcelFiles.Any(file => file.FileName == filename)) {                    
-                    ExcelFileModuleListWindow window = this.CreateExcelFileModuleListWindow();
-                    this.ShowExcelFileModuleListWindow(window);
-                    //
-                    ExcelFile file = new ExcelFile() { FileName = filename };
-                    this.m_Project.ExcelFiles.Add(file);
-
-                    window.TargetFile = file;
-                    await window.ExportModules();
-
-                    this.RefreshDisplay(true);
-                    this.SelectedOfficeFile = file;
-                }
-                else {
-                    MessageBox.Show("指定されたファイルは既に開かれているため開けません。", "重複オープンエラー", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                await this.OpenFile(filename);   
             }
         }
+
+        /// <summary>
+        /// 指定されたファイルを開きます。
+        /// エクスポート済みファイルを開く場合、exportDateにエクスポートされた日時を指定します。
+        /// exportDateがnullの場合、もしくは、ファイルの更新日付がexportDateを超えている場合は再度エクスポートします。
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="exportDate"></param>
+        /// <returns></returns>
+        private async Task OpenFile(string filename,DateTime? exportDate = null) {
+            //重複オープンは不可
+            if (!this.m_Project.ExcelFiles.Any(file => file.FileName == filename)) {
+                ExcelFileModuleListWindow window = this.CreateExcelFileModuleListWindow();
+                this.ShowExcelFileModuleListWindow(window);
+                //
+                ExcelFile file = new ExcelFile() { FileName = filename ,ExportDate = exportDate};
+                this.m_Project.ExcelFiles.Add(file);
+
+                window.TargetFile = file;
+                //エクスポート済みかどうかを判定し、エクスポートされていて、かつ最新の場合はスキップする。
+                if (file.ExportDate == null || file.UpdateDate > file.ExportDate) {
+                    await window.ExportModules();
+                }
+                this.RefreshDisplay(true);
+                this.SelectedOfficeFile = file;
+            }
+            else {
+                MessageBox.Show("指定されたファイルは既に開かれているため開けません。", "重複オープンエラー", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
         /// <summary>
         /// 再読み込み
         /// </summary>
@@ -804,6 +840,7 @@ namespace LibraryExplorer.Window {
             ExcelFileModuleListWindow window = this.FindDocument<ExcelFileModuleListWindow>(w => (w.TargetFile?.FileName ?? "") == filename);
             if (window != null) {
                 await window.ExportModules();
+                this.RefreshDisplay(true);
             }
         }
 

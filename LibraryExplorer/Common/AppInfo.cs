@@ -232,6 +232,11 @@ namespace LibraryExplorer.Common {
         #endregion
 
 
+
+        #endregion
+
+        #region LibraryProject関連
+
         #region LibraryFolders
         private List<string> m_LibraryFolders;
         /// <summary>
@@ -243,6 +248,38 @@ namespace LibraryExplorer.Common {
             }
         }
         #endregion
+
+        #region OfficeFiles
+        private List<string> m_OfficeFiles;
+        /// <summary>
+        /// OfficeFilesを取得、設定します。
+        /// </summary>
+        public List<string> OfficeFiles {
+            get {
+                return this.m_OfficeFiles;
+            }
+            set {
+                this.m_OfficeFiles = value;
+            }
+        }
+        #endregion
+
+        #region OfficeFileExportDates
+        private List<DateTime?> m_OfficeFileExportDates;
+        /// <summary>
+        /// OfficeFileExportDatesを取得、設定します。
+        /// </summary>
+        public List<DateTime?> OfficeFileExportDates {
+            get {
+                return this.m_OfficeFileExportDates;
+            }
+            set {
+                this.m_OfficeFileExportDates = value;
+            }
+        }
+        #endregion
+
+
 
         #endregion
 
@@ -485,6 +522,8 @@ namespace LibraryExplorer.Common {
             this.m_HasOtherFilesExtentions = new Dictionary<string, List<string>>();
             this.m_TargetExtentions = new List<string>();
             this.m_LibraryFolders = new List<string>();
+            this.m_OfficeFiles = new List<string>();
+            this.m_OfficeFileExportDates = new List<DateTime?>();
 
             this.Initialize();
 
@@ -548,11 +587,13 @@ namespace LibraryExplorer.Common {
             this.m_HasOtherFilesExtentions = new Dictionary<string, List<string>>(srcAppInfo.m_HasOtherFilesExtentions);
 
             //ライブラリ
-            //ヘッダ
             this.m_LibraryHeaderStart = srcAppInfo.m_LibraryHeaderStart;
             this.m_LibraryHeaderEnd = srcAppInfo.m_LibraryHeaderEnd;
-            //フォルダ
+
+            //LibraryProject
             this.m_LibraryFolders = new List<string>(srcAppInfo.m_LibraryFolders);
+            this.m_OfficeFiles = new List<string>(srcAppInfo.m_OfficeFiles);
+            this.m_OfficeFileExportDates = new List<DateTime?>(srcAppInfo.m_OfficeFileExportDates);
 
             //エディタ設定
             this.m_EditorPath = srcAppInfo.m_EditorPath;
@@ -648,10 +689,7 @@ namespace LibraryExplorer.Common {
             this.OnApplyHasOtherFilesExtentions();
             
             //Library関連
-            //ヘッダ
             this.OnApplyHeaderInfo();
-            //フォルダパス
-            this.OnApplyFolderPath();
 
             //エディタ設定
             this.OnApplyEditorInfo();
@@ -675,10 +713,7 @@ namespace LibraryExplorer.Common {
             this.OnReflectHasOtherFilesExtentions(config);
             
             //Library関連
-            //ヘッダ
             this.OnReflectHeaderInfo(config);
-            //フォルダパス
-            this.OnReflectFolderPath(config);
 
             //エディタ設定
             this.OnReflectEditorInfo(config);
@@ -700,9 +735,9 @@ namespace LibraryExplorer.Common {
         /// </summary>
         private void OnApplyTargetExtentions() {
             this.m_TargetExtentions.Clear();
-            int ext_count = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Common.TargetExtentions.Count");
+            int ext_count = this.m_ConfigHelper.GetIntValue("LibraryExplorer.setting:Common.TargetExtentions.Count");
             for (int i = 0; i < ext_count; i++) {
-                string ext = this.m_ConfigHelper.GetStringValue($"setting.LibraryExplorer:Common.TargetExtentions.{i + 1}");
+                string ext = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.setting:Common.TargetExtentions.{i + 1}");
                 this.m_TargetExtentions.Add(ext);
             }
         } 
@@ -711,13 +746,13 @@ namespace LibraryExplorer.Common {
         /// </summary>
         private void OnApplyHasOtherFilesExtentions() {
             this.m_HasOtherFilesExtentions.Clear();
-            int ext_count2 = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Common.HasOtherFilesExtentions.Count");
+            int ext_count2 = this.m_ConfigHelper.GetIntValue("LibraryExplorer.setting:Common.HasOtherFilesExtentions.Count");
             for (int i = 0; i < ext_count2; i++) {
-                string ext = this.m_ConfigHelper.GetStringValue($"setting.LibraryExplorer:Common.HasOtherFilesExtentions.{i + 1}.Target");
-                int ext_count3 = this.m_ConfigHelper.GetIntValue($"setting.LibraryExplorer:Common.HasOtherFilesExtentions.{i + 1}.Count");
+                string ext = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.setting:Common.HasOtherFilesExtentions.{i + 1}.Target");
+                int ext_count3 = this.m_ConfigHelper.GetIntValue($"LibraryExplorer.setting:Common.HasOtherFilesExtentions.{i + 1}.Count");
                 List<string> ext_list = new List<string>();
                 for (int j = 0; j < ext_count3; j++) {
-                    string ext2 = this.m_ConfigHelper.GetStringValue($"setting.LibraryExplorer:Common.HasOtherFilesExtentions.{i + 1}.{j + 1}");
+                    string ext2 = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.setting:Common.HasOtherFilesExtentions.{i + 1}.{j + 1}");
                     ext_list.Add(ext2);
                 }
                 this.m_HasOtherFilesExtentions.Add(ext, ext_list);
@@ -730,9 +765,9 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectTargetExtentions(XmlConfigModel config) {
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.TargetExtentions.Count", this.m_TargetExtentions.Count);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.TargetExtentions.Count", this.m_TargetExtentions.Count);
             for (int i = 0; i < this.m_TargetExtentions.Count; i++) {
-                config.AddXmlContentsItem($"setting.LibraryExplorer:Common.TargetExtentions.{i + 1}", this.m_TargetExtentions[i]);
+                config.AddXmlContentsItem($"LibraryExplorer.setting:Common.TargetExtentions.{i + 1}", this.m_TargetExtentions[i]);
             }
         }
         /// <summary>
@@ -740,14 +775,14 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectHasOtherFilesExtentions(XmlConfigModel config) {
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.HasOtherFilesExtentions.Count", this.m_HasOtherFilesExtentions.Count);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.HasOtherFilesExtentions.Count", this.m_HasOtherFilesExtentions.Count);
             for (int i = 0; i < this.m_HasOtherFilesExtentions.Keys.Count; i++) {
                 string key = this.m_HasOtherFilesExtentions.Keys.ElementAt(i);
-                config.AddXmlContentsItem($"setting.LibraryExplorer:Common.HasOtherFilesExtentions.{i + 1}.Target", key);
+                config.AddXmlContentsItem($"LibraryExplorer.setting:Common.HasOtherFilesExtentions.{i + 1}.Target", key);
                 List<string> list = this.m_HasOtherFilesExtentions[key];
-                config.AddXmlContentsItem($"setting.LibraryExplorer:Common.HasOtherFilesExtentions.{i + 1}.Count", list.Count);
+                config.AddXmlContentsItem($"LibraryExplorer.setting:Common.HasOtherFilesExtentions.{i + 1}.Count", list.Count);
                 for (int j = 0; j < list.Count; j++) {
-                    config.AddXmlContentsItem($"setting.LibraryExplorer:Common.HasOtherFilesExtentions.{i + 1}.{j + 1}", list[j]);
+                    config.AddXmlContentsItem($"LibraryExplorer.setting:Common.HasOtherFilesExtentions.{i + 1}.{j + 1}", list[j]);
                 }
             }
         }
@@ -756,22 +791,11 @@ namespace LibraryExplorer.Common {
 
         #region Library関連
         /// <summary>
-        /// ライブラリフォルダ
-        /// </summary>
-        private void OnApplyFolderPath() {
-            this.m_LibraryFolders.Clear();
-            int folder_count = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Common.LibraryFolders.Count");
-            for (int i = 0; i < folder_count; i++) {
-                string path = this.m_ConfigHelper.GetStringValue($"setting.LibraryExplorer:Common.LibraryFolders.{i + 1}");
-                this.m_LibraryFolders.Add(path);
-            }
-        }
-        /// <summary>
         /// ライブラリヘッダ
         /// </summary>
         private void OnApplyHeaderInfo() {
-            this.m_LibraryHeaderStart = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:Common.LibraryHeader.Start");
-            this.m_LibraryHeaderEnd = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:Common.LibraryHeader.End");
+            this.m_LibraryHeaderStart = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:Library.Header.Start");
+            this.m_LibraryHeaderEnd = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:Library.Header.End");
         }
 
 
@@ -780,18 +804,8 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectHeaderInfo(XmlConfigModel config) {
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.LibraryHeader.Start", this.m_LibraryHeaderStart);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.LibraryHeader.End", this.m_LibraryHeaderEnd);
-        }
-        /// <summary>
-        /// ライブラリフォルダ
-        /// </summary>
-        /// <param name="config"></param>
-        private void OnReflectFolderPath(XmlConfigModel config) {
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.LibraryFolders.Count", this.m_LibraryFolders.Count);
-            for (int i = 0; i < this.m_LibraryFolders.Count; i++) {
-                config.AddXmlContentsItem($"setting.LibraryExplorer:Common.LibraryFolders.{i + 1}", this.m_LibraryFolders[i]);
-            }
+            config.AddXmlContentsItem("LibraryExplorer.setting:Library.Header.Start", this.m_LibraryHeaderStart);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Library.Header.End", this.m_LibraryHeaderEnd);
         }
 
         #endregion
@@ -801,8 +815,8 @@ namespace LibraryExplorer.Common {
         /// エディタ設定
         /// </summary>
         private void OnApplyEditorInfo() {
-            this.m_EditorPath = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:Editor.Path");
-            this.m_EditorArguments = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:Editor.Arguments");
+            this.m_EditorPath = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:Editor.Path");
+            this.m_EditorArguments = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:Editor.Arguments");
         }
 
 
@@ -811,8 +825,8 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectEditorInfo(XmlConfigModel config) {
-            Config.AddXmlContentsItem("setting.LibraryExplorer:Editor.Path", this.m_EditorPath);
-            Config.AddXmlContentsItem("setting.LibraryExplorer:Editor.Arguments", this.m_EditorArguments);
+            Config.AddXmlContentsItem("LibraryExplorer.setting:Editor.Path", this.m_EditorPath);
+            Config.AddXmlContentsItem("LibraryExplorer.setting:Editor.Arguments", this.m_EditorArguments);
         }
 
         #endregion
@@ -822,8 +836,8 @@ namespace LibraryExplorer.Common {
         /// 比較ツール設定
         /// </summary>
         private void OnApplyDiffToolInfo() {
-            this.m_DiffToolPath = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:DiffTool.Path");
-            this.m_DiffToolArguments = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:DiffTool.Arguments");
+            this.m_DiffToolPath = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:DiffTool.Path");
+            this.m_DiffToolArguments = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:DiffTool.Arguments");
         }
 
 
@@ -832,8 +846,8 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectDiffToolInfo(XmlConfigModel config) {
-            Config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Path", this.m_DiffToolPath);
-            Config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Arguments", this.m_DiffToolArguments);
+            Config.AddXmlContentsItem("LibraryExplorer.setting:DiffTool.Path", this.m_DiffToolPath);
+            Config.AddXmlContentsItem("LibraryExplorer.setting:DiffTool.Arguments", this.m_DiffToolArguments);
         }
 
         #endregion
@@ -843,8 +857,8 @@ namespace LibraryExplorer.Common {
         /// スクリプト
         /// </summary>
         private void OnApplyScriptInfo() {
-            this.m_ExcelModuleExportScriptName = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:Script.ExcelModuleExport");
-            this.m_ExcelModuleImportScriptName = this.m_ConfigHelper.GetStringValue("setting.LibraryExplorer:Script.ExcelModuleImport");
+            this.m_ExcelModuleExportScriptName = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:Script.ExcelModuleExport");
+            this.m_ExcelModuleImportScriptName = this.m_ConfigHelper.GetStringValue("LibraryExplorer.setting:Script.ExcelModuleImport");
         }
 
 
@@ -853,8 +867,8 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectScriptInfo(XmlConfigModel config) {
-            config.AddXmlContentsItem("setting.LibraryExplorer:Script.ExcelModuleExport", this.m_ExcelModuleExportScriptName);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Script.ExcelModuleImport", this.m_ExcelModuleExportScriptName);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleExport", this.m_ExcelModuleExportScriptName);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleImport", this.m_ExcelModuleExportScriptName);
         }
 
         #endregion
@@ -864,10 +878,10 @@ namespace LibraryExplorer.Common {
         /// ウインドウ領域
         /// </summary>
         private void OnApplyWindowBounds() {
-            this.m_MainWindowWidth = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Window.MainWindow.Size.Width");
-            this.m_MainWindowHeight = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Window.MainWindow.Size.Height");
-            this.m_MainWindowLeft = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Window.MainWindow.Location.Left");
-            this.m_MainWindowTop = this.m_ConfigHelper.GetIntValue("setting.LibraryExplorer:Window.MainWindow.Location.Top");
+            this.m_MainWindowWidth = this.m_ConfigHelper.GetIntValue("LibraryExplorer.setting:Window.MainWindow.Size.Width");
+            this.m_MainWindowHeight = this.m_ConfigHelper.GetIntValue("LibraryExplorer.setting:Window.MainWindow.Size.Height");
+            this.m_MainWindowLeft = this.m_ConfigHelper.GetIntValue("LibraryExplorer.setting:Window.MainWindow.Location.Left");
+            this.m_MainWindowTop = this.m_ConfigHelper.GetIntValue("LibraryExplorer.setting:Window.MainWindow.Location.Top");
         }
 
 
@@ -876,10 +890,10 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="config"></param>
         private void OnReflectWindowBounds(XmlConfigModel config) {
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Size.Width", this.m_MainWindowWidth);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Size.Height", this.m_MainWindowHeight);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Location.Left", this.m_MainWindowLeft);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Location.Top", this.m_MainWindowTop);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Size.Width", this.m_MainWindowWidth);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Size.Height", this.m_MainWindowHeight);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Location.Left", this.m_MainWindowLeft);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Location.Top", this.m_MainWindowTop);
         }
 
         #endregion
@@ -887,39 +901,36 @@ namespace LibraryExplorer.Common {
         //既定のConfig
         private void OnCreateDefaultConfig(XmlConfigModel config) {
             //対象拡張子
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.TargetExtentions.Count", 3);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.TargetExtentions.1", ".bas");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.TargetExtentions.2", ".frm");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.TargetExtentions.3", ".cls");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.HasOtherFilesExtentions.Count", 1);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.HasOtherFilesExtentions.1.Target", ".frm");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.HasOtherFilesExtentions.1.Count", 1);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.HasOtherFilesExtentions.1.1", ".frx");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.TargetExtentions.Count", 3);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.TargetExtentions.1", ".bas");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.TargetExtentions.2", ".frm");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.TargetExtentions.3", ".cls");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.HasOtherFilesExtentions.Count", 1);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.HasOtherFilesExtentions.1.Target", ".frm");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.HasOtherFilesExtentions.1.Count", 1);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Common.HasOtherFilesExtentions.1.1", ".frx");
 
             //Library関連
-            //ヘッダ
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.LibraryHeader.Start", "MY_LIBRARY_HEADER_START");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.LibraryHeader.End", "MY_LIBRARY_HEADER_END");
-            //フォルダパス
-            config.AddXmlContentsItem("setting.LibraryExplorer:Common.LibraryFolders.Count", 0);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Library.Header.Start", "MY_LIBRARY_HEADER_START");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Library.Header.End", "MY_LIBRARY_HEADER_END");
 
             //エディタ設定
-            config.AddXmlContentsItem("setting.LibraryExplorer:Editor.Path", "");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Editor.Arguments", "");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Editor.Path", "");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Editor.Arguments", "");
 
             //比較ツール設定
-            config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Path", "");
-            config.AddXmlContentsItem("setting.LibraryExplorer:DiffTool.Arguments", "");
+            config.AddXmlContentsItem("LibraryExplorer.setting:DiffTool.Path", "");
+            config.AddXmlContentsItem("LibraryExplorer.setting:DiffTool.Arguments", "");
 
             //スクリプト
-            config.AddXmlContentsItem("setting.LibraryExplorer:Script.ExcelModuleExport", "ExcelModuleExport.vbs");
-            config.AddXmlContentsItem("setting.LibraryExplorer:Script.ExcelModuleImport", "ExcelModuleImport.vbs");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleExport", "ExcelModuleExport.vbs");
+            config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleImport", "ExcelModuleImport.vbs");
 
             //MainWindowの位置とサイズ
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Size.Width", 400);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Size.Height", 300);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Location.Left", 50);
-            config.AddXmlContentsItem("setting.LibraryExplorer:Window.MainWindow.Location.Top", 50);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Size.Width", 400);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Size.Height", 300);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Location.Left", 50);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Window.MainWindow.Location.Top", 50);
 
         }
 

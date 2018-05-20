@@ -149,14 +149,16 @@ namespace LibraryExplorer.Common {
             this.m_AppInfo = new AppInfo();
             this.RegisterUseConfigObject(this.m_AppInfo);
 
-            //config
-            this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
-            this.RegisterUseConfigObject(this);
 
             //Window
             MainWindow form = new MainWindow();
             this.MainWindow = form;
 
+            //config
+            this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
+
+            this.RegisterUseConfigObject(this);
+            this.RegisterUseConfigObject(form.Project);
         }
         #endregion
 
