@@ -82,7 +82,7 @@ namespace LibraryExplorer.Window.DockWindow {
 
                 //TargetFolderに設定しておく。
                 //Exportする場合、Export後に再設定される。
-                this.TargetFolder = this.TargetFile.TemporaryFolder;
+                this.TargetFolder = this.TargetFile.WorkspaceFolder;
             }
         }
 
@@ -105,7 +105,7 @@ namespace LibraryExplorer.Window.DockWindow {
 
             await this.TargetFile.ExportAll(true);
             //Exportが終わったらTargetFolderの設定を行う。
-            this.TargetFolder = this.TargetFile.TemporaryFolder;
+            this.TargetFolder = this.TargetFile.WorkspaceFolder;
 
             this.Cursor = Cursors.Default;
             this.m_ExportComplete = true;

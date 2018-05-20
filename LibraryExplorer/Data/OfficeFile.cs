@@ -11,7 +11,7 @@ using LibraryExplorer.Common.Request;
 using System.Windows.Forms;
 namespace LibraryExplorer.Data {
 
-    //TODO:ExportDateを保持するように改造したので、起動時にOfficeFileのインスタンスが作られる。⇒TemporaryFolderが不正な状態になることが無いか再検討(フォルダが無い、ファイルが無い等)
+    //TODO:ExportDateを保持するように改造したので、起動時にOfficeFileのインスタンスが作られる。⇒WorkspaceFolderが不正な状態になることが無いか再検討(フォルダが無い、ファイルが無い等)
     //ファイルを手動で削除：問題なし。(残っているファイルのみ表示OK。再エクスポートにより復元)
     //フォルダが無い：空の一時フォルダが再作成される。再エクスポートで復元：要検討★⇒ExportPathも保存した。問題なし
     //再エクスポートするとExportDateが変更される。この時点では、以前の一時フォルダにエクスポートされるが、
@@ -185,26 +185,26 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region TemporaryFolderName
-        private string m_TemporaryFolderName;
+        #region WorkspaceFolderName
+        private string m_WorkspaceFolderName;
         /// <summary>
-        /// TemporaryFolderNameを取得、設定します。
+        /// WorkspaceFolderNameを取得、設定します。
         /// </summary>
-        public string TemporaryFolderName {
+        public string WorkspaceFolderName {
             get {
-                return this.m_TemporaryFolderName;
+                return this.m_WorkspaceFolderName;
             }
         }
         #endregion
 
-        #region TemporaryFolder
-        private LibraryFolder m_TemporaryFolder;
+        #region WorkspaceFolder
+        private LibraryFolder m_WorkspaceFolder;
         /// <summary>
-        /// TemporaryFolderを取得します。
+        /// WorkspaceFolderを取得します。
         /// </summary>
-        public LibraryFolder TemporaryFolder {
+        public LibraryFolder WorkspaceFolder {
             get {
-                return this.m_TemporaryFolder;
+                return this.m_WorkspaceFolder;
             }
         }
         #endregion
@@ -282,9 +282,8 @@ namespace LibraryExplorer.Data {
             this.m_ScriptOutputMessage = "";
             this.m_FileType = fileType;    
             this.m_FileName = "";
-            this.m_TemporaryFolderName = "";
+            this.m_WorkspaceFolderName = "";
             this.m_ExportDate = null;
-
         }
 
 
@@ -311,7 +310,7 @@ namespace LibraryExplorer.Data {
         /// <param name="scriptPath"></param>
         /// <returns></returns>
         protected Task StartScript(string scriptPath) {
-            string foldername = this.m_TemporaryFolderName;
+            string foldername = this.m_WorkspaceFolderName;
             string filename = this.m_FileName;
 
             var tcs = new TaskCompletionSource<bool>();
@@ -389,11 +388,11 @@ namespace LibraryExplorer.Data {
         /// スクリプトを起動して、対象ファイルから全てのモジュールをエクスポートします。
         /// スクリプトは非同期に実行されます。
         /// </summary>
-        /// <param name="makeTempDir">trueを指定すると、MakeEmptyTemporaryFolderを実行した後にエクスポートを行います。</param>
+        /// <param name="makeTempDir">trueを指定すると、MakeEmptyWorkspaceFolderを実行した後にエクスポートを行います。</param>
         /// <returns></returns>
         public async Task ExportAll(bool makeTempDir) {
             if (makeTempDir) {
-                this.MakeEmptyTemporaryFolder();
+                this.MakeEmptyWorkspaceFolder();
             }
 
             await this.ExportAll();
@@ -419,32 +418,32 @@ namespace LibraryExplorer.Data {
         /// 既定ではテンポラリフォルダを削除します。
         /// </summary>
         public virtual void Close() {
-            this.DeleteTemporaryFolder();
+            this.DeleteWorkspaceFolder();
         }
         #endregion
         
-        #region TemporaryFolder
+        #region WorkspaceFolder
 
-        #region ClearFilesInTemporaryFolder
+        #region ClearFilesInWorkspaceFolder
         /// <summary>
         /// 一時フォルダ内のファイル、フォルダをすべて削除します。
         /// </summary>
-        public void ClearTemporaryFolder() {
-            DirectoryInfo directory = new DirectoryInfo(this.m_TemporaryFolderName);
+        public void ClearWorkspaceFolder() {
+            DirectoryInfo directory = new DirectoryInfo(this.m_WorkspaceFolderName);
             if (!directory.Exists) {
                 return;
             }
             //ファイルの削除
-            this.DeleteAllFilesInTemporaryFolder(directory);
+            this.DeleteAllFilesInWorkspaceFolder(directory);
             //フォルダの削除
-            this.DeleteAllDirectoriesInTemporaryFolder(directory);
+            this.DeleteAllDirectoriesInWorkspaceFolder(directory);
         }
 
         /// <summary>
         /// 一時フォルダ内のすべてのファイルを削除します。
         /// </summary>
         /// <param name="directory"></param>
-        private void DeleteAllFilesInTemporaryFolder(DirectoryInfo directory) {
+        private void DeleteAllFilesInWorkspaceFolder(DirectoryInfo directory) {
             try {
 
                 FileInfo[] files = directory.GetFiles();
@@ -461,7 +460,7 @@ namespace LibraryExplorer.Data {
         /// 一時フォルダ内のすべてのフォルダを削除します。
         /// </summary>
         /// <param name="directory"></param>
-        private void DeleteAllDirectoriesInTemporaryFolder(DirectoryInfo directory) {
+        private void DeleteAllDirectoriesInWorkspaceFolder(DirectoryInfo directory) {
             try {
 
                 DirectoryInfo[] subDirectories = directory.GetDirectories();
@@ -476,36 +475,36 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region CreateTemporaryFolder
+        #region CreateWorkspaceFolder
         /// <summary>
         /// 既定のフォルダ名を使用して、一時フォルダを作成します。
         /// 作成されたフォルダのパスはこのインスタンスが保持します。
         /// </summary>
-        public void CreateTemporaryFolder() {
-            this.CreateTemporaryFolder(this.GetTemporaryFolderName());
+        public void CreateWorkspaceFolder() {
+            this.CreateWorkspaceFolder(this.GetWorkspaceFolderName());
         }
         /// <summary>
         /// 指定されたフォルダ名で一時フォルダを作成します。
         /// 作成されたフォルダのパスはこのインスタンスが保持します。
         /// </summary>
         /// <param name="temporaryFolderPath"></param>
-        public void CreateTemporaryFolder(string temporaryFolderPath) {
+        public void CreateWorkspaceFolder(string temporaryFolderPath) {
             if (temporaryFolderPath == "") {
-                //空文字列の場合は無効なパスとみなし、引数なしのCreateTemporaryFolderメソッド経由で再度呼び出される
-                this.CreateTemporaryFolder();
+                //空文字列の場合は無効なパスとみなし、引数なしのCreateWorkspaceFolderメソッド経由で再度呼び出される
+                this.CreateWorkspaceFolder();
             }
             else {
-                this.m_TemporaryFolderName = temporaryFolderPath;
-                this._CreateTemporaryFolder(this.m_TemporaryFolderName);
+                this.m_WorkspaceFolderName = temporaryFolderPath;
+                this._CreateWorkspaceFolder(this.m_WorkspaceFolderName);
             }
         }
 
         /// <summary>
-        /// GenerateTemporaryFolderNameメソッドで得られた名前と、アプリケーションで保持するtemporaryFolderPathを合成し、一時フォルダのフルパスを取得します。
+        /// GenerateWorkspaceFolderNameメソッドで得られた名前と、アプリケーションで保持するtemporaryFolderPathを合成し、一時フォルダのフルパスを取得します。
         /// </summary>
         /// <returns></returns>
-        protected virtual string GetTemporaryFolderName() {
-            string tempFolderName = this.GenerateTemporaryFolderName();
+        protected virtual string GetWorkspaceFolderName() {
+            string tempFolderName = this.GenerateWorkspaceFolderName();
             return Path.Combine(AppMain.g_AppMain.WorkspaceFolderPath, tempFolderName);
         }
         /// <summary>
@@ -515,7 +514,7 @@ namespace LibraryExplorer.Data {
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        protected virtual string GenerateTemporaryFolderName(DateTime? date = null) {
+        protected virtual string GenerateWorkspaceFolderName(DateTime? date = null) {
             return (date ?? (DateTime.Now)).ToString($"yyyyMMdd_HHmmss");
         }
 
@@ -523,7 +522,7 @@ namespace LibraryExplorer.Data {
         /// パスを指定して、一時フォルダを作成します。
         /// </summary>
         /// <param name="path"></param>
-        protected void _CreateTemporaryFolder(string path) {
+        protected void _CreateWorkspaceFolder(string path) {
             try {
                 if (!Directory.Exists(path)) {
                     Directory.CreateDirectory(path);
@@ -534,24 +533,24 @@ namespace LibraryExplorer.Data {
                 AppMain.logger.Warn($"error occured when create temp folder.", ex);
                 throw new ApplicationException("一時フォルダの作成時に例外が発生しました。", ex);
             }
-            //作成されたTemporaryFolderを表すLibraryFolderオブジェクトも作成しておく
-            this.m_TemporaryFolder = new LibraryFolder() { Path = this.m_TemporaryFolderName };
+            //作成されたWorkspaceFolderを表すLibraryFolderオブジェクトも作成しておく
+            this.m_WorkspaceFolder = new LibraryFolder() { Path = this.m_WorkspaceFolderName };
         }
 
         #endregion
 
-        #region DeleteTemporaryFolder
+        #region DeleteWorkspaceFolder
         /// <summary>
         /// このインスタンスが保持するパスを使用して、一時フォルダを削除します。
         /// </summary>
-        public void DeleteTemporaryFolder() {
-            this.DeleteTemporaryFolder(this.m_TemporaryFolderName);
+        public void DeleteWorkspaceFolder() {
+            this.DeleteWorkspaceFolder(this.m_WorkspaceFolderName);
         }
         /// <summary>
         /// パスを指定して、一時フォルダを削除します。
         /// </summary>
         /// <param name="path"></param>
-        protected void DeleteTemporaryFolder(string path) {
+        protected void DeleteWorkspaceFolder(string path) {
             try {
                 if (Directory.Exists(path)) {
                     Directory.Delete(path, true);
@@ -565,27 +564,27 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region ExistTemporaryFolder
+        #region ExistWorkspaceFolder
         /// <summary>
         /// テンポラリフォルダが存在するかどうかを返します。
         /// </summary>
         /// <returns></returns>
-        public bool ExistTemporaryFolder() {
-            return Directory.Exists(this.m_TemporaryFolderName);
+        public bool ExistWorkspaceFolder() {
+            return Directory.Exists(this.m_WorkspaceFolderName);
         }
 
         #endregion
 
-        #region MakeEmptyTemporaryFolder
+        #region MakeEmptyWorkspaceFolder
         /// <summary>
         /// 空のテンポラリフォルダを用意します。
         /// </summary>
-        public void MakeEmptyTemporaryFolder() {
-            if (this.ExistTemporaryFolder()) {
-                this.ClearTemporaryFolder();
+        public void MakeEmptyWorkspaceFolder() {
+            if (this.ExistWorkspaceFolder()) {
+                this.ClearWorkspaceFolder();
             }
             else {
-                this.CreateTemporaryFolder();
+                this.CreateWorkspaceFolder();
             }
         }
         #endregion
@@ -662,10 +661,10 @@ namespace LibraryExplorer.Data {
         #endregion
 
         /// <summary>
-        /// TemporaryFolderの名前を生成します。
+        /// WorkspaceFolderの名前を生成します。
         /// </summary>
         /// <returns></returns>
-        protected override string GenerateTemporaryFolderName(DateTime? date = null) {
+        protected override string GenerateWorkspaceFolderName(DateTime? date = null) {
             return (date ?? (DateTime.Now)).ToString($"yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.FileName)}");
         }
     }

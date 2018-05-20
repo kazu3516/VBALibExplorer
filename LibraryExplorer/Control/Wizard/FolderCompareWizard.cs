@@ -349,11 +349,11 @@ namespace LibraryExplorer.Control.Wizard {
                 this.targetFileModuleListView1.Items.Clear();
 
                 //nullまたはtemporaryFolderが存在しない場合、処理中断
-                if (!(this.m_TargetFile?.ExistTemporaryFolder() ?? false)) {
+                if (!(this.m_TargetFile?.ExistWorkspaceFolder() ?? false)) {
                     return;
                 }
 
-                List<LibraryFile> files = this.m_TargetFile.TemporaryFolder.GetLibraryFiles();
+                List<LibraryFile> files = this.m_TargetFile.WorkspaceFolder.GetLibraryFiles();
                 //対象ファイルのリストに表示
                 this.targetFileModuleListView1.Items.AddRange(files.Select(x => new TargetFileModuleListViewItem(x)).ToArray());
 
@@ -728,12 +728,12 @@ namespace LibraryExplorer.Control.Wizard {
             this.m_OutputFolder = tempFolder;
         }
         private void ShowTemporaryFolderPath() {
-            this.targetFileTempFolderTextBox1.Text = this.TargetFile.TemporaryFolder.Path;
+            this.targetFileTempFolderTextBox1.Text = this.TargetFile.WorkspaceFolder.Path;
             this.targetLibraryTempFolderTextBox1.Text = this.m_OutputFolder.Path;
         }
 
         private void CheckDiff() {
-            DiffToolInfo info = new DiffToolInfo(this.TargetFile.TemporaryFolder.Path, this.m_OutputFolder.Path);
+            DiffToolInfo info = new DiffToolInfo(this.TargetFile.WorkspaceFolder.Path, this.m_OutputFolder.Path);
             ExternalToolResult result = this.m_DiffTool.Start(info);
 
             if (result.ResultCode == ExternalToolResultCode.Failed) {
@@ -748,7 +748,7 @@ namespace LibraryExplorer.Control.Wizard {
 
         }
         private void ShowCompareWindow() {
-            string sourceFolderPath = this.TargetFile.TemporaryFolder.Path;
+            string sourceFolderPath = this.TargetFile.WorkspaceFolder.Path;
             string destinationFolderPath = this.m_OutputFolder.Path;
 
             this.OnNotifyParentRequest(new ShowCompareWindowRequestEventArgs(sourceFolderPath, destinationFolderPath));

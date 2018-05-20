@@ -601,7 +601,7 @@ namespace LibraryExplorer.Control {
                 alert = true;
                 toolTipText = "ファイルが存在しません。不要なファイルであればファイルを閉じてください。";
             }
-            else if (!file.ExistTemporaryFolder()) {
+            else if (!file.ExistWorkspaceFolder()) {
                 alert = true;
                 toolTipText = "エクスポートフォルダが存在しません。再エクスポートしてください。";
             }
