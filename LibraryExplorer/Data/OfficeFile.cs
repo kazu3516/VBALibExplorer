@@ -17,13 +17,34 @@ namespace LibraryExplorer.Data {
     //再エクスポートするとExportDateが変更される。この時点では、以前の一時フォルダにエクスポートされるが、
     //再起動すると、ExportDateをもとにフォルダ名を生成するため、また空のフォルダが作られてしまう。：要修正★★⇒ExportPathも保存した。問題なし
 
+
+    //TODO:NotifyParentRequestを誰が拾うのか検討する。(MainWindow?ExplorerTree?LibraryProject?)
+
     #region OfficeFile
     /// <summary>
     /// Moduleを内部に保持するOfficeファイルを表します。
     /// </summary>
+    /// <remarks>NotifyParentRequestイベントにはNotifyFileChangedRequest/NotifyWorkspaceFolderChangedRequestが渡されます。</remarks>
     public abstract class OfficeFile:IOutputLogRequest {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        private FileSystemWatcher m_TargetFileWatcher;
+        private FileSystemWatcher m_WorkspaceFolderWatcher;
+
+        #region NotifyParentRequestイベント
+        /// <summary>
+        /// 親コントロールに対して要求を送信するイベントです。
+        /// </summary>
+        public event RequestEventHandler NotifyParentRequest;
+        /// <summary>
+        /// NotifyParentRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
+        }
+        #endregion
 
         #region OutputLogRequestイベント
         /// <summary>
@@ -284,6 +305,9 @@ namespace LibraryExplorer.Data {
             this.m_FileName = "";
             this.m_WorkspaceFolderName = "";
             this.m_ExportDate = null;
+
+            this.m_TargetFileWatcher = new FileSystemWatcher();
+            this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
         }
 
 
@@ -300,6 +324,32 @@ namespace LibraryExplorer.Data {
         #endregion
 
         #region イベントハンドラ
+
+        #region TargetFileWatcher
+        /// <summary>
+        /// Changed,Deleted,Renamedを上位に伝えるイベントです。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TargetFileWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            this.OnNotifyParentRequest(new NotifyFileChangedRequestEventArgs(this, e));
+        }
+
+        #endregion
+
+        #region WorkspaceFolderWatcher
+        /// <summary>
+        /// Changed,Created,Deleted,Renamedを上位に伝えるイベントです。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, e));
+        }
+
+
+        #endregion
+
 
         #endregion
 
@@ -421,7 +471,54 @@ namespace LibraryExplorer.Data {
             this.DeleteWorkspaceFolder();
         }
         #endregion
-        
+
+        #region FileSystemWatcher
+        private void StartFileWatcher() {
+            
+            this.m_TargetFileWatcher.IncludeSubdirectories = false;
+            //this.m_TargetFileWatcher.SynchronizingObject = AppMain.g_AppMain.MainWindow;
+
+            this.m_TargetFileWatcher.Path = Path.GetDirectoryName(this.m_FileName);
+            this.m_TargetFileWatcher.Filter = Path.GetFileName(this.m_FileName);
+            this.m_TargetFileWatcher.NotifyFilter = NotifyFilters.LastAccess| NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName;
+
+            //イベントハンドラ登録
+            this.m_TargetFileWatcher.Changed += this.TargetFileWatcher_EventHandler;
+            this.m_TargetFileWatcher.Deleted += this.TargetFileWatcher_EventHandler;
+            this.m_TargetFileWatcher.Renamed += this.TargetFileWatcher_EventHandler;
+
+            //イベントを有効にして監視開始
+            this.m_TargetFileWatcher.EnableRaisingEvents = true;
+        }
+
+
+        private void StopFileWatcher() {
+            this.m_TargetFileWatcher.EnableRaisingEvents = false;
+        }
+
+        private void StartFolderWatcher() {
+            this.m_WorkspaceFolderWatcher.IncludeSubdirectories = false;
+
+            this.m_WorkspaceFolderWatcher.Path = this.WorkspaceFolderName;
+            this.m_WorkspaceFolderWatcher.Filter = "";
+            this.m_WorkspaceFolderWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName;
+
+            //イベントハンドラ登録
+            this.m_WorkspaceFolderWatcher.Changed += this.WorkspaceFolderWatcher_EventHandler;
+            this.m_WorkspaceFolderWatcher.Created += this.WorkspaceFolderWatcher_EventHandler;
+            this.m_WorkspaceFolderWatcher.Deleted += this.WorkspaceFolderWatcher_EventHandler;
+            this.m_WorkspaceFolderWatcher.Renamed += this.WorkspaceFolderWatcher_EventHandler;
+
+            //イベントを有効にして監視開始
+            this.m_WorkspaceFolderWatcher.EnableRaisingEvents = true;
+        }
+
+
+        private void StopFolderWatcher() {
+            this.m_WorkspaceFolderWatcher.EnableRaisingEvents = false;
+        }
+        #endregion
+
         #region WorkspaceFolder
 
         #region ClearFilesInWorkspaceFolder
