@@ -235,54 +235,6 @@ namespace LibraryExplorer.Common {
 
         #endregion
 
-        #region LibraryProject関連
-
-        #region LibraryFolders
-        private List<string> m_LibraryFolders;
-        /// <summary>
-        /// LibraryFoldersを取得します。
-        /// </summary>
-        public List<string> LibraryFolders {
-            get {
-                return this.m_LibraryFolders;
-            }
-        }
-        #endregion
-
-        #region OfficeFiles
-        private List<string> m_OfficeFiles;
-        /// <summary>
-        /// OfficeFilesを取得、設定します。
-        /// </summary>
-        public List<string> OfficeFiles {
-            get {
-                return this.m_OfficeFiles;
-            }
-            set {
-                this.m_OfficeFiles = value;
-            }
-        }
-        #endregion
-
-        #region OfficeFileExportDates
-        private List<DateTime?> m_OfficeFileExportDates;
-        /// <summary>
-        /// OfficeFileExportDatesを取得、設定します。
-        /// </summary>
-        public List<DateTime?> OfficeFileExportDates {
-            get {
-                return this.m_OfficeFileExportDates;
-            }
-            set {
-                this.m_OfficeFileExportDates = value;
-            }
-        }
-        #endregion
-
-
-
-        #endregion
-
         #region エディタ設定
 
         #region EditorPath
@@ -521,9 +473,6 @@ namespace LibraryExplorer.Common {
 
             this.m_HasOtherFilesExtentions = new Dictionary<string, List<string>>();
             this.m_TargetExtentions = new List<string>();
-            this.m_LibraryFolders = new List<string>();
-            this.m_OfficeFiles = new List<string>();
-            this.m_OfficeFileExportDates = new List<DateTime?>();
 
             this.Initialize();
 
@@ -589,11 +538,6 @@ namespace LibraryExplorer.Common {
             //ライブラリ
             this.m_LibraryHeaderStart = srcAppInfo.m_LibraryHeaderStart;
             this.m_LibraryHeaderEnd = srcAppInfo.m_LibraryHeaderEnd;
-
-            //LibraryProject
-            this.m_LibraryFolders = new List<string>(srcAppInfo.m_LibraryFolders);
-            this.m_OfficeFiles = new List<string>(srcAppInfo.m_OfficeFiles);
-            this.m_OfficeFileExportDates = new List<DateTime?>(srcAppInfo.m_OfficeFileExportDates);
 
             //エディタ設定
             this.m_EditorPath = srcAppInfo.m_EditorPath;

@@ -292,14 +292,8 @@ namespace LibraryExplorer.Window {
             this.SelectedLibraryFileChanged += this.MainWindow_SelectedLibraryFileChanged;
 
 
-            //各ウインドウを表示しておく
-            //表示処理中のエラーを出力するために、OutputWindowを最初に作成しておく
-            this.ShowOutput(true);
-            this.ShowExplorerTree(true);
-            this.ShowExplorerList(true);
-            this.ShowPreview(true);
 
-            this.RefreshDisplay(true);
+            //this.RefreshDisplay(true);
             //
             //AccountBook
             //
@@ -331,14 +325,6 @@ namespace LibraryExplorer.Window {
                 AppMain.g_AppMain.AppInfo.MainWindowTop = this.Top;
             }
 
-            //Libraryフォルダの保存
-            AppMain.g_AppMain.AppInfo.LibraryFolders.Clear();
-            AppMain.g_AppMain.AppInfo.LibraryFolders.AddRange(this.m_Project.Libraries.Select(lib => lib.TargetFolder));
-            //開いていたExcelファイルの保存
-            AppMain.g_AppMain.AppInfo.OfficeFiles.Clear();
-            AppMain.g_AppMain.AppInfo.OfficeFileExportDates.Clear();
-            AppMain.g_AppMain.AppInfo.OfficeFiles.AddRange(this.m_Project.ExcelFiles.Select(file => file.FileName));
-            AppMain.g_AppMain.AppInfo.OfficeFileExportDates.AddRange(this.m_Project.ExcelFiles.Select(file => file.ExportDate));
         } 
         #endregion
 
@@ -346,12 +332,23 @@ namespace LibraryExplorer.Window {
         private void MainWindow_VisibleChanged(object sender, EventArgs e) {
             //初回表示時のみConfigに従ってSize,Locationを設定する
             if (this.m_FirstShowWindow == true) {
+                //前回起動時のウインドウサイズと位置を復元
                 this.Size = new Size(AppMain.g_AppMain.AppInfo.MainWindowWidth, AppMain.g_AppMain.AppInfo.MainWindowHeight);
                 this.Location = new Point(AppMain.g_AppMain.AppInfo.MainWindowLeft, AppMain.g_AppMain.AppInfo.MainWindowTop);
 
-                //LibraryProjectの復元
-                this.m_Project.Libraries.AddRange(AppMain.g_AppMain.AppInfo.LibraryFolders.Select(path => Library.FromFolder(path)).Where(x => x != null));
-                this.m_Project.ExcelFiles.AddRange(AppMain.g_AppMain.AppInfo.OfficeFiles.Select((path, i) => new ExcelFile() { FileName = path, ExportDate = AppMain.g_AppMain.AppInfo.OfficeFileExportDates[i] }));
+                //各ウインドウを表示しておく
+                //表示処理中のエラーを出力するために、OutputWindowを最初に作成しておく
+                this.ShowOutput(true);
+                //TreeのRefreshDisplayはこの時点で呼び出ししておく
+                //SelectedFolderに初期値を設定した時に、ライブラリに存在しないという例外を回避するため
+                this.ShowExplorerTree();
+                this.ShowExplorerList(true);
+                this.ShowPreview(true);
+
+                //ライブラリが存在する場合、1つめのライブラリを表示しておく
+                if ((this.m_Project?.Libraries.Count ?? 0) > 0) {
+                    this.SelectedFolder = this.m_Project.Libraries[0].RootFolder;
+                }
 
                 this.m_FirstShowWindow = false;
             }

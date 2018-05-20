@@ -328,6 +328,13 @@ namespace LibraryExplorer.Control {
 
                 AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Add ListViewItem complete. count={this.listView1.Items.Count}");
             }
+            else {
+                //TargetFolder==nullは表示クリア用のためErrorではない
+                if (this.TargetFolder != null) {
+                    string msg = $"Error : directory is not found. name = {this.Parent.Text} , path = {targetPath}\n";
+                    this.OnOutputLogRequest(new OutputLogRequestEventArgs(msg, this.GetType().Name));
+                }
+            }
         }
 
         #region ResizeColumns
