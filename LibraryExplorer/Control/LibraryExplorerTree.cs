@@ -132,6 +132,7 @@ namespace LibraryExplorer.Control {
                 return (this.SelectedNode as OfficeFileTreeNode)?.TargetFile;
             }
             set {
+                //OfficeFileNodeが選択されていて、SelectedFileにnullが設定された場合、Nodeの選択を解除
                 if (value == null){
                     if((this.SelectedNode as OfficeFileTreeNode) != null) {
                         this.treeView1.SelectedNode = null;
@@ -260,11 +261,6 @@ namespace LibraryExplorer.Control {
 
             this.m_LibraryRootNode = new ApplicationFolderTreeNode("Librarys");
             this.m_FileRootNode = new ApplicationFolderTreeNode("Files");
-
-            //ExcelFileTreeNode node1 = new ExcelFileTreeNode("Test");
-            //node1.ImageIndex = 3;
-            //node1.SelectedImageIndex = 3;
-            //this.m_FileRootNode.Nodes.Add(node1);
 
             this.treeView1.Nodes.Add(this.m_LibraryRootNode);
             this.treeView1.Nodes.Add(this.m_FileRootNode);

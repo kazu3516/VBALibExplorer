@@ -369,15 +369,15 @@ namespace LibraryExplorer.Window {
             if (this.m_ExplorerTreeWindow != null) {
                 this.m_ExplorerTreeWindow.SelectedFolder = this.m_SelectedFolder;
             }
+
             if (this.SelectedFolder != null) {
+                //nullの場合、表示は保持する
                 if (this.m_LibraryFileListWindow == null) {
                     this.CreateLibraryFileListWindow();
                     this.ShowLibraryFileListWindow(this.m_LibraryFileListWindow);
                 }
-                //nullの場合、表示は保持する
                 this.m_LibraryFileListWindow.SetTargetFolder(this.m_SelectedFolder);
                 this.m_LibraryFileListWindow.Activate();
-                
             }
         }
         #endregion
@@ -511,7 +511,6 @@ namespace LibraryExplorer.Window {
                     }
                     break;
             }
-
         }
         #endregion
 
