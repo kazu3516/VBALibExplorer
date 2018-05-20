@@ -103,6 +103,21 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
+        #region HistoryFolderPath
+        private string m_HistoryFolderPath;
+        /// <summary>
+        /// HistoryFolderPathを取得、設定します。
+        /// </summary>
+        public string HistoryFolderPath {
+            get {
+                return this.m_HistoryFolderPath;
+            }
+            set {
+                this.m_HistoryFolderPath = value;
+            }
+        }
+        #endregion
+
 
 
 
@@ -132,6 +147,7 @@ namespace LibraryExplorer.Common {
             int tempFolderIndex = this.AddUserPath("temp");
             int scriptFolderIndex = this.AddUserPath("script");
             int workspaceFolderIndex = this.AddUserPath("Workspace");
+            int historyFolderIndex = this.AddUserPath("History");
             //int dataFolderIndex = this.AddUserPath("Data");
 
             base.OnStart();
@@ -140,6 +156,7 @@ namespace LibraryExplorer.Common {
             this.m_TemporaryFolderPath = this.UserPathCollection[tempFolderIndex];
             this.m_ScriptFolderPath = this.UserPathCollection[scriptFolderIndex];
             this.m_WorkspaceFolderPath = this.UserPathCollection[workspaceFolderIndex];
+            this.m_HistoryFolderPath = this.UserPathCollection[historyFolderIndex];
             //this.m_DataDirectory = this.UserPathCollection[dataFolderIndex];
 
             //***************************
