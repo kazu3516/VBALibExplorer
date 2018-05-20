@@ -87,7 +87,6 @@ namespace LibraryExplorer.Window.DockWindow {
 
         #endregion
 
-
         #region SelectedFolder
         /// <summary>
         /// SelectedFolderPathを取得、設定します。
@@ -102,7 +101,6 @@ namespace LibraryExplorer.Window.DockWindow {
         }
         #endregion
 
-
         #region SelectedFile
         /// <summary>
         /// SelectedFileを取得、設定します。
@@ -116,8 +114,6 @@ namespace LibraryExplorer.Window.DockWindow {
             }
         }
         #endregion
-
-
 
         #region SelectedNode
 

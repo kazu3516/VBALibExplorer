@@ -30,17 +30,18 @@
             this.エクスプローラを開くOToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ファイルの場所を開くFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.再エクスポートXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.閉じるCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.全て展開EToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.全て折りたたむCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.最新の情報に更新RToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.閉じるCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.プロパティPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
-            this.プロパティPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -56,6 +57,7 @@
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Name = "treeView1";
             this.treeView1.SelectedImageIndex = 0;
+            this.treeView1.ShowNodeToolTips = true;
             this.treeView1.Size = new System.Drawing.Size(263, 326);
             this.treeView1.TabIndex = 1;
             this.treeView1.AfterCollapse += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterCollapse);
@@ -78,7 +80,7 @@
             this.toolStripMenuItem3,
             this.プロパティPToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(187, 226);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(187, 204);
             this.contextMenuStrip1.Opened += new System.EventHandler(this.contextMenuStrip1_Opened);
             // 
             // エクスプローラを開くOToolStripMenuItem
@@ -101,6 +103,18 @@
             this.再エクスポートXToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.再エクスポートXToolStripMenuItem.Text = "再エクスポート(&X)";
             this.再エクスポートXToolStripMenuItem.Click += new System.EventHandler(this.再エクスポートXToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(183, 6);
+            // 
+            // 閉じるCToolStripMenuItem
+            // 
+            this.閉じるCToolStripMenuItem.Name = "閉じるCToolStripMenuItem";
+            this.閉じるCToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.閉じるCToolStripMenuItem.Text = "閉じる(&C)";
+            this.閉じるCToolStripMenuItem.Click += new System.EventHandler(this.閉じるCToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -138,12 +152,12 @@
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(183, 6);
             // 
-            // 閉じるCToolStripMenuItem
+            // プロパティPToolStripMenuItem
             // 
-            this.閉じるCToolStripMenuItem.Name = "閉じるCToolStripMenuItem";
-            this.閉じるCToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.閉じるCToolStripMenuItem.Text = "閉じる(&C)";
-            this.閉じるCToolStripMenuItem.Click += new System.EventHandler(this.閉じるCToolStripMenuItem_Click);
+            this.プロパティPToolStripMenuItem.Name = "プロパティPToolStripMenuItem";
+            this.プロパティPToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.プロパティPToolStripMenuItem.Text = "プロパティ(&P)";
+            this.プロパティPToolStripMenuItem.Click += new System.EventHandler(this.プロパティPToolStripMenuItem_Click);
             // 
             // imageList1
             // 
@@ -153,7 +167,8 @@
             this.imageList1.Images.SetKeyName(1, "folder-open_16.png");
             this.imageList1.Images.SetKeyName(2, "documents_16.png");
             this.imageList1.Images.SetKeyName(3, "Excel.png");
-            this.imageList1.Images.SetKeyName(4, "Visio.png");
+            this.imageList1.Images.SetKeyName(4, "Excel_Alert.png");
+            this.imageList1.Images.SetKeyName(5, "Visio.png");
             // 
             // panel1
             // 
@@ -163,18 +178,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(263, 326);
             this.panel1.TabIndex = 1;
-            // 
-            // プロパティPToolStripMenuItem
-            // 
-            this.プロパティPToolStripMenuItem.Name = "プロパティPToolStripMenuItem";
-            this.プロパティPToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.プロパティPToolStripMenuItem.Text = "プロパティ(&P)";
-            this.プロパティPToolStripMenuItem.Click += new System.EventHandler(this.プロパティPToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem4
-            // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(183, 6);
             // 
             // LibraryExplorerTree
             // 
@@ -207,5 +210,6 @@
         private System.Windows.Forms.ToolStripMenuItem 閉じるCToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem プロパティPToolStripMenuItem;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

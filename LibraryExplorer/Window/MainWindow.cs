@@ -369,12 +369,15 @@ namespace LibraryExplorer.Window {
             if (this.m_ExplorerTreeWindow != null) {
                 this.m_ExplorerTreeWindow.SelectedFolder = this.m_SelectedFolder;
             }
-            if (this.m_LibraryFileListWindow != null) {
-                if (this.SelectedFolder != null) {
-                    //nullの場合、表示は保持する
-                    this.m_LibraryFileListWindow.SetTargetFolder(this.m_SelectedFolder);
-                    this.m_LibraryFileListWindow.Activate();
+            if (this.SelectedFolder != null) {
+                if (this.m_LibraryFileListWindow == null) {
+                    this.CreateLibraryFileListWindow();
+                    this.ShowLibraryFileListWindow(this.m_LibraryFileListWindow);
                 }
+                //nullの場合、表示は保持する
+                this.m_LibraryFileListWindow.SetTargetFolder(this.m_SelectedFolder);
+                this.m_LibraryFileListWindow.Activate();
+                
             }
         }
         #endregion
@@ -498,10 +501,14 @@ namespace LibraryExplorer.Window {
             //ExplorerTreeの選択状態を合わせる
             switch (this.m_ActiveDocument) {
                 case ExcelFileModuleListWindow excelWindow:
-                    this.SelectedOfficeFile = excelWindow.TargetFile;
+                    if (excelWindow.TargetFile != null) {
+                        this.SelectedOfficeFile = excelWindow.TargetFile;
+                    }
                     break;
                 case LibraryFileListWindow libraryWindow:
-                    this.SelectedFolder = libraryWindow.TargetFolder;
+                    if (libraryWindow.TargetFolder != null) {
+                        this.SelectedFolder = libraryWindow.TargetFolder;
+                    }
                     break;
             }
 

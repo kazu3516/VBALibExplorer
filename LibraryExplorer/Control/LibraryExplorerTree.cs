@@ -21,6 +21,15 @@ namespace LibraryExplorer.Control {
     /// </summary>
     public partial class LibraryExplorerTree : UserControl {
 
+        #region 定数
+        private const int IMG_CLOSE_FODLER = 0;
+        private const int IMG_OPEN_FOLDER = 1;
+        private const int IMG_UNKNOWN_DOCUMENT = 2;
+        private const int IMG_EXCEL = 3;
+        private const int IMG_EXCEL_ALERT = 4;
+        private const int IMG_VISIO = 5;
+        #endregion
+
         #region フィールド(メンバ変数、プロパティ、イベント)
         private ExplorerTreeNode m_LibraryRootNode;
         private ExplorerTreeNode m_FileRootNode;
@@ -247,6 +256,7 @@ namespace LibraryExplorer.Control {
         private void Initialize() {
             this.m_TargetProject = new LibraryProject();
             this.TargetProjectChanged += this.ExplorerTreeWindow_TargetProjectChanged;
+            this.SelectedNodeChanged += this.LibraryExplorerTree_SelectedNodeChanged;
 
             this.m_LibraryRootNode = new ApplicationFolderTreeNode("Librarys");
             this.m_FileRootNode = new ApplicationFolderTreeNode("Files");
@@ -269,6 +279,17 @@ namespace LibraryExplorer.Control {
         private void ExplorerTreeWindow_TargetProjectChanged(object sender, EventArgs<LibraryProject> e) {
             this.RefreshDisplay();
         }
+
+        private void LibraryExplorerTree_SelectedNodeChanged(object sender, EventArgs<ExplorerTreeNode> e) {
+            if (this.SelectedNode != null) {
+                switch (this.SelectedNode) {
+                    case OfficeFileTreeNode officeNode:
+                        this.RefreshOfficeNode(officeNode);
+                        break;
+                }
+            }
+        }
+
 
         #region ContextMenu
         /// <summary>
@@ -318,28 +339,26 @@ namespace LibraryExplorer.Control {
         #region TreeView
         private void treeView1_AfterCollapse(object sender, TreeViewEventArgs e) {
             ExplorerTreeNode node = (ExplorerTreeNode)e.Node;
-            int imageIndex = 2;
+            int imageIndex = IMG_UNKNOWN_DOCUMENT;
             switch (node.NodeType) {
                 case ExplorerTreeNodeType.LibraryFolder:
                 case ExplorerTreeNodeType.ApplicationFolder:
-                    imageIndex = 0;
+                    imageIndex = IMG_OPEN_FOLDER;
                     break;
             }
-            node.ImageIndex = imageIndex;
-            node.SelectedImageIndex = imageIndex;
+            node.ImageIndex = node.SelectedImageIndex = imageIndex;
         }
 
         private void treeView1_AfterExpand(object sender, TreeViewEventArgs e) {
             ExplorerTreeNode node = (ExplorerTreeNode)e.Node;
-            int imageIndex = 2;
+            int imageIndex = IMG_UNKNOWN_DOCUMENT;
             switch (node.NodeType) {
                 case ExplorerTreeNodeType.LibraryFolder:
                 case ExplorerTreeNodeType.ApplicationFolder:
-                    imageIndex = 1;
+                    imageIndex = IMG_CLOSE_FODLER;
                     break;
             }
-            node.ImageIndex = imageIndex;
-            node.SelectedImageIndex = imageIndex;
+            node.ImageIndex = node.SelectedImageIndex = imageIndex;
 
         }
 
@@ -560,15 +579,35 @@ namespace LibraryExplorer.Control {
 
                 OfficeFileTreeNode node = this.m_FileRootNode.Nodes.Cast<OfficeFileTreeNode>().FirstOrDefault(x => x.TargetFile.FileName == file.FileName);
                 if (node == null) {
-                    node = new OfficeFileTreeNode(file) { ImageIndex = 3, SelectedImageIndex = 3 };
+                    node = new OfficeFileTreeNode(file) { ImageIndex = IMG_EXCEL, SelectedImageIndex = IMG_EXCEL };
                     this.m_FileRootNode.Nodes.Add(node);
                 }
                 node.TargetFile = file;
+
+                //ファイルのエラー状態のチェックなど
+                this.RefreshOfficeNode(node);
             }
 
             if (this.m_FileRootNode.Nodes.Count != 0) {
                 this.m_FileRootNode.Nodes[0].EnsureVisible();
             }
+        }
+
+        private void RefreshOfficeNode(OfficeFileTreeNode officeNode) {
+            OfficeFile file = officeNode.TargetFile;
+            bool alert = false;
+            string toolTipText = "";
+            if (!file.Exist) {
+                alert = true;
+                toolTipText = "ファイルが存在しません。不要なファイルであればファイルを閉じてください。";
+            }
+            else if (!file.ExistTemporaryFolder()) {
+                alert = true;
+                toolTipText = "エクスポートフォルダが存在しません。再エクスポートしてください。";
+            }
+            officeNode.ImageIndex = officeNode.SelectedImageIndex = (alert ? IMG_EXCEL_ALERT : IMG_EXCEL);
+            officeNode.ToolTipText = toolTipText;
+
         }
         #endregion
 
