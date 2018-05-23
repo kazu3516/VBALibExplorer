@@ -191,7 +191,7 @@ namespace LibraryExplorer.Control.Wizard {
             this.targetFileNameTextBox1.SelectionStart = 0;
             //対象プロジェクト
             this.targetLibraryNameListView1.Items.Clear();
-            this.TargetProject.Libraries.ForEach(lib => {
+            this.TargetProject.Libraries.ToList().ForEach(lib => {
                 this.targetLibraryNameListView1.Items.Add(new ListViewItem(Path.GetFileName(lib.TargetFolder)) { Tag = lib, Checked = true });
             });
             //ボタン状態、エラー表示のために、検証を行う

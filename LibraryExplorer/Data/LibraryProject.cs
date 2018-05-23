@@ -52,11 +52,11 @@ namespace LibraryExplorer.Data {
 
 
         #region Libraries
-        private List<Library> m_Libraries;
+        private IList<Library> m_Libraries;
         /// <summary>
         /// Librariesを取得します。
         /// </summary>
-        public List<Library> Libraries {
+        public IList<Library> Libraries {
             get {
                 return this.m_Libraries;
             }
@@ -64,11 +64,11 @@ namespace LibraryExplorer.Data {
         #endregion
 
         #region ExcelFiles
-        private List<OfficeFile> m_ExcelFiles;
+        private IList<OfficeFile> m_ExcelFiles;
         /// <summary>
         /// ExcelFilesを取得します。
         /// </summary>
-        public List<OfficeFile> ExcelFiles {
+        public IList<OfficeFile> ExcelFiles {
             get {
                 return this.m_ExcelFiles;
             }

@@ -496,7 +496,7 @@ namespace LibraryExplorer.Control {
             //}
 
             //LibraryとNodeを同期
-            this.m_TargetProject.Libraries.ForEach(lib => {
+            this.m_TargetProject.Libraries.ToList().ForEach(lib => {
                 AppMain.logger.Debug($"{this.GetType().Name}.RefreshDisplay / Show Library. Path={lib.TargetFolder}");
                 //子フォルダへ再帰処理
                 this.EnumerateFolder(this.m_LibraryRootNode, lib, lib.RootFolder);

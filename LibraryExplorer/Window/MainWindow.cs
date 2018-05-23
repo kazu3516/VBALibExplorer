@@ -539,7 +539,7 @@ namespace LibraryExplorer.Window {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void M_ExplorerTreeWindow_RefreshLibrariesRequest(object sender, EventArgs e) {
-            this.m_Project.Libraries.ForEach(x => x.Refresh());
+            this.m_Project.Libraries.ToList().ForEach(x => x.Refresh());
         }
 
         private void M_ExplorerTreeWindow_VisibleChanged(object sender, EventArgs e) {
@@ -927,7 +927,7 @@ namespace LibraryExplorer.Window {
         /// <param name="keep"></param>
         private void RefreshDisplay(bool keep = false) {
             //Libraryを更新
-            this.m_Project.Libraries.ForEach(x => x.Refresh());
+            this.m_Project.Libraries.ToList().ForEach(x => x.Refresh());
 
             //表示するデータの再設定
             if (this.m_ExplorerTreeWindow != null) {
