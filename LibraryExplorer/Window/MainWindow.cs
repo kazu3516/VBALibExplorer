@@ -1263,6 +1263,39 @@ namespace LibraryExplorer.Window {
             dialog.ShowDialog();
         }
 
+        FileSystemWatcher m_fileSystemWatcher;
+        //デバッグ用
+        private void fileSystemWatcherのテスト開始ToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (this.m_fileSystemWatcher == null) {
+                this.m_fileSystemWatcher = new FileSystemWatcher();
+
+                //イベントハンドラ登録
+                this.m_fileSystemWatcher.Changed += this.fileSystemWatcher_EventHandler;
+                this.m_fileSystemWatcher.Created += this.fileSystemWatcher_EventHandler;
+                this.m_fileSystemWatcher.Deleted += this.fileSystemWatcher_EventHandler;
+                this.m_fileSystemWatcher.Renamed += this.fileSystemWatcher_EventHandler;
+            }
+
+            this.m_fileSystemWatcher.Path = @"E:\02_Document\Document\Visual Studio 2017\Projects\LibraryExplorer\LibraryExplorer\bin\Debug";
+            this.m_fileSystemWatcher.Filter = "";
+            this.m_fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.DirectoryName;
+            this.m_fileSystemWatcher.IncludeSubdirectories = true;
+
+            //イベントを有効にして監視開始
+            this.m_fileSystemWatcher.EnableRaisingEvents = true;
+
+        }
+        //デバッグ用
+        private void fileSystemWatcherのテスト停止ToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (this.m_fileSystemWatcher == null) {
+                return;
+            }
+            this.m_fileSystemWatcher.EnableRaisingEvents = false;
+        }
+        //デバッグ用
+        private void fileSystemWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            Console.WriteLine($"{e.ChangeType.ToString()} : path={e.FullPath}");
+        }
 
         #endregion
     }

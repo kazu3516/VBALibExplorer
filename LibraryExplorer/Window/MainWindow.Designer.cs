@@ -78,6 +78,8 @@
             this.ヘルプLToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.fileSystemWatcherのテスト開始ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -357,7 +359,9 @@
             this.explorerTreeViewSelectedFolderPathToolStripMenuItem,
             this.explorerListWindowSelectedFileToolStripMenuItem,
             this.applicationMessageQueueのテストToolStripMenuItem,
-            this.folderCompareWizardの表示ToolStripMenuItem});
+            this.folderCompareWizardの表示ToolStripMenuItem,
+            this.fileSystemWatcherのテスト開始ToolStripMenuItem,
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem});
             this.デバッグメニューDToolStripMenuItem.Name = "デバッグメニューDToolStripMenuItem";
             this.デバッグメニューDToolStripMenuItem.Size = new System.Drawing.Size(109, 20);
             this.デバッグメニューDToolStripMenuItem.Text = "デバッグメニュー(&D)";
@@ -527,6 +531,20 @@
             this.openFileDialog1.Filter = "Excelファイル(*.xls;xlsm;xla;xlam;*.xlt;*.xltm)|*.xls;*.xlsm;*.xla;*.xlam;*.xlt;*.xlt" +
     "m";
             // 
+            // fileSystemWatcherのテスト開始ToolStripMenuItem
+            // 
+            this.fileSystemWatcherのテスト開始ToolStripMenuItem.Name = "fileSystemWatcherのテスト開始ToolStripMenuItem";
+            this.fileSystemWatcherのテスト開始ToolStripMenuItem.Size = new System.Drawing.Size(309, 22);
+            this.fileSystemWatcherのテスト開始ToolStripMenuItem.Text = "FileSystemWatcherのテスト開始";
+            this.fileSystemWatcherのテスト開始ToolStripMenuItem.Click += new System.EventHandler(this.fileSystemWatcherのテスト開始ToolStripMenuItem_Click);
+            // 
+            // fileSystemWatcherのテスト停止ToolStripMenuItem
+            // 
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem.Name = "fileSystemWatcherのテスト停止ToolStripMenuItem";
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem.Size = new System.Drawing.Size(309, 22);
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem.Text = "FileSystemWatcherのテスト停止";
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem.Click += new System.EventHandler(this.fileSystemWatcherのテスト停止ToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -606,5 +624,7 @@
         private System.Windows.Forms.ToolStripMenuItem folderCompareWizardの表示ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 再読み込みRToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem fileSystemWatcherのテスト開始ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fileSystemWatcherのテスト停止ToolStripMenuItem;
     }
 }
