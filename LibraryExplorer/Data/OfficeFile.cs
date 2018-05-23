@@ -20,6 +20,9 @@ namespace LibraryExplorer.Data {
 
     //TODO:NotifyParentRequestを誰が拾うのか検討する。(MainWindow?ExplorerTree?LibraryProject?)
 
+    //TODO:履歴管理のため、Export完了したらhistoryフォルダに丸ごとコピーする
+    //TODO:履歴管理のため、Import完了したらhistoryフォルダに丸ごとコピーする
+
     #region OfficeFile
     /// <summary>
     /// Moduleを内部に保持するOfficeファイルを表します。
