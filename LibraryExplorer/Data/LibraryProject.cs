@@ -24,6 +24,7 @@ namespace LibraryExplorer.Data {
         #region フィールド(メンバ変数、プロパティ、イベント)
         private UseConfigHelper m_ConfigHelper;
 
+        private FileSystemWatcher m_WorkspaceFolderWatcher;
 
         #region FolderClosedイベント
         /// <summary>
@@ -148,6 +149,7 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public LibraryProject() {
             this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
+            this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
 
             this.m_Libraries = new List<Library>();
 
@@ -158,6 +160,29 @@ namespace LibraryExplorer.Data {
             
         }
 
+        private void StartWorkspaceFolderWatcher() {
+            this.m_WorkspaceFolderWatcher.IncludeSubdirectories = false;
+            //this.m_TargetFileWatcher.SynchronizingObject = AppMain.g_AppMain.MainWindow;
+
+            this.m_WorkspaceFolderWatcher.Path = AppMain.g_AppMain.WorkspaceFolderPath;
+            this.m_WorkspaceFolderWatcher.Filter = "";
+            this.m_WorkspaceFolderWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.DirectoryName;
+
+            //イベントハンドラ登録
+            this.m_WorkspaceFolderWatcher.Deleted += this.WorkspaceFolderWatcher_EventHandler;
+            this.m_WorkspaceFolderWatcher.Renamed += this.WorkspaceFolderWatcher_EventHandler;
+
+            //イベントを有効にして監視開始
+            this.m_WorkspaceFolderWatcher.EnableRaisingEvents = true;
+
+        }
+
+        private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            string debugMessage = $"LibraryProject : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            AppMain.logger.Debug(debugMessage);
+
+
+        }
         #endregion
 
         #region イベントハンドラ
