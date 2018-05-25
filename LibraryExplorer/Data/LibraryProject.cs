@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Kucl.Xml;
 using Kucl.Xml.XmlCfg;
+using LibraryExplorer.Common;
 
 namespace LibraryExplorer.Data {
 
@@ -64,7 +67,8 @@ namespace LibraryExplorer.Data {
         #endregion
 
         #region ExcelFiles
-        private IList<OfficeFile> m_ExcelFiles;
+        private List<ExcelFile> m_ExcelFilesBackup;
+        private ObservableCollection<OfficeFile> m_ExcelFiles;
         /// <summary>
         /// ExcelFilesを取得します。
         /// </summary>
@@ -146,11 +150,120 @@ namespace LibraryExplorer.Data {
             this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
 
             this.m_Libraries = new List<Library>();
-            this.m_ExcelFiles = new List<OfficeFile>();
+
+            this.m_ExcelFilesBackup = new List<ExcelFile>();
+
+            this.m_ExcelFiles = new ObservableCollection<OfficeFile>();
+            this.m_ExcelFiles.CollectionChanged += this.M_ExcelFiles_CollectionChanged;
+            
         }
+
         #endregion
 
         #region イベントハンドラ
+
+        #region ExcelFiles_CollectionChanged
+        private void M_ExcelFiles_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            //NotypyParentRequestのイベントハンドラを動的に登録/解除する
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (ExcelFile file in e.NewItems) {
+                        this.m_ExcelFilesBackup.Add(file);
+                        this.ExcelFiles_OnAddItem(file);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (ExcelFile file in e.OldItems) {
+                        this.m_ExcelFilesBackup.Remove(file);
+                        this.ExcelFiles_OnRemoveItem(file);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    if (e.OldItems.Count != 0 && e.NewItems.Count != 0) {
+                        ExcelFile oldFile = (ExcelFile)e.OldItems[0];
+                        ExcelFile newFile = (ExcelFile)e.NewItems[0];
+                        this.m_ExcelFilesBackup[e.OldStartingIndex] = newFile;
+                        this.ExcelFiles_OnReplaceItem(e.OldStartingIndex, oldFile, newFile);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    if (e.NewItems.Count != 0) {
+                        ExcelFile file = (ExcelFile)e.NewItems[0];
+                        this.m_ExcelFilesBackup.RemoveAt(e.OldStartingIndex);
+                        this.m_ExcelFilesBackup.Insert(e.NewStartingIndex, file);
+                        this.ExcelFiles_OnMoveItem(file, e.OldStartingIndex, e.NewStartingIndex);
+                    }
+                    //処理無し
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    this.ExcelFiles_OnClearItem(this.m_ExcelFilesBackup);
+                    this.m_ExcelFilesBackup.Clear();
+                    break;
+            }
+#if DEBUG
+            System.Diagnostics.Debug.Assert(this.m_ExcelFiles.Count == this.m_ExcelFilesBackup.Count, "LibraryProject.ExcelFilesの内部整合性エラー");
+#endif
+        }
+        private void ExcelFiles_OnAddItem(ExcelFile file) {
+            //ExcelFilesにアイテムが追加された
+            if (file != null) {
+                file.NotifyParentRequest += this.ExcelFile_NotifyParentRequest;
+            }
+
+            string debugMessage = $"Project_ExcelFiles_Add_{file.FileName}";
+            AppMain.logger.Debug(debugMessage);
+        }
+
+
+        private void ExcelFiles_OnRemoveItem(ExcelFile file) {
+            //ExcelFilesからアイテムが削除された
+            if (file != null) {
+                file.NotifyParentRequest -= this.ExcelFile_NotifyParentRequest;
+            }
+
+            string debugMessage = $"Project_ExcelFiles_Remove_{file.FileName}";
+            AppMain.logger.Debug(debugMessage);
+        }
+        private void ExcelFiles_OnReplaceItem(int index,ExcelFile oldFile, ExcelFile newFile) {
+            //ExcelFilesのアイテムが置き換えられた
+            if (oldFile != null) {
+                oldFile.NotifyParentRequest -= this.ExcelFile_NotifyParentRequest;
+            }
+            if (newFile != null) {
+                newFile.NotifyParentRequest += this.ExcelFile_NotifyParentRequest;
+            }
+
+
+            string debugMessage = $"Project_ExcelFiles_Replace_{oldFile.FileName}";
+            AppMain.logger.Debug(debugMessage);
+        }
+        private void ExcelFiles_OnMoveItem(ExcelFile file, int oldIndex, int newIndex) {
+            //ExcelFilesにアイテムが移動された
+
+
+            string debugMessage = $"Project_ExcelFiles_Move_{file.FileName}";
+            AppMain.logger.Debug(debugMessage);
+        }
+        private void ExcelFiles_OnClearItem(IList<ExcelFile> files) {
+            //ExcelFilesにアイテムがクリアされた
+            foreach (ExcelFile file in files) {
+                if (file != null) {
+                    file.NotifyParentRequest -= this.ExcelFile_NotifyParentRequest;
+                }
+            }
+
+            string debugMessage = $"Project_ExcelFiles_Clear_{files.Count}";
+            AppMain.logger.Debug(debugMessage);
+        }
+        #endregion
+
+        #region ExcelFile
+        private void ExcelFile_NotifyParentRequest(object sender, Common.Request.RequestEventArgs e) {
+
+        }
+
+        #endregion
+
 
         #endregion
 
