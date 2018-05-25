@@ -235,7 +235,7 @@ namespace LibraryExplorer.Data {
                 file.NotifyParentRequest += this.ExcelFile_NotifyParentRequest;
             }
 
-            string debugMessage = $"Project_ExcelFiles_Add_{file.FileName}";
+            string debugMessage = $"LibraryProject : Add ExcelFile. path = {file.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
 
@@ -246,7 +246,7 @@ namespace LibraryExplorer.Data {
                 file.NotifyParentRequest -= this.ExcelFile_NotifyParentRequest;
             }
 
-            string debugMessage = $"Project_ExcelFiles_Remove_{file.FileName}";
+            string debugMessage = $"LibraryProject : Remove ExcelFile. path = {file.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
         private void ExcelFiles_OnReplaceItem(int index,ExcelFile oldFile, ExcelFile newFile) {
@@ -259,25 +259,25 @@ namespace LibraryExplorer.Data {
             }
 
 
-            string debugMessage = $"Project_ExcelFiles_Replace_{oldFile.FileName}";
+            string debugMessage = $"LibraryProjet : Replace ExcelFile. path = {oldFile.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
         private void ExcelFiles_OnMoveItem(ExcelFile file, int oldIndex, int newIndex) {
-            //ExcelFilesにアイテムが移動された
+            //ExcelFilesのアイテムが移動された
 
 
-            string debugMessage = $"Project_ExcelFiles_Move_{file.FileName}";
+            string debugMessage = $"LibraryProject : Move ExcelFile. path = {file.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
         private void ExcelFiles_OnClearItem(IList<ExcelFile> files) {
-            //ExcelFilesにアイテムがクリアされた
+            //ExcelFilesのアイテムがクリアされた
             foreach (ExcelFile file in files) {
                 if (file != null) {
                     file.NotifyParentRequest -= this.ExcelFile_NotifyParentRequest;
                 }
             }
 
-            string debugMessage = $"Project_ExcelFiles_Clear_{files.Count}";
+            string debugMessage = $"LibraryProject : Clear ExcelFiles. Count = {files.Count}";
             AppMain.logger.Debug(debugMessage);
         }
         #endregion
