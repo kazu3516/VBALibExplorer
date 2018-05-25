@@ -311,6 +311,8 @@ namespace LibraryExplorer.Data {
 
             this.m_TargetFileWatcher = new FileSystemWatcher();
             this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
+
+            this.FileNameChanged += this.OfficeFile_FileNameChanged;
         }
 
 
@@ -320,7 +322,7 @@ namespace LibraryExplorer.Data {
         /// <param name="filename"></param>
         /// <param name="fileType"></param>
         protected OfficeFile(string filename, OfficeFileType fileType) : this(fileType) {
-            this.m_FileName = filename;
+            this.FileName = filename;
         }
 
 
@@ -335,6 +337,9 @@ namespace LibraryExplorer.Data {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void TargetFileWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            string debugMessage = $"ExcelFile : TargetFile Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            AppMain.logger.Debug(debugMessage);
+
             this.OnNotifyParentRequest(new NotifyFileChangedRequestEventArgs(this, e));
         }
 
@@ -347,11 +352,24 @@ namespace LibraryExplorer.Data {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            string debugMessage = $"ExcelFile : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            AppMain.logger.Debug(debugMessage);
+
             this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, e));
         }
 
 
         #endregion
+
+        private void OfficeFile_FileNameChanged(object sender, EventArgs<string> e) {
+            //ファイル名が設定されたとき、ファイルが存在していたら監視を開始
+            if (File.Exists(this.m_FileName)) {
+                this.StartFileWatcher();
+            }
+            else {
+                this.StopFileWatcher();
+            }
+        }
 
 
         #endregion
@@ -475,7 +493,7 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region FileSystemWatcher
+        #region FileSystemWatcher関連
         private void StartFileWatcher() {
             
             this.m_TargetFileWatcher.IncludeSubdirectories = false;
@@ -499,12 +517,14 @@ namespace LibraryExplorer.Data {
             this.m_TargetFileWatcher.EnableRaisingEvents = false;
         }
 
+
         private void StartFolderWatcher() {
             this.m_WorkspaceFolderWatcher.IncludeSubdirectories = false;
+            //this.m_WorkspaceFolderWatcher.SynchronizingObject = AppMain.g_AppMain.MainWindow;
 
             this.m_WorkspaceFolderWatcher.Path = this.WorkspaceFolderName;
             this.m_WorkspaceFolderWatcher.Filter = "";
-            this.m_WorkspaceFolderWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName;
+            this.m_WorkspaceFolderWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName | NotifyFilters.DirectoryName;
 
             //イベントハンドラ登録
             this.m_WorkspaceFolderWatcher.Changed += this.WorkspaceFolderWatcher_EventHandler;
@@ -522,7 +542,7 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region WorkspaceFolder
+        #region WorkspaceFolder関連
 
         #region ClearFilesInWorkspaceFolder
         /// <summary>
@@ -600,7 +620,7 @@ namespace LibraryExplorer.Data {
         }
 
         /// <summary>
-        /// GenerateWorkspaceFolderNameメソッドで得られた名前と、アプリケーションで保持するtemporaryFolderPathを合成し、一時フォルダのフルパスを取得します。
+        /// GenerateWorkspaceFolderNameメソッドで得られた名前と、アプリケーションで保持するWorkspaceFolderPathを合成し、一時フォルダのフルパスを取得します。
         /// </summary>
         /// <returns></returns>
         protected virtual string GetWorkspaceFolderName() {
@@ -635,6 +655,9 @@ namespace LibraryExplorer.Data {
             }
             //作成されたWorkspaceFolderを表すLibraryFolderオブジェクトも作成しておく
             this.m_WorkspaceFolder = new LibraryFolder() { Path = this.m_WorkspaceFolderName };
+
+            //一時フォルダを作成したので、フォルダ監視を始める
+            this.StartFolderWatcher();
         }
 
         #endregion
@@ -661,6 +684,9 @@ namespace LibraryExplorer.Data {
                 AppMain.logger.Warn($"error occured when delete temp folder.", ex);
                 throw new ApplicationException("一時フォルダの削除時に例外が発生しました。", ex);
             }
+
+            //一時フォルダを削除したので、フォルダ監視終了
+            this.StopFolderWatcher();
         }
         #endregion
 
@@ -688,6 +714,12 @@ namespace LibraryExplorer.Data {
             }
         }
         #endregion
+
+        #endregion
+
+        #region historyフォルダ関連
+
+        
 
         #endregion
 
