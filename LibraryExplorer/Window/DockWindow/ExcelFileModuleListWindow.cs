@@ -83,6 +83,8 @@ namespace LibraryExplorer.Window.DockWindow {
                 //TargetFolderに設定しておく。
                 //Exportする場合、Export後に再設定される。
                 this.TargetFolder = this.TargetFile.WorkspaceFolder;
+
+                this.Text = $"エクスポート - {Path.GetFileName(this.TargetFile.FileName)}";
             }
         }
 
