@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LibraryExplorer.Common;
 using LibraryExplorer.Data;
 
 namespace LibraryExplorer.Window.Dialog {
@@ -167,6 +169,32 @@ namespace LibraryExplorer.Window.Dialog {
 
         #region イベントハンドラ        
 
+        #region LibraryPropertyDialog
+        private void LibraryPropertyDialog_VisibleChanged(object sender, EventArgs e) {
+            if (this.Visible) {
+                this.tabControl1.SelectedIndex = 0;
+                this.RefreshDisplay();
+            }
+        }
+
+        #region Targetの変更
+        private void LibraryPropertyDialog_TargetOfficeFileChanged(object sender, EventArgs<OfficeFile> e) {
+            if (this.TargetOfficeFile != null) {
+                this.TargetFolder = null;
+                this.RefreshDisplay();
+            }
+        }
+
+        private void LibraryPropertyDialog_TargetFolderChanged(object sender, EventArgs<LibraryFolder> e) {
+            if (this.TargetFolder != null) {
+                this.TargetOfficeFile = null;
+                this.RefreshDisplay();
+            }
+        }
+        #endregion
+
+        #endregion
+
         #region ボタン
 
         private void cancelButton_Click(object sender, EventArgs e) {
@@ -176,28 +204,145 @@ namespace LibraryExplorer.Window.Dialog {
         private void okButton_Click(object sender, EventArgs e) {
             //TODO:OKボタンの実装
         } 
+
+        /// <summary>
+        /// [フォルダを開く]ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void openHistoryFolderButton1_Click(object sender, EventArgs e) {
+            this.OpenFolder();
+        }
+        /// <summary>
+        /// [履歴の削除]ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deleteHistoryButton1_Click(object sender, EventArgs e) {
+            this.DeleteHistory();
+        }
+
         #endregion
 
-        private void LibraryPropertyDialog_TargetOfficeFileChanged(object sender, EventArgs<OfficeFile> e) {
-            if (this.TargetOfficeFile != null) {
-                this.TargetFolder = null;
+        #region historyListView
+        private void historyListView1_MouseDoubleClick(object sender, MouseEventArgs e) {
+            this.OpenFolder();
+        }
+        private void historyListView1_SelectedIndexChanged(object sender, EventArgs e) {
+            int selectedCount = this.historyListView1.SelectedItems.Count;
 
+            this.openHistoryFolderButton1.Enabled = selectedCount == 1;
+            this.deleteHistoryButton1.Enabled = selectedCount > 0;
+        }
+
+        #endregion
+
+        #region ContextMenu1
+        private void contextMenuStrip1_Opened(object sender, EventArgs e) {
+            int selectedCount = this.historyListView1.SelectedItems.Count;
+
+            this.フォルダを開くOToolStripMenuItem.Enabled = selectedCount == 1;
+            this.削除DToolStripMenuItem.Enabled = selectedCount > 0;
+        }
+
+        private void フォルダを開くOToolStripMenuItem_Click(object sender, EventArgs e) {
+            this.OpenFolder();
+        }
+
+        private void 削除DToolStripMenuItem_Click(object sender, EventArgs e) {
+            this.DeleteHistory();
+        }
+
+        private void すべて選択AToolStripMenuItem_Click(object sender, EventArgs e) {
+            foreach (ListViewItem item in this.historyListView1.Items) {
+                item.Selected = true;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        private void RefreshDisplay() {
+            if (this.TargetOfficeFile != null) {
                 this.nameLabel1.Text = "ファイル名";
                 this.nameTextBox1.Text = Path.GetFileName(this.TargetOfficeFile.FileName);
                 this.pathTextBox1.Text = this.TargetOfficeFile.FileName;
+                this.exportDateTextBox1.Text = this.TargetOfficeFile.ExportDate?.ToString("yyyy/MM/dd HH:mm:ss") ?? "";
+
+                this.historyListView1.SuspendLayout();
+                this.historyListView1.Items.Clear();
+                for (int i = 0; i < this.TargetOfficeFile.BackupPathList.Count; i++) {
+                    string path = this.TargetOfficeFile.BackupPathList[i];
+                    this.historyListView1.Items.Add(path);
+                }
+                this.historyListView1.ResumeLayout();
+
+                //ボタンの初期状態はDisable
+                this.openHistoryFolderButton1.Enabled = false;
+                this.deleteHistoryButton1.Enabled = false;
+
+                //インポート/エクスポート タブの表示
+                if (!this.tabControl1.Controls.Contains(this.tabPage2)) {
+                    this.tabControl1.Controls.Add(this.tabPage2);
+                }
             }
-        }
-
-        private void LibraryPropertyDialog_TargetFolderChanged(object sender, EventArgs<LibraryFolder> e) {
             if (this.TargetFolder != null) {
-                this.TargetOfficeFile = null;
-
                 this.nameLabel1.Text = "フォルダ名";
                 this.nameTextBox1.Text = Path.GetFileName(this.TargetFolder.Path);
                 this.pathTextBox1.Text = this.TargetFolder.Path;
+
+                //インポート/エクスポート タブを隠す
+                if (this.tabControl1.Controls.Contains(this.tabPage2)) {
+                    this.tabControl1.Controls.Remove(this.tabPage2);
+                }
             }
+
         }
 
+        #region OpenFolder
+        private void OpenFolder() {
+            if (this.historyListView1.SelectedItems.Count != 1) {
+                return;
+            }
+            this.OpenFolder(this.historyListView1.SelectedItems[0]);
+        }
+        private void OpenFolder(ListViewItem item) {
+            string folderName = Path.Combine(AppMain.g_AppMain.HistoryFolderPath,item.Text);
+
+            ProcessStartInfo info = new ProcessStartInfo() {
+                FileName = "Explorer",
+                Arguments = $"\"{folderName}\""
+            };
+            using (Process process = new Process() {
+                StartInfo = info
+            }) {
+                process.Start();
+            }
+        }
         #endregion
+
+        #region DeleteHistory
+        private void DeleteHistory() {
+            if (this.historyListView1.SelectedItems.Count == 0) {
+                return;
+            }
+            DialogResult result = MessageBox.Show("選択された履歴を削除します。よろしいですか？", "履歴の削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            if (result == DialogResult.OK) {
+                for (int i = this.historyListView1.SelectedItems.Count - 1; i >= 0; i--) {
+                    ListViewItem item = this.historyListView1.SelectedItems[i];
+                    this.DeleteHistory(item);
+                }
+            }
+        }
+        private void DeleteHistory(ListViewItem item) {
+            this.TargetOfficeFile.BackupPathList.Remove(item.Text);
+            this.historyListView1.Items.Remove(item);
+
+            string path = Path.Combine(AppMain.g_AppMain.HistoryFolderPath, item.Text);
+            Directory.Delete(path, true);
+        } 
+        #endregion
+
     }
 }
