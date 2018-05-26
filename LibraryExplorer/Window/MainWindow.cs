@@ -277,6 +277,8 @@ namespace LibraryExplorer.Window {
             this.m_Project = new LibraryProject();
             this.m_Project.FileClosed += this.M_Project_FileClosed;
             this.m_Project.FolderClosed += this.M_Project_FolderClosed;
+            this.m_Project.NotifyParentRequest += this.ReceiveNotifyParentRequest;
+            this.m_Project.OutputLogRequest += this.ReceiveOutputLogRequest;
 
             //TreeViewで選択されているライブラリフォルダ
             this.m_SelectedFolder = null;
@@ -302,6 +304,7 @@ namespace LibraryExplorer.Window {
 
 
 
+
         #endregion
 
         #region イベントハンドラ
@@ -310,7 +313,7 @@ namespace LibraryExplorer.Window {
         #region MainWindow
         //*******************************************************************************************************
         //*******************************************************************************************************
-        
+
         #region FormClosed
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e) {
             //全ての子ウインドウを閉じる

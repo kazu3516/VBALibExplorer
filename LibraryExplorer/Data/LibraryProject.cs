@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Kucl.Xml;
 using Kucl.Xml.XmlCfg;
 using LibraryExplorer.Common;
+using LibraryExplorer.Common.Request;
 
 namespace LibraryExplorer.Data {
 
@@ -51,8 +52,38 @@ namespace LibraryExplorer.Data {
         /// <param name="e"></param>
         protected void OnFileClosed(EventArgs<OfficeFile> e) {
             this.FileClosed?.Invoke(this, e);
-        } 
+        }
         #endregion
+
+        #region NotifyParentRequestイベント
+        /// <summary>
+        /// 親コントロールに対して要求を送信するイベントです。
+        /// </summary>
+        public event RequestEventHandler NotifyParentRequest;
+        /// <summary>
+        /// NotifyParentRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
+        }
+        #endregion
+
+        #region OutputLogRequestイベント
+        /// <summary>
+        /// 出力ウィンドウへのメッセージ出力要求を表すイベントです。
+        /// </summary>
+        public event OutputLogRequestEventHandler OutputLogRequest;
+        /// <summary>
+        /// OutputLogRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnOutputLogRequest(OutputLogRequestEventArgs e) {
+            this.OutputLogRequest?.Invoke(this, e);
+        }
+
+        #endregion
+
 
 
         #region Libraries
@@ -229,6 +260,11 @@ namespace LibraryExplorer.Data {
             System.Diagnostics.Debug.Assert(this.m_ExcelFiles.Count == this.m_ExcelFilesBackup.Count, "LibraryProject.ExcelFilesの内部整合性エラー");
 #endif
         }
+        #endregion
+
+        #region ExcelFiles_CollectionChangedから呼び出される個別のメソッド
+
+        #region OnAdd
         private void ExcelFiles_OnAddItem(ExcelFile file) {
             //ExcelFilesにアイテムが追加された
             if (file != null) {
@@ -238,8 +274,9 @@ namespace LibraryExplorer.Data {
             string debugMessage = $"LibraryProject : Add ExcelFile. path = {file.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
+        #endregion
 
-
+        #region OnRemove
         private void ExcelFiles_OnRemoveItem(ExcelFile file) {
             //ExcelFilesからアイテムが削除された
             if (file != null) {
@@ -249,7 +286,10 @@ namespace LibraryExplorer.Data {
             string debugMessage = $"LibraryProject : Remove ExcelFile. path = {file.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
-        private void ExcelFiles_OnReplaceItem(int index,ExcelFile oldFile, ExcelFile newFile) {
+        #endregion
+
+        #region OnReplace
+        private void ExcelFiles_OnReplaceItem(int index, ExcelFile oldFile, ExcelFile newFile) {
             //ExcelFilesのアイテムが置き換えられた
             if (oldFile != null) {
                 oldFile.NotifyParentRequest -= this.ExcelFile_NotifyParentRequest;
@@ -262,6 +302,9 @@ namespace LibraryExplorer.Data {
             string debugMessage = $"LibraryProjet : Replace ExcelFile. path = {oldFile.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
+        #endregion
+
+        #region OnMove
         private void ExcelFiles_OnMoveItem(ExcelFile file, int oldIndex, int newIndex) {
             //ExcelFilesのアイテムが移動された
 
@@ -269,6 +312,9 @@ namespace LibraryExplorer.Data {
             string debugMessage = $"LibraryProject : Move ExcelFile. path = {file.FileName}";
             AppMain.logger.Debug(debugMessage);
         }
+        #endregion
+
+        #region OnClear
         private void ExcelFiles_OnClearItem(IList<ExcelFile> files) {
             //ExcelFilesのアイテムがクリアされた
             foreach (ExcelFile file in files) {
@@ -282,9 +328,22 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region ExcelFile
-        private void ExcelFile_NotifyParentRequest(object sender, Common.Request.RequestEventArgs e) {
+        #endregion
 
+        #region ExcelFileからの通知
+
+        //TODO:Fileからの通知を受け取って処理を行う。ただし、FileSystemWatcherは複数の通知を発生させることがあるため注意。
+        //①Flagで記憶。ApplicationMessageQueueを使用して、IdleになってからFlagを確認し、上位へ通知すれば1回にまとまる？　FileSystem依存のため、Application_Idleのタイミングがうまく合わないかも。
+        //②Flagで記憶。初回の通知を受け取ったらタイマーを起動し、数秒後にFlagを確認し、上位へ通知すれば1回にまとまる？　何秒待てばよいか不明。
+        private void ExcelFile_NotifyParentRequest(object sender, RequestEventArgs e) {
+            switch (e.RequestData) {
+                case NotifyWorkspaceFolderChangedRequestData folder_data:
+                    //TODO:Workspaceフォルダが変更されたため、Refresh要求を出す
+                    break;
+                case NotifyFileChangedRequestData file_data:
+                    //TODO:Fileが変更されたため、再エクスポートを促す表示に変更する要求を出す（ExplorerTreeに対してRefresh要求）
+                    break;
+            }
         }
 
         #endregion
