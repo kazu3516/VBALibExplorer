@@ -197,14 +197,6 @@ namespace LibraryExplorer.Window.Dialog {
 
         #region ボタン
 
-        private void cancelButton_Click(object sender, EventArgs e) {
-            //TODO:キャンセルボタンの実装
-        }
-
-        private void okButton_Click(object sender, EventArgs e) {
-            //TODO:OKボタンの実装
-        } 
-
         /// <summary>
         /// [フォルダを開く]ボタン
         /// </summary>
@@ -349,7 +341,7 @@ namespace LibraryExplorer.Window.Dialog {
 
             string path = Path.Combine(AppMain.g_AppMain.HistoryFolderPath, item.Text);
             Directory.Delete(path, true);
-        } 
+        }
         #endregion
 
     }
