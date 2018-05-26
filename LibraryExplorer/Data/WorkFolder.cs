@@ -10,8 +10,6 @@ using LibraryExplorer.Common;
 
 namespace LibraryExplorer.Data {
 
-    //TODO:TemporaryFolderの実装見直し（現状はOfficeFileから移植しただけ。OfficeFileで移譲を使えるように検討する。(フォルダ名の生成ルールをどうやってOfficeFile側から制御するか？)）
-
     /// <summary>
     /// LibraryFileを格納する一時フォルダを表すクラスです。
     /// </summary>

@@ -11,14 +11,6 @@ using LibraryExplorer.Common.Request;
 using System.Windows.Forms;
 namespace LibraryExplorer.Data {
 
-    //TODO:ExportDateを保持するように改造したので、起動時にOfficeFileのインスタンスが作られる。⇒WorkspaceFolderが不正な状態になることが無いか再検討(フォルダが無い、ファイルが無い等)
-    //ファイルを手動で削除：問題なし。(残っているファイルのみ表示OK。再エクスポートにより復元)
-    //フォルダが無い：空の一時フォルダが再作成される。再エクスポートで復元：要検討★⇒ExportPathも保存した。問題なし
-    //再エクスポートするとExportDateが変更される。この時点では、以前の一時フォルダにエクスポートされるが、
-    //再起動すると、ExportDateをもとにフォルダ名を生成するため、また空のフォルダが作られてしまう。：要修正★★⇒ExportPathも保存した。問題なし
-
-
-    //TODO:履歴管理のため、Export完了したらhistoryフォルダに丸ごとコピーする
     //TODO:履歴管理のため、Import完了したらhistoryフォルダに丸ごとコピーする
 
     #region OfficeFile
