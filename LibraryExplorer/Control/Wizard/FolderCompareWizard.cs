@@ -333,7 +333,6 @@ namespace LibraryExplorer.Control.Wizard {
 
         #endregion
 
-
         #region SearchLibraryModules
         private void SearchLibraryModules() {
             //====================================================================================
@@ -445,9 +444,7 @@ namespace LibraryExplorer.Control.Wizard {
         }
         #endregion
 
-
         #region private class
-
 
         #region TargetFileModuleListViewItem
         private class TargetFileModuleListViewItem : ListViewItem {
@@ -512,6 +509,10 @@ namespace LibraryExplorer.Control.Wizard {
         #endregion
 
         #region TargetLibraryPair
+        /// <summary>
+        /// エクスポートファイルとライブラリファイルのペアを表します。
+        /// ライブラリには同名のファイルが存在する可能性があるため、ライブラリファイルはリストとして保持します。
+        /// </summary>
         private class TargetLibraryPair {
 
             #region フィールド(メンバ変数、プロパティ、イベント)
@@ -578,6 +579,11 @@ namespace LibraryExplorer.Control.Wizard {
 
             }
 
+            /// <summary>
+            /// BaseFileに対応するファイルをライブラリから検索します。
+            /// </summary>
+            /// <param name="lib"></param>
+            /// <param name="directoryName"></param>
             private void SearchPair2(Library lib, string directoryName) {
                 string path = directoryName;
                 string baseFileName = Path.GetFileName(this.m_BaseFile.FileName);
@@ -587,7 +593,7 @@ namespace LibraryExplorer.Control.Wizard {
                     LibraryFile file = LibraryFile.FromFile(filename);
                     this.PairFileList.Add(new SelectableLibraryFile(file, lib));
                 }
-
+                //サブディレクトリに対して再帰処理
                 Directory.GetDirectories(path).ToList().ForEach(subDir => {
                     this.SearchPair2(lib, subDir);
                 });
@@ -598,6 +604,10 @@ namespace LibraryExplorer.Control.Wizard {
         #endregion
 
         #region SelectableLibraryFile
+        /// <summary>
+        /// 重複しているライブラリファイルの解決を行うために、
+        /// Selectedプロパティに選択状態を記憶できるLibraryFileクラスです。
+        /// </summary>
         private class SelectableLibraryFile {
 
             #region フィールド(メンバ変数、プロパティ、イベント)
@@ -613,7 +623,6 @@ namespace LibraryExplorer.Control.Wizard {
                 }
             }
             #endregion
-
 
             #region TargetLibrary
             private Library m_TargetLibrary;
@@ -654,9 +663,7 @@ namespace LibraryExplorer.Control.Wizard {
         }
         #endregion
 
-
         #endregion
-
 
         #endregion
 
@@ -721,6 +728,7 @@ namespace LibraryExplorer.Control.Wizard {
             TemporaryFolder tempFolder = new TemporaryFolder();
             tempFolder.FolderNameFormatString = $"Lib_yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
             tempFolder.Create();
+            //作成した一時フォルダに各ファイルをコピー
             this.m_ModulePathList.ForEach(filename => {
                 string dstName = Path.Combine(tempFolder.Path, Path.GetFileName(filename));
                 File.Copy(filename, dstName, true);
