@@ -605,6 +605,10 @@ namespace LibraryExplorer.Control {
                 alert = true;
                 toolTipText = "エクスポートフォルダが存在しません。再エクスポートしてください。";
             }
+            else if (file.RequiredReExport) {
+                alert = true;
+                toolTipText = "ファイルが更新されています。再エクスポートしてください。";
+            }
             officeNode.ImageIndex = officeNode.SelectedImageIndex = (alert ? IMG_EXCEL_ALERT : IMG_EXCEL);
             officeNode.ToolTipText = toolTipText;
 

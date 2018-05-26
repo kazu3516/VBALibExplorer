@@ -178,15 +178,16 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public LibraryProject() {
             this.m_ConfigHelper = new UseConfigHelper(this.CreateDefaultConfig());
-            this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
-
+            
             this.m_Libraries = new List<Library>();
 
             this.m_ExcelFilesBackup = new List<ExcelFile>();
-
             this.m_ExcelFiles = new ObservableCollection<OfficeFile>();
             this.m_ExcelFiles.CollectionChanged += this.M_ExcelFiles_CollectionChanged;
-            
+
+            this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
+            this.StartWorkspaceFolderWatcher();
+
         }
 
         private void StartWorkspaceFolderWatcher() {
@@ -324,21 +325,24 @@ namespace LibraryExplorer.Data {
 
         #region ExcelFileからの通知
 
-        //TODO:Fileからの通知を受け取って処理を行う。ただし、FileSystemWatcherは複数の通知を発生させることがあるため注意。(FileSystemへアクセスするアプリケーション依存のため、仕方ない。)
+        //Fileからの通知を受け取って処理を行う。
+        //NOTE:FileSystemWatcherは複数の通知を発生させることがあるため注意。(FileSystemへアクセスするアプリケーション依存のため、仕方ない。)
         //①Flagで記憶。ApplicationMessageQueueを使用して、IdleになってからFlagを確認し、上位へ通知すれば1回にまとまる？　FileSystem依存のため、Application_Idleのタイミングがうまく合わないかも。
         //　⇒Applicationとしては途中でIdle状態になってしまうため、不可
         //②Flagで記憶。初回の通知を受け取ったらタイマーを起動し、数秒後にFlagを確認し、上位へ通知すれば1回にまとまる？　何秒待てばよいか不明。
+        //③表示の更新のみ数回であれば許容する。
         private void ExcelFile_NotifyParentRequest(object sender, RequestEventArgs e) {
             string logMessage = $"Receive event from {sender.GetType().Name}. EventType = {e.RequestData.GetType().Name}";
             AppMain.logger.Info(logMessage);
 
             switch (e.RequestData) {
                 case NotifyWorkspaceFolderChangedRequestData folder_data:
-                    //TODO:Workspaceフォルダが変更されたため、Refresh要求を出す
+                    //Workspaceフォルダが変更されたため、Refresh要求を出す
                     this.OnNotifyParentRequest(new RefreshDisplayRequestEventArgs(true));
                     break;
                 case NotifyFileChangedRequestData file_data:
-                    //TODO:Fileが変更されたため、再エクスポートを促す表示に変更する要求を出す（ExplorerTreeに対してRefresh要求）
+                    //Fileが変更されたため、再エクスポートを促す表示に変更する要求を出す（ExplorerTreeに対してRefresh要求）
+                    this.OnNotifyParentRequest(new RefreshDisplayRequestEventArgs(true));
                     break;
             }
         }
@@ -346,12 +350,15 @@ namespace LibraryExplorer.Data {
         #endregion
 
         #region Workspaceの変更
-        //TODO:エクスポートフォルダがDelete or Renameされた場合、対象のOfficeFileを特定し、警告表示を行う
+        //エクスポートフォルダがDelete or Renameされた場合、対象のOfficeFileを特定し、警告表示を行う
         private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
-            string logMessage = $"LibraryProject : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            string logMessage = $"LibraryProject : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}, Name = {e.Name}";
             AppMain.logger.Debug(logMessage);
 
-
+            //this.ExcelFiles.Where(x => !x.ExistWorkspaceFolder()).ToList().ForEach(file => {
+            //    Console.WriteLine(file?.FileName);
+            //});
+            this.OnNotifyParentRequest(new RefreshDisplayRequestEventArgs(true));
         }
 
         #endregion

@@ -18,8 +18,6 @@ namespace LibraryExplorer.Data {
     //再起動すると、ExportDateをもとにフォルダ名を生成するため、また空のフォルダが作られてしまう。：要修正★★⇒ExportPathも保存した。問題なし
 
 
-    //TODO:NotifyParentRequestを誰が拾うのか検討する。(MainWindow?ExplorerTree?LibraryProject?)
-
     //TODO:履歴管理のため、Export完了したらhistoryフォルダに丸ごとコピーする
     //TODO:履歴管理のため、Import完了したらhistoryフォルダに丸ごとコピーする
 
@@ -245,6 +243,19 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+
+        #region RequiredReExport
+        /// <summary>
+        /// 再エクスポートが必要かどうかを返します。
+        /// エクスポート後にファイルが更新された場合にtrueを返します。
+        /// </summary>
+        public bool RequiredReExport {
+            get {
+                return this.m_ExportDate == null ?  true : this.m_ExportDate < this.UpdateDate;
+            }
+        }
+        #endregion
+
         #region WorkspaceFolderName
         private string m_WorkspaceFolderName;
         /// <summary>
@@ -380,8 +391,8 @@ namespace LibraryExplorer.Data {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void TargetFileWatcher_EventHandler(object sender, FileSystemEventArgs e) {
-            string debugMessage = $"ExcelFile : TargetFile Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
-            AppMain.logger.Debug(debugMessage);
+            string logMessage = $"ExcelFile : TargetFile Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            AppMain.logger.Debug(logMessage);
 
             this.OnNotifyParentRequest(new NotifyFileChangedRequestEventArgs(this, e));
         }
@@ -395,8 +406,8 @@ namespace LibraryExplorer.Data {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
-            string debugMessage = $"ExcelFile : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
-            AppMain.logger.Debug(debugMessage);
+            string logMessage = $"ExcelFile : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            AppMain.logger.Debug(logMessage);
 
             if (!this.Exporting) {
                 //エクスポート中以外の変更ならば上位に通知
