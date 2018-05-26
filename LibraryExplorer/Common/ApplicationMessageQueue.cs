@@ -84,6 +84,9 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
+        #region publicメソッド
+        
+        #region Start/Sop
         /// <summary>
         /// キューイングを開始します。
         /// </summary>
@@ -93,6 +96,7 @@ namespace LibraryExplorer.Common {
             }
             this.m_Running = true;
         }
+
         /// <summary>
         /// キューイングを停止します。
         /// 停止中に追加されたメッセージは保持され、再開後に処理されます。
@@ -102,7 +106,10 @@ namespace LibraryExplorer.Common {
                 Application.Idle -= this.Application_Idle;
             }
             this.m_Running = false;
-        }
+        } 
+        #endregion
+
+        #region AddMessage
         /// <summary>
         /// キューにメッセージを追加します。
         /// </summary>
@@ -110,7 +117,20 @@ namespace LibraryExplorer.Common {
         public void AddMessage(ApplicationMessage message) {
             this.m_MessageQueue.Enqueue(message);
         }
+
+        /// <summary>
+        /// 指定したアクションを保持するメッセージをキューに追加します。
+        /// </summary>
+        /// <param name="action"></param>
+        public void AddMessage(Action action) {
+            this.m_MessageQueue.Enqueue(new ApplicationMessage(action));
+        } 
+        #endregion
+
+        #endregion
+
     } 
+
     #endregion
 
     #region ApplicationMessage
@@ -119,58 +139,58 @@ namespace LibraryExplorer.Common {
     /// </summary>
     public class ApplicationMessage {
 
-        #region フィールド(メンバ変数、プロパティ、イベント)
+    #region フィールド(メンバ変数、プロパティ、イベント)
 
-        #region Action
-        private Action m_Action;
-        /// <summary>
-        /// Actionを取得、設定します。
-        /// </summary>
-        public Action Action {
-            get {
-                return this.m_Action;
-            }
-            set {
-                this.m_Action = value;
-            }
+    #region Action
+    private Action m_Action;
+    /// <summary>
+    /// Actionを取得、設定します。
+    /// </summary>
+    public Action Action {
+        get {
+            return this.m_Action;
         }
-        #endregion
+        set {
+            this.m_Action = value;
+        }
+    }
+    #endregion
 
-        #region SuspendMessageProcess
-        private bool m_SuspendMessageProcess;
-        /// <summary>
-        /// SuspendMessageProcessを取得、設定します。
-        /// trueの場合、このメッセージの処理完了後、メッセージキューの処理を中断します。
-        /// </summary>
-        public bool SuspendMessageProcess {
-            get {
-                return this.m_SuspendMessageProcess;
-            }
-            set {
-                this.m_SuspendMessageProcess = value;
-            }
+    #region SuspendMessageProcess
+    private bool m_SuspendMessageProcess;
+    /// <summary>
+    /// SuspendMessageProcessを取得、設定します。
+    /// trueの場合、このメッセージの処理完了後、メッセージキューの処理を中断します。
+    /// </summary>
+    public bool SuspendMessageProcess {
+        get {
+            return this.m_SuspendMessageProcess;
         }
-        #endregion
+        set {
+            this.m_SuspendMessageProcess = value;
+        }
+    }
+    #endregion
 
-        #endregion
+    #endregion
 
-        #region コンストラクタ
-        /// <summary>
-        /// ApplicationMessageオブジェクトの新しいインスタンスを初期化します。
-        /// </summary>
-        /// <param name="action"></param>
-        public ApplicationMessage(Action action) {
-            this.m_Action = action;
-        }
-        /// <summary>
-        /// ApplicationMessageオブジェクトの新しいインスタンスを初期化します。
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="suspendMessageProcess"></param>
-        public ApplicationMessage(Action action, bool suspendMessageProcess) : this(action) {
-            this.m_SuspendMessageProcess = suspendMessageProcess;
-        }
-        #endregion
+    #region コンストラクタ
+    /// <summary>
+    /// ApplicationMessageオブジェクトの新しいインスタンスを初期化します。
+    /// </summary>
+    /// <param name="action"></param>
+    public ApplicationMessage(Action action) {
+        this.m_Action = action;
+    }
+    /// <summary>
+    /// ApplicationMessageオブジェクトの新しいインスタンスを初期化します。
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="suspendMessageProcess"></param>
+    public ApplicationMessage(Action action, bool suspendMessageProcess) : this(action) {
+        this.m_SuspendMessageProcess = suspendMessageProcess;
+    }
+    #endregion
 
     } 
     #endregion
