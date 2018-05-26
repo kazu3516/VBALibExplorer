@@ -50,9 +50,11 @@ namespace LibraryExplorer.Window {
         //目視スクロールのために、大項目の区切りに■を置いておく
         //■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
+        //Docking関連
         private DockPanel dockPanel;
         private DockContent m_ActiveDocument;
 
+        //DockWindow
         private LibraryFileListWindow m_LibraryFileListWindow;
         private ExplorerTreeWindow m_ExplorerTreeWindow;
         private PreviewWindow m_PreviewWindow;
@@ -60,11 +62,13 @@ namespace LibraryExplorer.Window {
 
         private List<ExcelFileModuleListWindow> m_ExcelFileModuleListWindows;
 
+        //Dialog
         private OptionDialog m_OptionDialog;
         private AboutBox m_AboutBox;
         private LibraryPropertyDialog m_LibraryPropertyDialog;
-        
 
+        //その他の内部変数
+        private ApplicationMessageQueue m_MessageQueue;
         private bool m_FirstShowWindow;
 
 
@@ -272,6 +276,8 @@ namespace LibraryExplorer.Window {
             //内部変数
             this.m_FirstShowWindow = true;
             this.m_ExcelFileModuleListWindows = new List<ExcelFileModuleListWindow>();
+            this.m_MessageQueue = new ApplicationMessageQueue();
+            this.m_MessageQueue.Start();
 
             //LibraryProject
             this.m_Project = new LibraryProject();
@@ -480,6 +486,12 @@ namespace LibraryExplorer.Window {
                     window.DestinationFolderPath = data_compareWindow.DestinationFolderPath;
                     window.CheckDiff();
                     this.ShowFolderCompareWindow(window);
+                    break;
+                case RefreshDisplayRequestData data_refreshDisplay:
+                    //表示の更新
+                    this.m_MessageQueue.AddMessage(() => {
+                        this.RefreshDisplay(data_refreshDisplay.KeepDisplay);
+                    });
                     break;
             }
         } 
@@ -1243,12 +1255,12 @@ namespace LibraryExplorer.Window {
         }
 
         //デバッグ用
-        private ApplicationMessageQueue m_MessageQueue;
+        //private ApplicationMessageQueue m_MessageQueue;
         private void applicationMessageQueueのテストToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (this.m_MessageQueue == null) {
-                this.m_MessageQueue = new ApplicationMessageQueue(this);
-            }
-            this.m_MessageQueue.Start();
+            //if (this.m_MessageQueue == null) {
+            //    this.m_MessageQueue = new ApplicationMessageQueue(this);
+            //}
+            //this.m_MessageQueue.Start();
 
             this.m_MessageQueue.AddMessage(new ApplicationMessage(() => Console.WriteLine("1")));
             this.m_MessageQueue.AddMessage(new ApplicationMessage(() => {

@@ -35,6 +35,42 @@ namespace LibraryExplorer.Data {
         private FileSystemWatcher m_TargetFileWatcher;
         private FileSystemWatcher m_WorkspaceFolderWatcher;
 
+        private ApplicationMessageQueue m_MessageQueue;
+
+        private bool m_FolderChangedByExport;
+        private FileSystemEventArgs m_EventArgsByExport;
+
+        #region protected Exporting
+        private bool m_Exporting;
+        /// <summary>
+        /// Expotingが変更された場合に発生するイベントです。
+        /// </summary>
+        protected event EventHandler<EventArgs<bool>> ExportingChanged;
+        /// <summary>
+        /// Expotingが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnExportingChanged(EventArgs<bool> e) {
+            this.ExportingChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// Expotingを取得、設定します。
+        /// </summary>
+        protected bool Exporting {
+            get {
+                return this.m_Exporting;
+            }
+            set {
+                this.SetProperty(ref this.m_Exporting, value, ((oldValue) => {
+                    if (this.ExportingChanged != null) {
+                        this.OnExportingChanged(new EventArgs<bool>(oldValue));
+                    }
+                }));
+            }
+        }
+        #endregion
+
+
         #region NotifyParentRequestイベント
         /// <summary>
         /// 親コントロールに対して要求を送信するイベントです。
@@ -312,8 +348,15 @@ namespace LibraryExplorer.Data {
             this.m_TargetFileWatcher = new FileSystemWatcher();
             this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
 
+            this.m_MessageQueue = new ApplicationMessageQueue();
+            this.m_MessageQueue.Start();
+
             this.FileNameChanged += this.OfficeFile_FileNameChanged;
+
+            //Workspaceフォルダ監視のタイミング調整のため、Exportingプロパティを監視
+            this.ExportingChanged += this.OfficeFile_ExportingChanged;
         }
+
 
 
         /// <summary>
@@ -332,7 +375,7 @@ namespace LibraryExplorer.Data {
 
         #region TargetFileWatcher
         /// <summary>
-        /// Changed,Deleted,Renamedを上位に伝えるイベントです。
+        /// Deleted,Renamedを上位に伝えるイベントです。
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -355,12 +398,40 @@ namespace LibraryExplorer.Data {
             string debugMessage = $"ExcelFile : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
             AppMain.logger.Debug(debugMessage);
 
-            this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, e));
+            if (!this.Exporting) {
+                //エクスポート中以外の変更ならば上位に通知
+                this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, e));
+            }
+            else {
+                //エクスポート中の変更は、いったん記憶して、後で上位に通知
+                if (!this.m_FolderChangedByExport) {
+                    this.m_EventArgsByExport = e;
+                    this.m_FolderChangedByExport = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Exportingがfalseに切り替わったらエクスポート完了として、記憶していたフォルダの変更を上位に通知
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OfficeFile_ExportingChanged(object sender, EventArgs<bool> e) {
+            if (!this.Exporting){
+                if (this.m_FolderChangedByExport) {
+                    //上位に通知して、変更記憶をクリア
+                    this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, this.m_EventArgsByExport));
+                    this.m_FolderChangedByExport = false;
+                    this.m_EventArgsByExport = null;
+                }
+            }
         }
 
 
         #endregion
 
+
+        #region FileNameChanged
         private void OfficeFile_FileNameChanged(object sender, EventArgs<string> e) {
             //ファイル名が設定されたとき、ファイルが存在していたら監視を開始
             if (File.Exists(this.m_FileName)) {
@@ -371,6 +442,7 @@ namespace LibraryExplorer.Data {
             }
         }
 
+        #endregion
 
         #endregion
 
@@ -451,8 +523,13 @@ namespace LibraryExplorer.Data {
 
             this.m_ExportDate = DateTime.Now;
 
+            //publicなExportAllメソッドでtrueにしているが、クラス内からの直接呼び出しが増えたときのために念押しでtrueにしておく
+            this.Exporting = true;
+
             await this.StartScript(scriptPath).ConfigureAwait(false);
 
+            //trueと同じく念押し
+            this.Exporting = false;
         }
 
         /// <summary>
@@ -462,11 +539,16 @@ namespace LibraryExplorer.Data {
         /// <param name="makeTempDir">trueを指定すると、MakeEmptyWorkspaceFolderを実行した後にエクスポートを行います。</param>
         /// <returns></returns>
         public async Task ExportAll(bool makeTempDir) {
+            this.Exporting = true;
+
             if (makeTempDir) {
                 this.MakeEmptyWorkspaceFolder();
             }
 
             await this.ExportAll();
+
+            this.Exporting = false;
+
         }
         #endregion
 

@@ -75,6 +75,7 @@
     <Compile Include="Common\Request\NotifyFileChangedRequest.cs" />
     <Compile Include="Common\Request\NotifyWorkspaceFolderChangedRequest.cs" />
     <Compile Include="Common\Request\OutputLogRequest.cs" />
+    <Compile Include="Common\Request\RefreshDisplayRequest.cs" />
     <Compile Include="Common\Request\Request.cs" />
     <Compile Include="Common\Request\ShowCompareWindowRequest.cs" />
     <Compile Include="Common\Request\ShowLibraryFolderPropertyRequest.cs" />

@@ -16,8 +16,6 @@ namespace LibraryExplorer.Data {
 
     /// <summary>
     /// 複数のライブラリ、複数のファイルをまとめたProjectを表します。
-    /// Libraryは保存されますが、ファイルは実行時に読み込むため、
-    /// Projectの情報は保存されず、実行時に動的に構成されます。
     /// </summary>
     public class LibraryProject: IUseConfig {
 
@@ -208,12 +206,6 @@ namespace LibraryExplorer.Data {
 
         }
 
-        private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
-            string debugMessage = $"LibraryProject : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
-            AppMain.logger.Debug(debugMessage);
-
-
-        }
         #endregion
 
         #region イベントハンドラ
@@ -332,13 +324,18 @@ namespace LibraryExplorer.Data {
 
         #region ExcelFileからの通知
 
-        //TODO:Fileからの通知を受け取って処理を行う。ただし、FileSystemWatcherは複数の通知を発生させることがあるため注意。
+        //TODO:Fileからの通知を受け取って処理を行う。ただし、FileSystemWatcherは複数の通知を発生させることがあるため注意。(FileSystemへアクセスするアプリケーション依存のため、仕方ない。)
         //①Flagで記憶。ApplicationMessageQueueを使用して、IdleになってからFlagを確認し、上位へ通知すれば1回にまとまる？　FileSystem依存のため、Application_Idleのタイミングがうまく合わないかも。
+        //　⇒Applicationとしては途中でIdle状態になってしまうため、不可
         //②Flagで記憶。初回の通知を受け取ったらタイマーを起動し、数秒後にFlagを確認し、上位へ通知すれば1回にまとまる？　何秒待てばよいか不明。
         private void ExcelFile_NotifyParentRequest(object sender, RequestEventArgs e) {
+            string logMessage = $"Receive event from {sender.GetType().Name}. EventType = {e.RequestData.GetType().Name}";
+            AppMain.logger.Info(logMessage);
+
             switch (e.RequestData) {
                 case NotifyWorkspaceFolderChangedRequestData folder_data:
                     //TODO:Workspaceフォルダが変更されたため、Refresh要求を出す
+                    this.OnNotifyParentRequest(new RefreshDisplayRequestEventArgs(true));
                     break;
                 case NotifyFileChangedRequestData file_data:
                     //TODO:Fileが変更されたため、再エクスポートを促す表示に変更する要求を出す（ExplorerTreeに対してRefresh要求）
@@ -348,7 +345,16 @@ namespace LibraryExplorer.Data {
 
         #endregion
 
+        #region Workspaceの変更
+        //TODO:エクスポートフォルダがDelete or Renameされた場合、対象のOfficeFileを特定し、警告表示を行う
+        private void WorkspaceFolderWatcher_EventHandler(object sender, FileSystemEventArgs e) {
+            string logMessage = $"LibraryProject : WorkspaceFolder Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
+            AppMain.logger.Debug(logMessage);
 
+
+        }
+
+        #endregion
         #endregion
 
         #region CloseFolder
