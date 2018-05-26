@@ -315,5 +315,46 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region CopyFolder
+        /// <summary>
+        /// このインスタンスが保持するフォルダを、指定したパスへコピーします。
+        /// </summary>
+        /// <param name="destinationPath">コピー先のパス</param>
+        /// <param name="destinationName">コピー先のフォルダ名</param>
+        public void CopyFolder(string destinationPath,string destinationName) {
+            if (!this.Exist()) {
+                return;
+            }
+            this.CopyFolder(this.Path, destinationPath, destinationName);
+        }
+
+        private void CopyFolder(string srcPath,string dstPath,string dstName) {
+            DirectoryInfo srcDir = new DirectoryInfo(srcPath);
+            if (!srcDir.Exists) {
+                throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + srcPath);
+            }
+
+            string dstFullPath = fsPath.Combine(dstPath, dstName);
+            DirectoryInfo dstDir = new DirectoryInfo(dstFullPath);
+            //コピー先のディレクトリがなければ作成する
+            if (!dstDir.Exists) {
+                dstDir.Create();
+                dstDir.Attributes = srcDir.Attributes;
+            }
+
+            //ファイルのコピー
+            foreach (FileInfo fileInfo in srcDir.GetFiles()) {
+                //同じファイルが存在していたら、常に上書きする
+                string dstFullName = fsPath.Combine(dstFullPath, fileInfo.Name);
+                fileInfo.CopyTo(dstFullName, true);
+            }
+
+            //ディレクトリのコピー（再帰を使用）
+            foreach (DirectoryInfo subDir in srcDir.GetDirectories()) {
+                this.CopyFolder(subDir.FullName,dstFullPath,subDir.Name);
+            }
+        }
+        #endregion
+
     }
 }
