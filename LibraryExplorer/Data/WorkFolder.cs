@@ -19,18 +19,6 @@ namespace LibraryExplorer.Data {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
-        #region TemporaryFolderName
-        private string m_TemporaryFolderName;
-        /// <summary>
-        /// TemporaryFolderNameを取得、設定します。
-        /// </summary>
-        public string TemporaryFolderName {
-            get {
-                return this.m_TemporaryFolderName;
-            }
-        }
-        #endregion
-
         #region FolderNameFormatString
         private string m_FolderNameFormatString;
         /// <summary>
@@ -42,6 +30,36 @@ namespace LibraryExplorer.Data {
             }
             set {
                 this.m_FolderNameFormatString = value;
+            }
+        }
+        #endregion
+
+        #region FolderNamePrefix
+        private string m_FolderNamePrefix;
+        /// <summary>
+        /// FolderNamePrefixを取得、設定します。
+        /// </summary>
+        public string FolderNamePrefix {
+            get {
+                return this.m_FolderNamePrefix;
+            }
+            set {
+                this.m_FolderNamePrefix = value;
+            }
+        }
+        #endregion
+
+        #region FolderNameSuffix
+        private string m_FolderNameSuffix;
+        /// <summary>
+        /// FolderNameSuffixを取得、設定します。
+        /// </summary>
+        public string FolderNameSuffix {
+            get {
+                return this.m_FolderNameSuffix;
+            }
+            set {
+                this.m_FolderNameSuffix = value;
             }
         }
         #endregion
@@ -61,6 +79,22 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region BaseFolderPath
+        private string m_BaseFolderPath;
+        /// <summary>
+        /// BaseFolderPathを取得、設定します。
+        /// 既定ではAppMain.g_AppMain.TemporaryFolderPathを使用します。
+        /// </summary>
+        public string BaseFolderPath {
+            get {
+                return this.m_BaseFolderPath;
+            }
+            set {
+                this.m_BaseFolderPath = value;
+            }
+        }
+        #endregion
+        
         #endregion
 
         #region コンストラクタ
@@ -68,9 +102,9 @@ namespace LibraryExplorer.Data {
         /// TemporaryFolderオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
         public WorkFolder():base() {
-            this.m_TemporaryFolderName = "";
             this.m_FolderNameFormatString = $"yyyyMMdd_HHmmss";
             this.m_DeleteAtClose = false;
+            this.m_BaseFolderPath = AppMain.g_AppMain.TemporaryFolderPath;
         }
 
         #region IDisposable Support
@@ -135,7 +169,7 @@ namespace LibraryExplorer.Data {
         /// 一時フォルダ内のファイル、フォルダをすべて削除します。
         /// </summary>
         public void Clear() {
-            DirectoryInfo directory = new DirectoryInfo(this.m_TemporaryFolderName);
+            DirectoryInfo directory = new DirectoryInfo(this.Path);
             if (!directory.Exists) {
                 return;
             }
@@ -151,7 +185,6 @@ namespace LibraryExplorer.Data {
         /// <param name="directory"></param>
         private void DeleteAllFiles(DirectoryInfo directory) {
             try {
-
                 FileInfo[] files = directory.GetFiles();
                 for (int i = files.Length - 1; i >= 0; i--) {
                     files[i].Delete();
@@ -168,7 +201,6 @@ namespace LibraryExplorer.Data {
         /// <param name="directory"></param>
         private void DeleteAllDirectories(DirectoryInfo directory) {
             try {
-
                 DirectoryInfo[] subDirectories = directory.GetDirectories();
                 for (int i = subDirectories.Length - 1; i >= 0; i--) {
                     subDirectories[i].Delete(true);
@@ -187,44 +219,42 @@ namespace LibraryExplorer.Data {
         /// 作成されたフォルダのパスはこのインスタンスが保持します。
         /// </summary>
         public void Create() {
-            this.m_TemporaryFolderName = this.GetTemporaryFolderName();
-            this.CreateFolder(this.m_TemporaryFolderName);
-            
-            this.Path = this.m_TemporaryFolderName;
+            this.Path = this.GetWorkFolderName();
+            this.CreateFolder(this.Path);
         }
         /// <summary>
         /// 指定されたフォルダ名で一時フォルダを作成します。
         /// 作成されたフォルダのパスはこのインスタンスが保持します。
         /// </summary>
-        /// <param name="workspaceFolderPath"></param>
-        public void Create(string workspaceFolderPath) {
-            if (workspaceFolderPath == "") {
+        /// <param name="workFolderPath"></param>
+        public void Create(string workFolderPath) {
+            if (workFolderPath == "") {
                 //空文字列の場合は無効なパスとみなし、引数なしのCreateメソッド経由で再度呼び出される
                 this.Create();
                 return;
             }
             else {
-                this.Path = workspaceFolderPath;
+                this.Path = workFolderPath;
                 this.CreateFolder(this.Path);
             }
         }
 
 
         /// <summary>
-        /// GenerateTemporaryFolderNameメソッドで得られた名前と、アプリケーションで保持するtemporaryFolderPathを合成し、一時フォルダのフルパスを取得します。
+        /// GenerateWorkFolderNameメソッドで得られた名前と、BaseFolderPathを合成し、一時フォルダのフルパスを取得します。
         /// </summary>
         /// <returns></returns>
-        protected virtual string GetTemporaryFolderName() {
-            string tempFolderName = this.GenerateTemporaryFolderName();
-            return fsPath.Combine(AppMain.g_AppMain.TemporaryFolderPath, tempFolderName);
+        protected virtual string GetWorkFolderName() {
+            string workFolderName = this.GenerateWorkFolderName();
+            return fsPath.Combine(this.m_BaseFolderPath, workFolderName);
         }
         /// <summary>
         /// 一時フォルダのフォルダ名を生成します。
-        /// 既定ではDateTime.Now.ToString($"yyyyMMdd_hhmmss")を返します。
+        /// 既定ではDateTime.Now.ToString($"yyyyMMdd_hhmmss")にPrefixとSuffixを付加して返します。
         /// </summary>
         /// <returns></returns>
-        protected virtual string GenerateTemporaryFolderName() {
-            return DateTime.Now.ToString(this.m_FolderNameFormatString);
+        protected virtual string GenerateWorkFolderName() {
+            return this.m_FolderNamePrefix + DateTime.Now.ToString(this.m_FolderNameFormatString) + this.m_FolderNameSuffix;
         }
 
         /// <summary>
@@ -235,11 +265,11 @@ namespace LibraryExplorer.Data {
             try {
                 if (!Directory.Exists(path)) {
                     Directory.CreateDirectory(path);
-                    AppMain.logger.Info($"create temp folder. path = {path}");
+                    AppMain.logger.Info($"create work folder. path = {path}");
                 }
             }
             catch (Exception ex) {
-                AppMain.logger.Warn($"error occured when create temp folder.", ex);
+                AppMain.logger.Warn($"error occured when create work folder.", ex);
                 throw new ApplicationException("一時フォルダの作成時に例外が発生しました。", ex);
             }
         }
@@ -251,7 +281,7 @@ namespace LibraryExplorer.Data {
         /// このインスタンスが保持するパスを使用して、一時フォルダを削除します。
         /// </summary>
         public void Delete() {
-            this.Delete(this.m_TemporaryFolderName);
+            this.Delete(this.Path);
         }
         /// <summary>
         /// パスを指定して、一時フォルダを削除します。
@@ -269,17 +299,6 @@ namespace LibraryExplorer.Data {
                 throw new ApplicationException("一時フォルダの削除時に例外が発生しました。", ex);
             }
         }
-        #endregion
-
-        #region Exist
-        /// <summary>
-        /// テンポラリフォルダが存在するかどうかを返します。
-        /// </summary>
-        /// <returns></returns>
-        public bool Exist() {
-            return Directory.Exists(this.m_TemporaryFolderName);
-        }
-
         #endregion
 
         #region MakeEmptyFolder

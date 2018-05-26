@@ -123,6 +123,19 @@ namespace LibraryExplorer.Data {
 
         #endregion
 
+
+        #region Exist
+        /// <summary>
+        /// フォルダが存在するかどうかを返します。
+        /// </summary>
+        /// <returns></returns>
+        public bool Exist() {
+            return Directory.Exists(this.Path);
+        }
+
+        #endregion
+
+        #region GetLibraryFiles
         /// <summary>
         /// このフォルダに含まれるライブラリファイルを全て取得します。
         /// </summary>
@@ -142,11 +155,13 @@ namespace LibraryExplorer.Data {
         /// </summary>
         /// <returns></returns>
         public IEnumerable<LibraryFile> GetLibraryFiles_Enumerable() {
-            if (Directory.Exists(this.Path)) {
+            if (this.Exist()) {
                 return Directory.GetFiles(this.Path).Where(x => LibraryFile.IsTargetFile(x))
                     .Select<string, LibraryFile>(x => LibraryFile.FromFile(x));
             }
             return Enumerable.Empty<LibraryFile>();
-        }
+        } 
+        #endregion
+
     }
 }

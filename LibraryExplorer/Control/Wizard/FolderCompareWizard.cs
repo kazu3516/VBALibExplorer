@@ -727,7 +727,9 @@ namespace LibraryExplorer.Control.Wizard {
         private void CopyWorkFolder() {
             WorkFolder workFolder = new WorkFolder();
             workFolder.DeleteAtClose = true;
-            workFolder.FolderNameFormatString = $"Lib_yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
+            workFolder.FolderNamePrefix = "Lib_";
+            workFolder.FolderNameFormatString = $"yyyyMMdd_HHmmss";
+            workFolder.FolderNameSuffix = $"_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
             workFolder.Create();
             //作成した一時フォルダに各ファイルをコピー
             this.m_ModulePathList.ForEach(filename => {
