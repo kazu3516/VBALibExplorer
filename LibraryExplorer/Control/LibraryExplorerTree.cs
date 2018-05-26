@@ -595,23 +595,29 @@ namespace LibraryExplorer.Control {
 
         private void RefreshOfficeNode(OfficeFileTreeNode officeNode) {
             OfficeFile file = officeNode.TargetFile;
-            bool alert = false;
-            string toolTipText = "";
-            if (!file.Exist) {
-                alert = true;
-                toolTipText = "ファイルが存在しません。不要なファイルであればファイルを閉じてください。";
-            }
-            else if (!file.ExistWorkspaceFolder()) {
-                alert = true;
-                toolTipText = "エクスポートフォルダが存在しません。再エクスポートしてください。";
-            }
-            else if (file.RequiredReExport) {
-                alert = true;
-                toolTipText = "ファイルが更新されています。再エクスポートしてください。";
-            }
+            string toolTipText;
+            bool alert = this.CheckFileAlret(file,out toolTipText);
+            
             officeNode.ImageIndex = officeNode.SelectedImageIndex = (alert ? IMG_EXCEL_ALERT : IMG_EXCEL);
             officeNode.ToolTipText = toolTipText;
 
+        }
+
+        private bool CheckFileAlret(OfficeFile file,out string toolTipText) {
+            toolTipText = "";
+            if (!file.Exist) {
+                toolTipText = "ファイルが存在しません。不要なファイルであればファイルを閉じてください。";
+                return true;
+            }
+            else if (!file.ExistWorkspaceFolder()) {
+                toolTipText = "エクスポートフォルダが存在しません。再エクスポートしてください。";
+                return true;
+            }
+            else if (file.RequiredReExport) {
+                toolTipText = "ファイルが更新されています。再エクスポートしてください。";
+                return true;
+            }
+            return false;
         }
         #endregion
 
