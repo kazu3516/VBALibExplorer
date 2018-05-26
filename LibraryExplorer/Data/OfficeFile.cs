@@ -33,8 +33,6 @@ namespace LibraryExplorer.Data {
         private FileSystemWatcher m_TargetFileWatcher;
         private FileSystemWatcher m_WorkspaceFolderWatcher;
 
-        private ApplicationMessageQueue m_MessageQueue;
-
         private bool m_FolderChangedByExport;
         private FileSystemEventArgs m_EventArgsByExport;
 
@@ -358,9 +356,6 @@ namespace LibraryExplorer.Data {
 
             this.m_TargetFileWatcher = new FileSystemWatcher();
             this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
-
-            this.m_MessageQueue = new ApplicationMessageQueue();
-            this.m_MessageQueue.Start();
 
             this.FileNameChanged += this.OfficeFile_FileNameChanged;
 
