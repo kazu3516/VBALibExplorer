@@ -509,25 +509,6 @@ namespace LibraryExplorer.Data {
         #endregion
 
         #region ExportAll
-        /// <summary>
-        /// スクリプトを起動して、対象ファイルから全てのモジュールをエクスポートします。
-        /// スクリプトは非同期に実行されます。
-        /// </summary>
-        /// <returns></returns>
-        private async Task ExportAll() {
-            string scriptPath = Path.Combine(AppMain.g_AppMain.ScriptFolderPath, this.ExportScriptName);
-
-            this.m_ExportDate = DateTime.Now;
-
-            //publicなExportAllメソッドでtrueにしているが、クラス内からの直接呼び出しが増えたときのために念押しでtrueにしておく
-            this.Exporting = true;
-
-            
-            await this.StartScript(scriptPath).ConfigureAwait(false);
-
-            //trueと同じく念押し
-            this.Exporting = false;
-        }
 
         /// <summary>
         /// スクリプトを起動して、対象ファイルから全てのモジュールをエクスポートします。
@@ -536,16 +517,25 @@ namespace LibraryExplorer.Data {
         /// <param name="makeTempDir">trueを指定すると、MakeEmptyWorkspaceFolderを実行した後にエクスポートを行います。</param>
         /// <returns></returns>
         public async Task ExportAll(bool makeTempDir) {
-            this.Exporting = true;
+            string scriptPath = Path.Combine(AppMain.g_AppMain.ScriptFolderPath, this.ExportScriptName);
 
+            this.Exporting = true;
+            this.m_ExportDate = DateTime.Now;
+            //エクスポート前のバックアップ
+            this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_BeforeExport_{Path.GetFileName(this.FileName)}");
+
+            //フォルダを空にする
             if (makeTempDir) {
                 this.MakeEmptyWorkspaceFolder();
             }
 
-            await this.ExportAll();
+            //エクスポート用のスクリプトを起動
+            await this.StartScript(scriptPath).ConfigureAwait(false);
+
+            //エクスポート後のバックアップ
+            this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_AfterExport_{Path.GetFileName(this.FileName)}");
 
             this.Exporting = false;
-
         }
         #endregion
 
