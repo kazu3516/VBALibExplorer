@@ -262,43 +262,51 @@ namespace LibraryExplorer.Window.Dialog {
         #endregion
 
         #endregion
+        
+        #region RefreshDisplay
 
         private void RefreshDisplay() {
             if (this.TargetOfficeFile != null) {
-                this.nameLabel1.Text = "ファイル名";
-                this.nameTextBox1.Text = Path.GetFileName(this.TargetOfficeFile.FileName);
-                this.pathTextBox1.Text = this.TargetOfficeFile.FileName;
-                this.exportDateTextBox1.Text = this.TargetOfficeFile.ExportDate?.ToString("yyyy/MM/dd HH:mm:ss") ?? "";
-
-                this.historyListView1.SuspendLayout();
-                this.historyListView1.Items.Clear();
-                for (int i = 0; i < this.TargetOfficeFile.BackupPathList.Count; i++) {
-                    string path = this.TargetOfficeFile.BackupPathList[i];
-                    this.historyListView1.Items.Add(path);
-                }
-                this.historyListView1.ResumeLayout();
-
-                //ボタンの初期状態はDisable
-                this.openHistoryFolderButton1.Enabled = false;
-                this.deleteHistoryButton1.Enabled = false;
-
-                //インポート/エクスポート タブの表示
-                if (!this.tabControl1.Controls.Contains(this.tabPage2)) {
-                    this.tabControl1.Controls.Add(this.tabPage2);
-                }
+                this.ShowOfficeFile();
             }
             if (this.TargetFolder != null) {
-                this.nameLabel1.Text = "フォルダ名";
-                this.nameTextBox1.Text = Path.GetFileName(this.TargetFolder.Path);
-                this.pathTextBox1.Text = this.TargetFolder.Path;
-
-                //インポート/エクスポート タブを隠す
-                if (this.tabControl1.Controls.Contains(this.tabPage2)) {
-                    this.tabControl1.Controls.Remove(this.tabPage2);
-                }
+                this.ShowFolder();
             }
-
         }
+        private void ShowOfficeFile() {
+            this.nameLabel1.Text = "ファイル名";
+            this.nameTextBox1.Text = Path.GetFileName(this.TargetOfficeFile.FileName);
+            this.pathTextBox1.Text = this.TargetOfficeFile.FileName;
+            this.exportDateTextBox1.Text = this.TargetOfficeFile.ExportDate?.ToString("yyyy/MM/dd HH:mm:ss") ?? "";
+
+            this.historyListView1.SuspendLayout();
+            this.historyListView1.Items.Clear();
+            for (int i = 0; i < this.TargetOfficeFile.BackupPathList.Count; i++) {
+                string path = this.TargetOfficeFile.BackupPathList[i];
+                this.historyListView1.Items.Add(path);
+            }
+            this.historyListView1.ResumeLayout();
+
+            //ボタンの初期状態はDisable
+            this.openHistoryFolderButton1.Enabled = false;
+            this.deleteHistoryButton1.Enabled = false;
+
+            //インポート/エクスポート タブの表示
+            if (!this.tabControl1.Controls.Contains(this.tabPage2)) {
+                this.tabControl1.Controls.Add(this.tabPage2);
+            }
+        }
+        private void ShowFolder() {
+            this.nameLabel1.Text = "フォルダ名";
+            this.nameTextBox1.Text = Path.GetFileName(this.TargetFolder.Path);
+            this.pathTextBox1.Text = this.TargetFolder.Path;
+
+            //インポート/エクスポート タブを隠す
+            if (this.tabControl1.Controls.Contains(this.tabPage2)) {
+                this.tabControl1.Controls.Remove(this.tabPage2);
+            }
+        } 
+        #endregion
 
         #region OpenFolder
         private void OpenFolder() {
