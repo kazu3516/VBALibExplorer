@@ -502,7 +502,7 @@ namespace LibraryExplorer.Data {
             for (int i = 0; i < this.m_ExcelFiles.Count; i++) {
                 OfficeFile file = this.m_ExcelFiles[i];
                 config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.Path", file.FileName);
-                config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportPath", file.WorkspaceFolderName);
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportPath", file.WorkspaceFolder.Path);
                 config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportDate", file.ExportDate?.ToString() ?? "");
             }
 
