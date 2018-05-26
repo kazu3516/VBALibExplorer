@@ -188,6 +188,22 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region BackupPathList
+        private List<string> m_BackupPathList;
+        /// <summary>
+        /// BackupPathListを取得、設定します。
+        /// </summary>
+        public List<string> BackupPathList {
+            get {
+                return this.m_BackupPathList;
+            }
+            set {
+                this.m_BackupPathList = value;
+            }
+        }
+        #endregion
+
+
 
         #region ScriptOutputMessage
         private string m_ScriptOutputMessage;
@@ -341,11 +357,14 @@ namespace LibraryExplorer.Data {
             this.m_FileName = "";
             this.m_ExportDate = null;
 
+            this.m_BackupPathList = new List<string>();
+
             this.m_WorkspaceFolder = new WorkFolder {
                 BaseFolderPath = AppMain.g_AppMain.WorkspaceFolderPath,
                 DeleteAtClose = false
             };
 
+            //FileSystemWatcherのインスタンスはコンストラクタで生成するが、監視は別タイミングで開始する
             this.m_TargetFileWatcher = new FileSystemWatcher();
             this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
 
@@ -522,7 +541,7 @@ namespace LibraryExplorer.Data {
             this.Exporting = true;
             this.m_ExportDate = DateTime.Now;
             //エクスポート前のバックアップ
-            this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_BeforeExport_{Path.GetFileName(this.FileName)}");
+            this.CopyToHistory($"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_BeforeExport_{Path.GetFileName(this.FileName)}");
 
             //フォルダを空にする
             if (makeTempDir) {
@@ -533,7 +552,7 @@ namespace LibraryExplorer.Data {
             await this.StartScript(scriptPath).ConfigureAwait(false);
 
             //エクスポート後のバックアップ
-            this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_AfterExport_{Path.GetFileName(this.FileName)}");
+            this.CopyToHistory($"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_AfterExport_{Path.GetFileName(this.FileName)}");
 
             this.Exporting = false;
         }
@@ -681,7 +700,12 @@ namespace LibraryExplorer.Data {
 
         #region historyフォルダ関連
 
-        
+        private void CopyToHistory(string folderName) {            
+            this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, folderName);
+
+            this.m_BackupPathList.Add(folderName);
+
+        }
 
         #endregion
 

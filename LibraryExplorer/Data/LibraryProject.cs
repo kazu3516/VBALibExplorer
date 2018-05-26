@@ -484,6 +484,12 @@ namespace LibraryExplorer.Data {
                 OfficeFile file = new ExcelFile() { FileName = path,ExportDate = exportDate };
                 file.CreateWorkspaceFolder(exportPath);
 
+                int backupCount = this.m_ConfigHelper.GetIntValue($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.BackupCount",0);
+                for (int j = 0; j < backupCount; j++) {
+                    string backupPath = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.Backup.{j + 1}","");
+                    file.BackupPathList.Add(backupPath);
+                }
+
                 this.m_ExcelFiles.Add(file);
             }
 
@@ -504,6 +510,10 @@ namespace LibraryExplorer.Data {
                 config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.Path", file.FileName);
                 config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportPath", file.WorkspaceFolder.Path);
                 config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.ExportDate", file.ExportDate?.ToString() ?? "");
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.BackupCount", file.BackupPathList.Count);
+                for (int j = 0; j < file.BackupPathList.Count; j++) {
+                    config.AddXmlContentsItem($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.Backup.{j + 1}", file.BackupPathList[j]);
+                }
             }
 
 
