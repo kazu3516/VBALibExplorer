@@ -68,7 +68,7 @@
             this.label15 = new System.Windows.Forms.Label();
             this.targetFileTempFolderTextBox1 = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
-            this.targetLibraryTempFolderTextBox1 = new System.Windows.Forms.TextBox();
+            this.targetLibraryWorkFolderTextBox1 = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
@@ -473,7 +473,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(426, 206);
+            this.tabPage4.Size = new System.Drawing.Size(946, 451);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "tabPage4";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -483,13 +483,13 @@
             this.panel4.Controls.Add(this.label15);
             this.panel4.Controls.Add(this.targetFileTempFolderTextBox1);
             this.panel4.Controls.Add(this.label16);
-            this.panel4.Controls.Add(this.targetLibraryTempFolderTextBox1);
+            this.panel4.Controls.Add(this.targetLibraryWorkFolderTextBox1);
             this.panel4.Controls.Add(this.label17);
             this.panel4.Controls.Add(this.label18);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(3, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(420, 200);
+            this.panel4.Size = new System.Drawing.Size(940, 445);
             this.panel4.TabIndex = 18;
             // 
             // label15
@@ -510,7 +510,7 @@
             this.targetFileTempFolderTextBox1.Location = new System.Drawing.Point(247, 112);
             this.targetFileTempFolderTextBox1.Name = "targetFileTempFolderTextBox1";
             this.targetFileTempFolderTextBox1.ReadOnly = true;
-            this.targetFileTempFolderTextBox1.Size = new System.Drawing.Size(101, 12);
+            this.targetFileTempFolderTextBox1.Size = new System.Drawing.Size(621, 12);
             this.targetFileTempFolderTextBox1.TabIndex = 17;
             this.targetFileTempFolderTextBox1.Text = "***";
             // 
@@ -523,18 +523,18 @@
             this.label16.TabIndex = 16;
             this.label16.Text = "完了を押してこのダイアログを閉じ、表示された比較結果を確認してください。";
             // 
-            // targetLibraryTempFolderTextBox1
+            // targetLibraryWorkFolderTextBox1
             // 
-            this.targetLibraryTempFolderTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.targetLibraryWorkFolderTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.targetLibraryTempFolderTextBox1.BackColor = System.Drawing.SystemColors.Control;
-            this.targetLibraryTempFolderTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.targetLibraryTempFolderTextBox1.Location = new System.Drawing.Point(247, 156);
-            this.targetLibraryTempFolderTextBox1.Name = "targetLibraryTempFolderTextBox1";
-            this.targetLibraryTempFolderTextBox1.ReadOnly = true;
-            this.targetLibraryTempFolderTextBox1.Size = new System.Drawing.Size(101, 12);
-            this.targetLibraryTempFolderTextBox1.TabIndex = 17;
-            this.targetLibraryTempFolderTextBox1.Text = "***";
+            this.targetLibraryWorkFolderTextBox1.BackColor = System.Drawing.SystemColors.Control;
+            this.targetLibraryWorkFolderTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.targetLibraryWorkFolderTextBox1.Location = new System.Drawing.Point(247, 156);
+            this.targetLibraryWorkFolderTextBox1.Name = "targetLibraryWorkFolderTextBox1";
+            this.targetLibraryWorkFolderTextBox1.ReadOnly = true;
+            this.targetLibraryWorkFolderTextBox1.Size = new System.Drawing.Size(621, 12);
+            this.targetLibraryWorkFolderTextBox1.TabIndex = 17;
+            this.targetLibraryWorkFolderTextBox1.Text = "***";
             // 
             // label17
             // 
@@ -628,6 +628,6 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.TextBox targetFileTempFolderTextBox1;
-        private System.Windows.Forms.TextBox targetLibraryTempFolderTextBox1;
+        private System.Windows.Forms.TextBox targetLibraryWorkFolderTextBox1;
     }
 }

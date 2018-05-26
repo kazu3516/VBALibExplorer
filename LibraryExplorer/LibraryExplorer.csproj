@@ -111,7 +111,7 @@
     <Compile Include="Data\LibraryFile.cs" />
     <Compile Include="Data\LibraryFolder.cs" />
     <Compile Include="Data\LibraryProject.cs" />
-    <Compile Include="Data\TemporaryFolder.cs" />
+    <Compile Include="Data\WorkFolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Window\Dialog\AboutBox.cs">
       <SubType>Form</SubType>

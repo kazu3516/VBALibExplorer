@@ -695,14 +695,15 @@ namespace LibraryExplorer.Data {
         /// 指定されたフォルダ名で一時フォルダを作成します。
         /// 作成されたフォルダのパスはこのインスタンスが保持します。
         /// </summary>
-        /// <param name="temporaryFolderPath"></param>
-        public void CreateWorkspaceFolder(string temporaryFolderPath) {
-            if (temporaryFolderPath == "") {
+        /// <param name="workspaceFolderPath"></param>
+        public void CreateWorkspaceFolder(string workspaceFolderPath) {
+            if (workspaceFolderPath == "") {
                 //空文字列の場合は無効なパスとみなし、引数なしのCreateWorkspaceFolderメソッド経由で再度呼び出される
                 this.CreateWorkspaceFolder();
+                return;
             }
             else {
-                this.m_WorkspaceFolderName = temporaryFolderPath;
+                this.m_WorkspaceFolderName = workspaceFolderPath;
                 this._CreateWorkspaceFolder(this.m_WorkspaceFolderName);
             }
         }

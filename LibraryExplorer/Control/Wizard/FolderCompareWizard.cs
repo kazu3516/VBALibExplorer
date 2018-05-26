@@ -711,10 +711,10 @@ namespace LibraryExplorer.Control.Wizard {
             //3ページ開始の処理
 
             //一時フォルダを作成してファイルをコピー
-            this.CopyTemporaryFolder();
+            this.CopyWorkFolder();
 
             //一時フォルダのパスを表示
-            this.ShowTemporaryFolderPath();
+            this.ShowWorkFolderPath();
 
             //ファイル比較を実行
             //外部ツール機能を実装する。
@@ -724,20 +724,21 @@ namespace LibraryExplorer.Control.Wizard {
 
         }
 
-        private void CopyTemporaryFolder() {
-            TemporaryFolder tempFolder = new TemporaryFolder();
-            tempFolder.FolderNameFormatString = $"Lib_yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
-            tempFolder.Create();
+        private void CopyWorkFolder() {
+            WorkFolder workFolder = new WorkFolder();
+            workFolder.DeleteAtClose = true;
+            workFolder.FolderNameFormatString = $"Lib_yyyyMMdd_HHmmss_{Path.GetFileNameWithoutExtension(this.TargetFile.FileName)}";
+            workFolder.Create();
             //作成した一時フォルダに各ファイルをコピー
             this.m_ModulePathList.ForEach(filename => {
-                string dstName = Path.Combine(tempFolder.Path, Path.GetFileName(filename));
+                string dstName = Path.Combine(workFolder.Path, Path.GetFileName(filename));
                 File.Copy(filename, dstName, true);
             });
-            this.m_OutputFolder = tempFolder;
+            this.m_OutputFolder = workFolder;
         }
-        private void ShowTemporaryFolderPath() {
+        private void ShowWorkFolderPath() {
             this.targetFileTempFolderTextBox1.Text = this.TargetFile.WorkspaceFolder.Path;
-            this.targetLibraryTempFolderTextBox1.Text = this.m_OutputFolder.Path;
+            this.targetLibraryWorkFolderTextBox1.Text = this.m_OutputFolder.Path;
         }
 
         private void CheckDiff() {

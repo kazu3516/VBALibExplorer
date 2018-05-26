@@ -15,8 +15,7 @@ namespace LibraryExplorer.Data {
     /// <summary>
     /// LibraryFileを格納する一時フォルダを表すクラスです。
     /// </summary>
-    public class TemporaryFolder:LibraryFolder, IDisposable {
-
+    public class WorkFolder:LibraryFolder, IDisposable {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
@@ -47,7 +46,20 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-
+        #region DeleteAtClose
+        private bool m_DeleteAtClose;
+        /// <summary>
+        /// DeleteAtCloseを取得、設定します。
+        /// </summary>
+        public bool DeleteAtClose {
+            get {
+                return this.m_DeleteAtClose;
+            }
+            set {
+                this.m_DeleteAtClose = value;
+            }
+        }
+        #endregion
 
         #endregion
 
@@ -55,9 +67,10 @@ namespace LibraryExplorer.Data {
         /// <summary>
         /// TemporaryFolderオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
-        public TemporaryFolder():base() {
+        public WorkFolder():base() {
             this.m_TemporaryFolderName = "";
             this.m_FolderNameFormatString = $"yyyyMMdd_HHmmss";
+            this.m_DeleteAtClose = false;
         }
 
         #region IDisposable Support
@@ -74,7 +87,9 @@ namespace LibraryExplorer.Data {
 
                 // アンマネージ リソース (アンマネージ オブジェクト) を解放し、下のファイナライザーをオーバーライドします。
                 //大きなフィールドを null に設定します。
-                this.Delete();
+                if (this.DeleteAtClose) {
+                    this.Delete();
+                }
 
                 disposedValue = true;
             }
@@ -84,7 +99,7 @@ namespace LibraryExplorer.Data {
         /// <summary>
         /// このインスタンスのファイナライズを行います。
         /// </summary>
-        ~TemporaryFolder() {
+        ~WorkFolder() {
             // このコードを変更しないでください。クリーンアップ コードを上の Dispose(bool disposing) に記述します。
             Dispose(false);
         }
@@ -114,7 +129,6 @@ namespace LibraryExplorer.Data {
         #region イベントハンドラ
 
         #endregion
-
 
         #region Clear
         /// <summary>
@@ -174,11 +188,27 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public void Create() {
             this.m_TemporaryFolderName = this.GetTemporaryFolderName();
-            this.Create(this.m_TemporaryFolderName);
+            this.CreateFolder(this.m_TemporaryFolderName);
             
             this.Path = this.m_TemporaryFolderName;
-
         }
+        /// <summary>
+        /// 指定されたフォルダ名で一時フォルダを作成します。
+        /// 作成されたフォルダのパスはこのインスタンスが保持します。
+        /// </summary>
+        /// <param name="workspaceFolderPath"></param>
+        public void Create(string workspaceFolderPath) {
+            if (workspaceFolderPath == "") {
+                //空文字列の場合は無効なパスとみなし、引数なしのCreateメソッド経由で再度呼び出される
+                this.Create();
+                return;
+            }
+            else {
+                this.Path = workspaceFolderPath;
+                this.CreateFolder(this.Path);
+            }
+        }
+
 
         /// <summary>
         /// GenerateTemporaryFolderNameメソッドで得られた名前と、アプリケーションで保持するtemporaryFolderPathを合成し、一時フォルダのフルパスを取得します。
@@ -201,7 +231,7 @@ namespace LibraryExplorer.Data {
         /// パスを指定して、一時フォルダを作成します。
         /// </summary>
         /// <param name="path"></param>
-        protected void Create(string path) {
+        protected void CreateFolder(string path) {
             try {
                 if (!Directory.Exists(path)) {
                     Directory.CreateDirectory(path);
@@ -265,8 +295,6 @@ namespace LibraryExplorer.Data {
             }
         }
         #endregion
-
-
 
     }
 }
