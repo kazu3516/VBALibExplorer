@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 namespace LibraryExplorer.Common {
 
+    #region ApplicationMessageQueue
     /// <summary>
     /// アプリケーション固有のメッセージキューを表します。
     /// Application_Idleのタイミングでキューに登録されているメッセージの処理を行います。
@@ -52,12 +53,18 @@ namespace LibraryExplorer.Common {
         /// ApplicationMessageQueueオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
         /// <param name="owner"></param>
-        public ApplicationMessageQueue(System.Windows.Forms.Control owner) {
-            this.m_MessageQueue = new Queue<ApplicationMessage>();
+        public ApplicationMessageQueue(System.Windows.Forms.Control owner) :this(){
             this.m_Owner = owner;
         }
 
-        
+        /// <summary>
+        /// ApplicationMessageQueueオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        public ApplicationMessageQueue() {
+            this.m_MessageQueue = new Queue<ApplicationMessage>();
+        }
+
+
         #endregion
 
         #region イベントハンドラ
@@ -76,6 +83,7 @@ namespace LibraryExplorer.Common {
             //Console.WriteLine("MessageProcess End");
         }
         #endregion
+
         /// <summary>
         /// キューイングを開始します。
         /// </summary>
@@ -102,8 +110,10 @@ namespace LibraryExplorer.Common {
         public void AddMessage(ApplicationMessage message) {
             this.m_MessageQueue.Enqueue(message);
         }
-    }
+    } 
+    #endregion
 
+    #region ApplicationMessage
     /// <summary>
     /// ApplicationMessageQueueに登録するメッセージを表すクラスです。
     /// </summary>
@@ -142,8 +152,6 @@ namespace LibraryExplorer.Common {
         }
         #endregion
 
-
-
         #endregion
 
         #region コンストラクタ
@@ -159,14 +167,12 @@ namespace LibraryExplorer.Common {
         /// </summary>
         /// <param name="action"></param>
         /// <param name="suspendMessageProcess"></param>
-        public ApplicationMessage(Action action,bool suspendMessageProcess):this(action) {
+        public ApplicationMessage(Action action, bool suspendMessageProcess) : this(action) {
             this.m_SuspendMessageProcess = suspendMessageProcess;
         }
         #endregion
 
-        #region イベントハンドラ
+    } 
+    #endregion
 
-        #endregion
-
-    }
 }
