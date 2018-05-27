@@ -38,21 +38,21 @@
             this.openHistoryFolderButton1 = new System.Windows.Forms.Button();
             this.historyListView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.exportDateTextBox1 = new System.Windows.Forms.TextBox();
-            this.exportDateLabel1 = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.フォルダを開くOToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.削除DToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.すべて選択AToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportDateTextBox1 = new System.Windows.Forms.TextBox();
+            this.exportDateLabel1 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.historyGroupBox1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // closeButton
@@ -206,36 +206,6 @@
             this.columnHeader1.Text = "フォルダ名";
             this.columnHeader1.Width = 200;
             // 
-            // exportDateTextBox1
-            // 
-            this.exportDateTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportDateTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.exportDateTextBox1.Location = new System.Drawing.Point(97, 26);
-            this.exportDateTextBox1.Name = "exportDateTextBox1";
-            this.exportDateTextBox1.ReadOnly = true;
-            this.exportDateTextBox1.Size = new System.Drawing.Size(299, 12);
-            this.exportDateTextBox1.TabIndex = 3;
-            this.exportDateTextBox1.Text = "***";
-            // 
-            // exportDateLabel1
-            // 
-            this.exportDateLabel1.AutoSize = true;
-            this.exportDateLabel1.Location = new System.Drawing.Point(8, 26);
-            this.exportDateLabel1.Name = "exportDateLabel1";
-            this.exportDateLabel1.Size = new System.Drawing.Size(83, 12);
-            this.exportDateLabel1.TabIndex = 2;
-            this.exportDateLabel1.Text = "エクスポート日付";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.closeButton);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 415);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(410, 47);
-            this.panel1.TabIndex = 2;
-            // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -284,6 +254,36 @@
             this.すべて選択AToolStripMenuItem.Text = "すべて選択(&A)";
             this.すべて選択AToolStripMenuItem.Click += new System.EventHandler(this.すべて選択AToolStripMenuItem_Click);
             // 
+            // exportDateTextBox1
+            // 
+            this.exportDateTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.exportDateTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.exportDateTextBox1.Location = new System.Drawing.Point(97, 26);
+            this.exportDateTextBox1.Name = "exportDateTextBox1";
+            this.exportDateTextBox1.ReadOnly = true;
+            this.exportDateTextBox1.Size = new System.Drawing.Size(299, 12);
+            this.exportDateTextBox1.TabIndex = 3;
+            this.exportDateTextBox1.Text = "***";
+            // 
+            // exportDateLabel1
+            // 
+            this.exportDateLabel1.AutoSize = true;
+            this.exportDateLabel1.Location = new System.Drawing.Point(8, 26);
+            this.exportDateLabel1.Name = "exportDateLabel1";
+            this.exportDateLabel1.Size = new System.Drawing.Size(83, 12);
+            this.exportDateLabel1.TabIndex = 2;
+            this.exportDateLabel1.Text = "エクスポート日付";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.closeButton);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(0, 415);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(410, 47);
+            this.panel1.TabIndex = 2;
+            // 
             // LibraryPropertyDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -305,8 +305,8 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.historyGroupBox1.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

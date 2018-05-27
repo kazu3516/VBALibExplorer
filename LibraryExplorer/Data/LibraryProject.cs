@@ -362,6 +362,19 @@ namespace LibraryExplorer.Data {
         }
 
         #endregion
+
+        #endregion
+
+        #region CloseLibrary
+        /// <summary>
+        /// 指定したライブラリを閉じます。
+        /// </summary>
+        /// <param name="library"></param>
+        public void CloseLibrary(Library library) {
+            this.Libraries.Remove(library);
+            //CloseFolderとイベントは共通
+            this.OnFolderClosed(new EventArgs<Library>(library));
+        }
         #endregion
 
         #region CloseFolder

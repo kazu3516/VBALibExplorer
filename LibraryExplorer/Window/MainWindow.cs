@@ -272,6 +272,7 @@ namespace LibraryExplorer.Window {
             this.m_OptionDialog = new OptionDialog();
             this.m_AboutBox = new AboutBox();
             this.m_LibraryPropertyDialog = new LibraryPropertyDialog();
+            this.m_LibraryPropertyDialog.NotifyParentRequest += this.ReceiveNotifyParentRequest;
 
             //内部変数
             this.m_FirstShowWindow = true;
@@ -492,6 +493,12 @@ namespace LibraryExplorer.Window {
                     this.m_MessageQueue.AddMessage(() => {
                         this.RefreshDisplay(data_refreshDisplay.KeepDisplay);
                     });
+                    break;
+                case OpenFolderRequestData data_openFolder:
+                    //フォルダを開く
+                    foreach (string folder in data_openFolder.Folders) {
+                        this.OpenFolder(folder);
+                    }
                     break;
             }
         } 
@@ -942,7 +949,18 @@ namespace LibraryExplorer.Window {
         /// <param name="keep"></param>
         private void RefreshDisplay(bool keep = false) {
             //Libraryを更新
-            this.m_Project.Libraries.ToList().ForEach(x => x.Refresh());
+            List<Library> deleteLibraries = new List<Library>();
+            this.m_Project.Libraries.ToList().ForEach(x => {
+                try {
+                    x.Refresh();
+                }
+                catch (DirectoryNotFoundException) {
+                    MessageBox.Show($"フォルダが見つかりません。フォルダを閉じます。\r\nPath = {x.TargetFolder}");
+                    deleteLibraries.Add(x);
+                }
+            });
+            //エラーが発生したライブラリを閉じる
+            deleteLibraries.ForEach(lib => this.m_Project.CloseLibrary(lib));
 
             //表示するデータの再設定
             if (this.m_ExplorerTreeWindow != null) {

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryExplorer.Common;
+using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
 
 namespace LibraryExplorer.Window.Dialog {
@@ -21,6 +22,22 @@ namespace LibraryExplorer.Window.Dialog {
 
 
         #region フィールド(メンバ変数、プロパティ、イベント)
+
+        #region NotifyParentRequestイベント
+        /// <summary>
+        /// 親コントロールに対して要求を送信するイベントです。
+        /// </summary>
+        public event RequestEventHandler NotifyParentRequest;
+        /// <summary>
+        /// NotifyParentRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnNotifyParentRequest(RequestEventArgs e) {
+            this.NotifyParentRequest?.Invoke(this, e);
+        }
+        #endregion
+
+
 
         #region TargetFolder
         private LibraryFolder m_TargetFolder;
@@ -221,20 +238,20 @@ namespace LibraryExplorer.Window.Dialog {
             this.OpenFolder();
         }
         private void historyListView1_SelectedIndexChanged(object sender, EventArgs e) {
-            int selectedCount = this.historyListView1.SelectedItems.Count;
+            bool selected = this.historyListView1.SelectedItems.Count > 0;
 
-            this.openHistoryFolderButton1.Enabled = selectedCount == 1;
-            this.deleteHistoryButton1.Enabled = selectedCount > 0;
+            this.openHistoryFolderButton1.Enabled = selected;
+            this.deleteHistoryButton1.Enabled = selected;
         }
 
         #endregion
 
         #region ContextMenu1
         private void contextMenuStrip1_Opened(object sender, EventArgs e) {
-            int selectedCount = this.historyListView1.SelectedItems.Count;
+            bool selected = this.historyListView1.SelectedItems.Count > 0;
 
-            this.フォルダを開くOToolStripMenuItem.Enabled = selectedCount == 1;
-            this.削除DToolStripMenuItem.Enabled = selectedCount > 0;
+            this.フォルダを開くOToolStripMenuItem.Enabled = selected;
+            this.削除DToolStripMenuItem.Enabled = selected;
         }
 
         private void フォルダを開くOToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -302,23 +319,13 @@ namespace LibraryExplorer.Window.Dialog {
 
         #region OpenFolder
         private void OpenFolder() {
-            if (this.historyListView1.SelectedItems.Count != 1) {
+            if (this.historyListView1.SelectedItems.Count == 0) {
                 return;
             }
-            this.OpenFolder(this.historyListView1.SelectedItems[0]);
-        }
-        private void OpenFolder(ListViewItem item) {
-            string folderName = Path.Combine(AppMain.g_AppMain.HistoryFolderPath,item.Text);
+            IList<string> folders = this.historyListView1.SelectedItems.Cast<ListViewItem>()
+                .Select(item => Path.Combine(AppMain.g_AppMain.HistoryFolderPath, item.Text)).ToList();
 
-            ProcessStartInfo info = new ProcessStartInfo() {
-                FileName = "Explorer",
-                Arguments = $"\"{folderName}\""
-            };
-            using (Process process = new Process() {
-                StartInfo = info
-            }) {
-                process.Start();
-            }
+            this.OnNotifyParentRequest(new OpenFolderRequestEventArgs(folders, this.GetType().Name));
         }
         #endregion
 
@@ -340,7 +347,9 @@ namespace LibraryExplorer.Window.Dialog {
             this.historyListView1.Items.Remove(item);
 
             string path = Path.Combine(AppMain.g_AppMain.HistoryFolderPath, item.Text);
-            Directory.Delete(path, true);
+            if (Directory.Exists(path)) {
+                Directory.Delete(path, true);
+            }
         }
         #endregion
 
