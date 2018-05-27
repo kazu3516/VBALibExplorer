@@ -482,7 +482,7 @@ namespace LibraryExplorer.Data {
             this.m_Libraries.Clear();
             int folder_count = this.m_ConfigHelper.GetIntValue("LibraryExplorer.project:Project.LibraryFolders.Count");
             for (int i = 0; i < folder_count; i++) {
-                string path = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.LibraryFolders.{i + 1}");
+                string path = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.LibraryFolders.Folders.{i + 1}");
                 this.m_Libraries.Add(Library.FromFolder(path));
             }
             //OfficeFiles
@@ -514,7 +514,7 @@ namespace LibraryExplorer.Data {
             //LibraryFolders
             config.AddXmlContentsItem("LibraryExplorer.project:Project.LibraryFolders.Count", this.m_Libraries.Count);
             for (int i = 0; i < this.m_Libraries.Count; i++) {
-                config.AddXmlContentsItem($"LibraryExplorer.project:Project.LibraryFolders.{i + 1}", this.m_Libraries[i].TargetFolder);
+                config.AddXmlContentsItem($"LibraryExplorer.project:Project.LibraryFolders.Folders.{i + 1}", this.m_Libraries[i].TargetFolder);
             }
             //OfficeFiels
             config.AddXmlContentsItem("LibraryExplorer.project:Project.OfficeFiles.Count", this.m_ExcelFiles.Count);
