@@ -1432,16 +1432,6 @@ namespace LibraryExplorer.Window {
     }
 
 
-    /// <summary>
-    /// [最新の情報に更新]が使用できるオブジェクトであることを表すインターフェースです。
-    /// </summary>
-    public interface IRefreshDisplay {
-        /// <summary>
-        /// 表示を更新します。
-        /// </summary>
-        /// <param name="keep"></param>
-        void RefreshDisplay(bool keep = false);
-    }
 
 
 }

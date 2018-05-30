@@ -157,6 +157,7 @@
     <Compile Include="Window\DockWindow\FolderCompareWindow.Designer.cs">
       <DependentUpon>FolderCompareWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Window\DockWindow\IRefreshDisplay.cs" />
     <Compile Include="Window\DockWindow\LibraryFileListWindow.cs">
       <SubType>Form</SubType>
     </Compile>
