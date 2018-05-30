@@ -28,6 +28,9 @@ namespace LibraryExplorer.Data {
         private bool m_FolderChangedByExport;
         private FileSystemEventArgs m_EventArgsByExport;
 
+        private bool m_FileChangedByImport;
+        private FileSystemEventArgs m_EventArgsByImport;
+
         #region protected Exporting
         private bool m_Exporting;
         /// <summary>
@@ -52,6 +55,36 @@ namespace LibraryExplorer.Data {
                 this.SetProperty(ref this.m_Exporting, value, ((oldValue) => {
                     if (this.ExportingChanged != null) {
                         this.OnExportingChanged(new EventArgs<bool>(oldValue));
+                    }
+                }));
+            }
+        }
+        #endregion
+
+        #region protected Importing
+        private bool m_Importing;
+        /// <summary>
+        /// Importingが変更された場合に発生するイベントです。
+        /// </summary>
+        protected event EventHandler<EventArgs<bool>> ImportingChanged;
+        /// <summary>
+        /// Importingが変更された場合に呼び出されます。
+        /// </summary>
+        /// <param name="e">イベントパラメータ</param>
+        protected void OnImportingChanged(EventArgs<bool> e) {
+            this.ImportingChanged?.Invoke(this, e);
+        }
+        /// <summary>
+        /// Importingを取得、設定します。
+        /// </summary>
+        protected bool Importing {
+            get {
+                return this.m_Importing;
+            }
+            set {
+                this.SetProperty(ref this.m_Importing, value, ((oldValue) => {
+                    if (this.ImportingChanged != null) {
+                        this.OnImportingChanged(new EventArgs<bool>(oldValue));
                     }
                 }));
             }
@@ -100,7 +133,7 @@ namespace LibraryExplorer.Data {
 
         #region ImportScriptName
         /// <summary>
-        /// ExportScriptNameを取得します。
+        /// ImportScriptNameを取得します。
         /// </summary>
         protected abstract string ImportScriptName {
             get;
@@ -257,7 +290,17 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public bool RequiredReExport {
             get {
-                return this.m_ExportDate == null ?  true : this.m_ExportDate < this.UpdateDate;
+                if (this.m_ExportDate == null) {
+                    return true;
+                }
+                TimeSpan time = this.m_ExportDate.Value - this.UpdateDate;
+                double deltaSeconds = Math.Abs(time.TotalSeconds);
+                if (deltaSeconds <= 2) {
+                    //HACK:2秒は決め打ち
+                    //一定秒数以内は同一時刻とみなす
+                    return false;
+                }
+                return this.m_ExportDate < this.UpdateDate;
             }
         }
         #endregion
@@ -380,7 +423,10 @@ namespace LibraryExplorer.Data {
 
             //Workspaceフォルダ監視のタイミング調整のため、Exportingプロパティを監視
             this.ExportingChanged += this.OfficeFile_ExportingChanged;
+            //同じく、TargetFileの監視タイミング調整のため、Importingプロパティも監視
+            this.ImportingChanged += this.OfficeFile_ImportingChanged;
         }
+
 
         /// <summary>
         /// OfficeFileオブジェクトの新しいインスタンスを初期化します。
@@ -406,7 +452,25 @@ namespace LibraryExplorer.Data {
             string logMessage = $"ExcelFile : TargetFile Changed. Type = {e.ChangeType}, Path = {e.FullPath}";
             AppMain.logger.Debug(logMessage);
 
-            this.OnNotifyParentRequest(new NotifyFileChangedRequestEventArgs(this, e));
+            if (!this.Importing) {
+                this.OnNotifyParentRequest(new NotifyFileChangedRequestEventArgs(this, e));
+            }
+            else {
+                if (!this.m_FileChangedByImport) {
+                    this.m_FileChangedByImport = true;
+                    this.m_EventArgsByImport = e;
+                }
+            }
+        }
+        private void OfficeFile_ImportingChanged(object sender, EventArgs<bool> e) {
+            if (!this.Importing) {
+                if (this.m_FileChangedByImport) {
+                    //上位に通知して、変更記憶をクリア
+                    this.OnNotifyParentRequest(new NotifyFileChangedRequestEventArgs(this, this.m_EventArgsByImport));
+                    this.m_FileChangedByImport = false;
+                    this.m_EventArgsByImport = null;
+                }
+            }
         }
 
         #endregion
@@ -546,8 +610,8 @@ namespace LibraryExplorer.Data {
         public async Task ExportAll(bool makeTempDir) {
             string scriptPath = Path.Combine(AppMain.g_AppMain.ScriptFolderPath, this.ExportScriptName);
 
+            //-------------------------------------------------------
             this.Exporting = true;
-            this.m_ExportDate = DateTime.Now;
             //エクスポート前のバックアップ
             this.CopyToHistory($"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_BeforeExport_{Path.GetFileName(this.FileName)}");
 
@@ -559,10 +623,13 @@ namespace LibraryExplorer.Data {
             //エクスポート用のスクリプトを起動
             await this.StartScript(scriptPath).ConfigureAwait(false);
 
+            this.m_ExportDate = DateTime.Now;
+
             //エクスポート後のバックアップ
             this.CopyToHistory($"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_AfterExport_{Path.GetFileName(this.FileName)}");
 
             this.Exporting = false;
+            //-------------------------------------------------------
         }
         #endregion
 
@@ -575,7 +642,21 @@ namespace LibraryExplorer.Data {
         public async Task ImportAll() {
             string scriptPath = Path.Combine(AppMain.g_AppMain.ScriptFolderPath, this.ImportScriptName);
 
+            //-------------------------------------------------------
+            this.Importing = true;
+
             await this.StartScript(scriptPath).ConfigureAwait(false);
+
+            if (!this.m_HasError) {
+                //エラー無く完了した場合、エクスポートしたデータ＝ファイルのデータになるため、日付を更新する
+                this.m_ExportDate = DateTime.Now;
+            }
+
+            //インポート後のバックアップ
+            this.CopyToHistory($"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_AfterImport_{Path.GetFileName(this.FileName)}");
+
+            this.Importing = false;
+            //-------------------------------------------------------
         }
         #endregion
 

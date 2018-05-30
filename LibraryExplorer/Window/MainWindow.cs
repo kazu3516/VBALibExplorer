@@ -693,7 +693,9 @@ namespace LibraryExplorer.Window {
 
         #region ファイル
         private void ファイルFToolStripMenuItem_DropDownOpened(object sender, EventArgs e) {
-            this.再読み込みRToolStripMenuItem.Enabled = (this.SelectedOfficeFile != null);
+            bool selectedFile = (this.SelectedOfficeFile != null);
+            this.再読み込みRToolStripMenuItem.Enabled = selectedFile;
+            this.インポートIToolStripMenuItem.Enabled = selectedFile;
         }
 
         /// <summary>
@@ -710,6 +712,10 @@ namespace LibraryExplorer.Window {
         }
         private async void 再読み込みRToolStripMenuItem_Click(object sender, EventArgs e) {
             await this.ReloadFile(this.SelectedOfficeFile);
+        }
+
+        private async void インポートIToolStripMenuItem_Click(object sender, EventArgs e) {
+            await this.Import(this.SelectedOfficeFile);
         }
 
         private void 閉じるCToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -870,6 +876,23 @@ namespace LibraryExplorer.Window {
                 await window.ExportModules();
                 this.RefreshDisplay(true);
             }
+        }
+
+        /// <summary>
+        /// インポート
+        /// </summary>
+        /// <param name="targetFile"></param>
+        private async Task Import(OfficeFile targetFile) {
+
+            DialogResult result = MessageBox.Show("Workspaceフォルダに保存されているファイルをインポートします。よろしいですか？", "インポート確認", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (result == DialogResult.Yes) {
+                this.Cursor = Cursors.WaitCursor;
+
+                await targetFile.ImportAll();
+
+                this.Cursor = Cursors.Default;
+            }
+
         }
 
         /// <summary>
@@ -1331,6 +1354,7 @@ namespace LibraryExplorer.Window {
         }
 
         #endregion
+
     }
 
 

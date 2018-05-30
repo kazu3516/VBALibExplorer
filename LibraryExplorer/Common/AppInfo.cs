@@ -812,7 +812,7 @@ namespace LibraryExplorer.Common {
         /// <param name="config"></param>
         private void OnReflectScriptInfo(XmlConfigModel config) {
             config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleExport", this.m_ExcelModuleExportScriptName);
-            config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleImport", this.m_ExcelModuleExportScriptName);
+            config.AddXmlContentsItem("LibraryExplorer.setting:Script.ExcelModuleImport", this.m_ExcelModuleImportScriptName);
         }
 
         #endregion
