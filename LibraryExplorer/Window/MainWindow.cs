@@ -72,6 +72,22 @@ namespace LibraryExplorer.Window {
         private bool m_FirstShowWindow;
 
 
+        #region OutputLogRequestイベント
+        /// <summary>
+        /// 出力ウィンドウへのメッセージ出力要求を表すイベントです。
+        /// </summary>
+        public event OutputLogRequestEventHandler OutputLogRequest;
+        /// <summary>
+        /// OutputLogRequestイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnOutputLogRequest(OutputLogRequestEventArgs e) {
+            this.OutputLogRequest?.Invoke(this, e);
+        }
+
+        #endregion
+
+
         #region Project
         private LibraryProject m_Project;
         /// <summary>
@@ -299,7 +315,8 @@ namespace LibraryExplorer.Window {
             this.m_SelectedLibraryFile = null;
             this.SelectedLibraryFileChanged += this.MainWindow_SelectedLibraryFileChanged;
 
-
+            //自分自身の出力要求を受け取る
+            this.OutputLogRequest += this.ReceiveOutputLogRequest;
 
             //this.RefreshDisplay(true);
             //
@@ -749,6 +766,14 @@ namespace LibraryExplorer.Window {
         }
         #endregion
 
+        #region プロジェクト
+
+        private void 初期化IToolStripMenuItem_Click(object sender, EventArgs e) {
+            this.ResetProject();
+        }
+
+        #endregion
+
         #region ツール
         private void ツールTToolStripMenuItem_DropDownOpened(object sender, EventArgs e) {
             this.バージョン確認ツールVToolStripMenuItem.Enabled = (this.SelectedOfficeFile != null);
@@ -820,6 +845,10 @@ namespace LibraryExplorer.Window {
         /// </summary>
         /// <param name="folderPath"></param>
         private void OpenFolder(string folderPath) {
+            if (!Directory.Exists(folderPath)) {
+                this.OnOutputLogRequest(new OutputLogRequestEventArgs($"Error : 指定されたフォルダが存在しません。Path ={folderPath}"));
+                return;
+            }
             //重複登録のためのクロスチェック
             if (!this.m_Project.Libraries.Any(x => x.TargetFolder.Contains(folderPath) || folderPath.Contains(x.TargetFolder))) {
                 this.m_Project.Libraries.Add(Library.FromFolder(folderPath));
@@ -1032,6 +1061,19 @@ namespace LibraryExplorer.Window {
             //IRefreshDisplayを実装した全てのDockContentsを更新する。
             this.dockPanel.Contents.OfType<IRefreshDisplay>().ToList().ForEach(window => window.RefreshDisplay(keep));
         }
+        #endregion
+
+        #region プロジェクト
+        /// <summary>
+        /// LibraryProjectを初期化します。
+        /// </summary>
+        private void ResetProject() {
+            DialogResult result = MessageBox.Show("プロジェクトを初期化します。この操作は元に戻せません。本当に初期化しますか？", "プロジェクト初期化確認", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+            if (result == DialogResult.Yes) {
+                this.m_Project.Reset();
+            }
+        }
+
         #endregion
 
         #region ツール

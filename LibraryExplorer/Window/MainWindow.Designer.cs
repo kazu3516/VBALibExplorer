@@ -30,6 +30,7 @@
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.ファイルを開くFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.再読み込みRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.インポートIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.閉じるCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
@@ -80,7 +81,8 @@
             this.ヘルプLToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.インポートIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.プロジェクトPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.初期化IToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -94,6 +96,7 @@
             this.ファイルFToolStripMenuItem,
             this.編集EToolStripMenuItem,
             this.表示VToolStripMenuItem,
+            this.プロジェクトPToolStripMenuItem,
             this.ツールTToolStripMenuItem,
             this.ヘルプHToolStripMenuItem,
             this.デバッグメニューDToolStripMenuItem});
@@ -150,6 +153,13 @@
             this.再読み込みRToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.再読み込みRToolStripMenuItem.Text = "再読み込み(&R)";
             this.再読み込みRToolStripMenuItem.Click += new System.EventHandler(this.再読み込みRToolStripMenuItem_Click);
+            // 
+            // インポートIToolStripMenuItem
+            // 
+            this.インポートIToolStripMenuItem.Name = "インポートIToolStripMenuItem";
+            this.インポートIToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.インポートIToolStripMenuItem.Text = "インポート(&I)";
+            this.インポートIToolStripMenuItem.Click += new System.EventHandler(this.インポートIToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -547,12 +557,20 @@
             this.openFileDialog1.Filter = "Excelファイル(*.xls;xlsm;xla;xlam;*.xlt;*.xltm)|*.xls;*.xlsm;*.xla;*.xlam;*.xlt;*.xlt" +
     "m";
             // 
-            // インポートIToolStripMenuItem
+            // プロジェクトPToolStripMenuItem
             // 
-            this.インポートIToolStripMenuItem.Name = "インポートIToolStripMenuItem";
-            this.インポートIToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.インポートIToolStripMenuItem.Text = "インポート(&I)";
-            this.インポートIToolStripMenuItem.Click += new System.EventHandler(this.インポートIToolStripMenuItem_Click);
+            this.プロジェクトPToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.初期化IToolStripMenuItem});
+            this.プロジェクトPToolStripMenuItem.Name = "プロジェクトPToolStripMenuItem";
+            this.プロジェクトPToolStripMenuItem.Size = new System.Drawing.Size(87, 20);
+            this.プロジェクトPToolStripMenuItem.Text = "プロジェクト(&P)";
+            // 
+            // 初期化IToolStripMenuItem
+            // 
+            this.初期化IToolStripMenuItem.Name = "初期化IToolStripMenuItem";
+            this.初期化IToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.初期化IToolStripMenuItem.Text = "初期化(&I)";
+            this.初期化IToolStripMenuItem.Click += new System.EventHandler(this.初期化IToolStripMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -636,5 +654,7 @@
         private System.Windows.Forms.ToolStripMenuItem fileSystemWatcherのテスト開始ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileSystemWatcherのテスト停止ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem インポートIToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem プロジェクトPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 初期化IToolStripMenuItem;
     }
 }

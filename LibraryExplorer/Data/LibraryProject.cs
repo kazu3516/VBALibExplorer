@@ -425,7 +425,33 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region Reset
+        /// <summary>
+        /// LibraryProjectを初期状態に戻します。
+        /// Workspaceフォルダ、Historyフォルダもすべて初期化します。
+        /// </summary>
+        public void Reset() {
+            //ライブラリとファイルを閉じる
+            this.Libraries.ToList().ForEach(lib => this.CloseLibrary(lib));
+            this.ExcelFiles.ToList().ForEach(file => this.CloseFile(file, true));
 
+            //残っているHistoryとWorkspaceをクリアする
+            this.ResetDirectory(AppMain.g_AppMain.HistoryFolderPath);
+            this.ResetDirectory(AppMain.g_AppMain.WorkspaceFolderPath);
+
+            this.OnOutputLogRequest(new OutputLogRequestEventArgs("プロジェクトを初期化しました。"));
+        }
+
+        private void ResetDirectory(string path) {
+            DirectoryInfo directory = new DirectoryInfo(path);
+            foreach (FileInfo file in directory.GetFiles()) {
+                file.Delete();
+            }
+            foreach (DirectoryInfo subDirectory in directory.GetDirectories()) {
+                subDirectory.Delete(true);
+            }
+        }
+        #endregion
 
         #region Config
 
