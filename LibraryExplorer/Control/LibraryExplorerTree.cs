@@ -594,32 +594,19 @@ namespace LibraryExplorer.Control {
             }
         }
 
+        /// <summary>
+        /// OfficeFileの状態をチェックし、アラート表示、ToolTipの設定を行う。
+        /// </summary>
+        /// <param name="officeNode"></param>
         private void RefreshOfficeNode(OfficeFileTreeNode officeNode) {
             OfficeFile file = officeNode.TargetFile;
-            string toolTipText;
-            bool alert = this.CheckFileAlret(file,out toolTipText);
+            bool alert = file.Status != OfficeFileStatus.Normal;
             
             officeNode.ImageIndex = officeNode.SelectedImageIndex = (alert ? IMG_EXCEL_ALERT : IMG_EXCEL);
-            officeNode.ToolTipText = toolTipText;
+            officeNode.ToolTipText = file.StatusMessage;
 
         }
 
-        private bool CheckFileAlret(OfficeFile file,out string toolTipText) {
-            toolTipText = "";
-            if (!file.Exist) {
-                toolTipText = "ファイルが存在しません。不要なファイルであればファイルを閉じてください。";
-                return true;
-            }
-            else if (!file.ExistWorkspaceFolder()) {
-                toolTipText = "エクスポートフォルダが存在しません。再エクスポートしてください。";
-                return true;
-            }
-            else if (file.RequiredReExport) {
-                toolTipText = "ファイルが更新されています。再エクスポートしてください。";
-                return true;
-            }
-            return false;
-        }
         #endregion
 
         #endregion

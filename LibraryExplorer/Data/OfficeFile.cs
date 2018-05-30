@@ -22,6 +22,7 @@ namespace LibraryExplorer.Data {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
+        #region 内部変数
         private FileSystemWatcher m_TargetFileWatcher;
         private FileSystemWatcher m_WorkspaceFolderWatcher;
 
@@ -31,6 +32,11 @@ namespace LibraryExplorer.Data {
         private bool m_FileChangedByImport;
         private FileSystemEventArgs m_EventArgsByImport;
 
+        private DateTime m_LatestFileUpdateTime;
+
+        #endregion
+
+        #region protectedなプロパティ
         #region protected Exporting
         private bool m_Exporting;
         /// <summary>
@@ -92,6 +98,10 @@ namespace LibraryExplorer.Data {
         #endregion
 
 
+        #endregion
+
+        #region イベント
+        
         #region NotifyParentRequestイベント
         /// <summary>
         /// 親コントロールに対して要求を送信するイベントです。
@@ -121,7 +131,10 @@ namespace LibraryExplorer.Data {
 
         #endregion
 
+        #endregion
 
+        #region 定数扱いのプロパティ
+        
         #region ExportScriptName
         /// <summary>
         /// ExportScriptNameを取得します。
@@ -140,6 +153,10 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #endregion
+
+
+        #region プロパティ
 
         #region FileType
         private OfficeFileType m_FileType;
@@ -183,6 +200,78 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+
+        #region BackupPathList
+        private List<string> m_BackupPathList;
+        /// <summary>
+        /// BackupPathListを取得、設定します。
+        /// </summary>
+        public List<string> BackupPathList {
+            get {
+                return this.m_BackupPathList;
+            }
+            set {
+                this.m_BackupPathList = value;
+            }
+        }
+        #endregion
+
+
+        #region Status
+        /// <summary>
+        /// Statusを取得します。
+        /// </summary>
+        public OfficeFileStatus Status {
+            get {
+                OfficeFileStatus st= OfficeFileStatus.Unknown;
+                if (!this.Exist) {
+                    st |= OfficeFileStatus.FileNotFound;
+                }
+                if (!this.ExistWorkspaceFolder()) {
+                    st |= OfficeFileStatus.WorkspaceNotFound;
+                }
+                if (this.RequiredReExport) {
+                    st |= OfficeFileStatus.UpdatedFile;
+                }
+                if (this.ModifiedWorkspace) {
+                    st |= OfficeFileStatus.UpdatedWorkspace;
+                }
+
+                //どの異常も発生していない場合、Normal
+                if (st == OfficeFileStatus.Unknown) {
+                    st |= OfficeFileStatus.Normal;
+                }
+                return st;
+            }
+        }
+        #endregion
+
+        #region StatusMessage
+        /// <summary>
+        /// StatusMessageを取得します。
+        /// </summary>
+        public string StatusMessage {
+            get {
+                OfficeFileStatus st = this.Status;
+                if (st.HasFlag(OfficeFileStatus.FileNotFound)) {
+                    return "ファイルが存在しません。不要なファイルであればファイルを閉じてください。";
+                }
+                if (st.HasFlag(OfficeFileStatus.WorkspaceNotFound)) {
+                    return "エクスポートフォルダが存在しません。再エクスポートしてください。";
+                }
+                if (st.HasFlag(OfficeFileStatus.UpdatedFile)) {
+                    return "ファイルが更新されています。再エクスポートしてください。";
+                }
+                if (st.HasFlag(OfficeFileStatus.UpdatedWorkspace)) {
+                    return "Workspaceフォルダのファイルが更新されています。反映する場合、インポートしてください。";
+                }
+                return "";
+            }
+        }
+        #endregion
+
+
+
         #region ExportDate
         private DateTime? m_ExportDate;
         /// <summary>
@@ -213,17 +302,58 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-        #region BackupPathList
-        private List<string> m_BackupPathList;
+        #region Exist
         /// <summary>
-        /// BackupPathListを取得、設定します。
+        /// このインスタンスが示すファイルが存在するかどうかを取得します。
         /// </summary>
-        public List<string> BackupPathList {
+        public bool Exist {
             get {
-                return this.m_BackupPathList;
+                return File.Exists(this.FileName);
             }
-            set {
-                this.m_BackupPathList = value;
+        }
+        #endregion
+
+        #region UpdateDate
+        /// <summary>
+        /// このインスタンスが示すファイルの更新日時を取得します。
+        /// ファイルが存在しない場合、DateTime.MinValueを返します。
+        /// </summary>
+        public DateTime UpdateDate {
+            get {
+                return File.Exists(this.FileName) ? File.GetLastWriteTime(this.FileName) : DateTime.MinValue;
+            }
+        }
+        #endregion
+
+        #region RequiredReExport
+        /// <summary>
+        /// 再エクスポートが必要かどうかを返します。
+        /// エクスポート後にファイルが更新された場合にtrueを返します。
+        /// </summary>
+        public bool RequiredReExport {
+            get {
+                if (this.m_ExportDate == null) {
+                    return true;
+                }
+                TimeSpan time = this.m_ExportDate.Value - this.UpdateDate;
+                double deltaSeconds = Math.Abs(time.TotalSeconds);
+                if (deltaSeconds <= 2) {
+                    //HACK:2秒は決め打ち
+                    //一定秒数以内は同一時刻とみなす
+                    return false;
+                }
+                return this.m_ExportDate < this.UpdateDate;
+            }
+        }
+        #endregion
+
+        #region ModifiedWorkspace
+        /// <summary>
+        /// エクスポート後にWorkspaceフォルダ内のファイルが変更されたかどうかを取得します。
+        /// </summary>
+        public bool ModifiedWorkspace {
+            get {
+                return this.m_ExportDate < this.m_LatestFileUpdateTime;
             }
         }
         #endregion
@@ -259,29 +389,6 @@ namespace LibraryExplorer.Data {
         #endregion
 
 
-        #region Exist
-        /// <summary>
-        /// このインスタンスが示すファイルが存在するかどうかを取得します。
-        /// </summary>
-        public bool Exist {
-            get {
-                return File.Exists(this.FileName);
-            }
-        }
-        #endregion
-
-        #region UpdateDate
-        /// <summary>
-        /// このインスタンスが示すファイルの更新日時を取得します。
-        /// ファイルが存在しない場合、DateTime.MinValueを返します。
-        /// </summary>
-        public DateTime UpdateDate {
-            get {
-                return File.Exists(this.FileName) ? File.GetLastWriteTime(this.FileName) : DateTime.MinValue;
-            }
-        }
-        #endregion
-
         #region CanExport
         /// <summary>
         /// エクスポート可能かどうかを取得します。
@@ -301,31 +408,9 @@ namespace LibraryExplorer.Data {
             get {
                 return !this.m_Exporting && !this.m_Importing;
             }
-        } 
-        #endregion
-
-
-        #region RequiredReExport
-        /// <summary>
-        /// 再エクスポートが必要かどうかを返します。
-        /// エクスポート後にファイルが更新された場合にtrueを返します。
-        /// </summary>
-        public bool RequiredReExport {
-            get {
-                if (this.m_ExportDate == null) {
-                    return true;
-                }
-                TimeSpan time = this.m_ExportDate.Value - this.UpdateDate;
-                double deltaSeconds = Math.Abs(time.TotalSeconds);
-                if (deltaSeconds <= 2) {
-                    //HACK:2秒は決め打ち
-                    //一定秒数以内は同一時刻とみなす
-                    return false;
-                }
-                return this.m_ExportDate < this.UpdateDate;
-            }
         }
         #endregion
+
 
         #region WorkspaceFolder
         private WorkFolder m_WorkspaceFolder;
@@ -339,9 +424,8 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
-
         #region WorkspaceFolderPath
-        
+
         /// <summary>
         /// WorkspaceFolderPathを取得、設定します。
         /// </summary>
@@ -356,6 +440,7 @@ namespace LibraryExplorer.Data {
         #endregion
 
 
+        #endregion
 
         #region PropertyChanged/SetProperty
         /// <summary>
@@ -436,6 +521,9 @@ namespace LibraryExplorer.Data {
                 BaseFolderPath = AppMain.g_AppMain.WorkspaceFolderPath,
                 DeleteAtClose = false
             };
+            this.m_WorkspaceFolder.PathChanged += this.M_WorkspaceFolder_PathChanged;
+            this.m_WorkspaceFolder.FolderCreated += this.M_WorkspaceFolder_FolderCreated;
+            this.m_WorkspaceFolder.FolderDeleted += this.M_WorkspaceFolder_FolderDeleted;
 
             //FileSystemWatcherのインスタンスはコンストラクタで生成するが、監視は別タイミングで開始する
             this.m_TargetFileWatcher = new FileSystemWatcher();
@@ -450,6 +538,7 @@ namespace LibraryExplorer.Data {
         }
 
 
+
         /// <summary>
         /// OfficeFileオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
@@ -459,6 +548,17 @@ namespace LibraryExplorer.Data {
             this.FileName = filename;
         }
 
+        /// <summary>
+        /// OfficeFileオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="workspaceFolderPath"></param>
+        /// <param name="fileType"></param>
+        protected OfficeFile(string filename, string workspaceFolderPath, OfficeFileType fileType) : this(filename, fileType) {
+            this.m_WorkspaceFolder.Path = workspaceFolderPath;
+
+            this.CheckLatestFileUpdateTime();
+        }
 
         #endregion
 
@@ -508,6 +608,9 @@ namespace LibraryExplorer.Data {
             AppMain.logger.Debug(logMessage);
 
             if (!this.Exporting) {
+                //ファイルの更新日付をチェック
+                this.CheckLatestFileUpdateTime();
+
                 //エクスポート中以外の変更ならば上位に通知
                 this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, e));
             }
@@ -528,6 +631,9 @@ namespace LibraryExplorer.Data {
         private void OfficeFile_ExportingChanged(object sender, EventArgs<bool> e) {
             if (!this.Exporting){
                 if (this.m_FolderChangedByExport) {
+                    //ファイルの更新日付をチェック
+                    this.CheckLatestFileUpdateTime();
+
                     //上位に通知して、変更記憶をクリア
                     this.OnNotifyParentRequest(new NotifyWorkspaceFolderChangedRequestEventArgs(this.WorkspaceFolder, this.m_EventArgsByExport));
                     this.m_FolderChangedByExport = false;
@@ -552,6 +658,29 @@ namespace LibraryExplorer.Data {
         }
 
         #endregion
+
+        #region WorkspaceFolder
+        private void M_WorkspaceFolder_PathChanged(object sender, LibraryFolder.EventArgs<string> e) {
+            //既に存在するパスが指定された場合、フォルダ監視を始める
+            //(新たにフォルダを作成しないケース)
+            if (Directory.Exists(this.m_WorkspaceFolder.Path)) {
+                this.StartFolderWatcher();
+            }
+        }
+
+        private void M_WorkspaceFolder_FolderCreated(object sender, EventArgs e) {
+            //一時フォルダを作成したので、フォルダ監視を始める
+            this.StartFolderWatcher();
+        }
+
+        private void M_WorkspaceFolder_FolderDeleted(object sender, EventArgs e) {
+            //一時フォルダを削除したので、フォルダ監視終了
+            this.StopFolderWatcher();
+        }
+
+        #endregion
+
+
 
         #endregion
 
@@ -692,6 +821,21 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region CheckLatestFileUpdateDate
+        /// <summary>
+        /// 起動時にWorkspaceフォルダをチェックし、ファイルの更新日付のうち最も新しい日付を確認する。
+        /// この日付がエクスポート日付以降の場合、手動での変更が行われたことを示す
+        /// </summary>
+        private void CheckLatestFileUpdateTime() {
+            DirectoryInfo dir = new DirectoryInfo(this.WorkspaceFolderPath);
+            if (dir.Exists) {
+                //DateTime.MinValueを加えて、Maxを取ることで、ファイル数0の場合に対応する
+                this.m_LatestFileUpdateTime = dir.GetFiles().Select(f => f.LastWriteTime).Concat(new DateTime[] { DateTime.MinValue }).Max();
+            }
+        } 
+        #endregion
+
+
         #region FileSystemWatcher関連
         private void StartFileWatcher() {
             
@@ -760,8 +904,6 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public void CreateWorkspaceFolder() {
             this.m_WorkspaceFolder.Create();
-            //一時フォルダを作成したので、フォルダ監視を始める
-            this.StartFolderWatcher();
         }
         /// <summary>
         /// 指定されたフォルダ名で一時フォルダを作成します。
@@ -770,8 +912,6 @@ namespace LibraryExplorer.Data {
         /// <param name="workspaceFolderPath"></param>
         public void CreateWorkspaceFolder(string workspaceFolderPath) {
             this.m_WorkspaceFolder.Create(workspaceFolderPath);
-            //一時フォルダを作成したので、フォルダ監視を始める
-            this.StartFolderWatcher();
         }
 
         #endregion
@@ -782,8 +922,6 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public void DeleteWorkspaceFolder() {
             this.m_WorkspaceFolder.Delete();
-            //一時フォルダを削除したので、フォルダ監視終了
-            this.StopFolderWatcher();
         }
         #endregion
 
@@ -879,15 +1017,34 @@ namespace LibraryExplorer.Data {
         /// ExcelFileオブジェクトの新しいインスタンスを初期化します。
         /// </summary>
         public ExcelFile() :base(OfficeFileType.Excel){
+            this.Initialize();
+        }
+
+        /// <summary>
+        /// ExcelFileオブジェクトの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="workspaceFolderPath"></param>
+        public ExcelFile(string filename, string workspaceFolderPath) : base(filename,workspaceFolderPath,OfficeFileType.Excel) {
+            this.Initialize();
+
+            this.FileName = filename;
+            this.WorkspaceFolderPath = workspaceFolderPath;
+        }
+
+        private void Initialize() {
             this.FileNameChanged += this.ExcelFile_FileNameChanged;
             this.WorkspaceFolder.FolderNamePrefix = "";
             this.WorkspaceFolder.FolderNameFormatString = "yyyyMMdd_HHmmss";
-        }
+            this.WorkspaceFolder.FolderNameSuffix = $"_{Path.GetFileNameWithoutExtension(this.FileName)}";
 
+        }
         #endregion
 
         #region イベントハンドラ
         private void ExcelFile_FileNameChanged(object sender, EventArgs<string> e) {
+            //FileNameをWorkspaceフォルダ名に埋め込む
+            //Initializeで設定すると、filename指定のコンストラクタ以外ではブランクになるため、イベントで処理する。
             this.WorkspaceFolder.FolderNameSuffix = $"_{Path.GetFileNameWithoutExtension(this.FileName)}";
         }
 
@@ -896,5 +1053,39 @@ namespace LibraryExplorer.Data {
     }
     #endregion
 
+    #endregion
+
+
+    #region OfficeFileStatus
+    /// <summary>
+    /// OfficeFileの状態を表す列挙型です。
+    /// </summary>
+    public enum OfficeFileStatus {
+        /// <summary>
+        /// 不明な状態を表します。
+        /// 通常、この状態は存在しません。
+        /// </summary>
+        Unknown = 0,
+        /// <summary>
+        /// OfficeFileが正常な状態であることを表します。
+        /// </summary>
+        Normal = 1,
+        /// <summary>
+        /// OfficeFileが見つからない状態です。
+        /// </summary>
+        FileNotFound = 2,
+        /// <summary>
+        /// Workspaceフォルダが見つからない状態です。
+        /// </summary>
+        WorkspaceNotFound = 4,
+        /// <summary>
+        /// エクスポートした後にOfficeFileが更新された状態です。
+        /// </summary>
+        UpdatedFile = 8,
+        /// <summary>
+        /// エクスポートした後にWorkspaceフォルダが更新された状態です。
+        /// </summary>
+        UpdatedWorkspace = 16
+    } 
     #endregion
 }

@@ -17,6 +17,35 @@ namespace LibraryExplorer.Data {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
+        #region FolderCreatedイベント
+        /// <summary>
+        /// WorkFolderが作成されたときに発生するイベントです。
+        /// </summary>
+        public event EventHandler FolderCreated;
+        /// <summary>
+        /// FolderCreatedイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnFolderCreated(EventArgs e) {
+            this.FolderCreated?.Invoke(this, e);
+        }
+        #endregion
+
+        #region FolderDeletedイベント
+        /// <summary>
+        /// フォルダが削除されたときに発生するイベントです。
+        /// </summary>
+        public event EventHandler FolderDeleted;
+        /// <summary>
+        /// FolderDeletedイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnFolderDeleted(EventArgs e) {
+            this.FolderDeleted?.Invoke(this, e);
+        }
+        #endregion
+
+
         #region FolderNameFormatString
         private string m_FolderNameFormatString;
         /// <summary>
@@ -264,6 +293,8 @@ namespace LibraryExplorer.Data {
                 if (!Directory.Exists(path)) {
                     Directory.CreateDirectory(path);
                     AppMain.logger.Info($"create work folder. path = {path}");
+
+                    this.OnFolderCreated(EventArgs.Empty);
                 }
             }
             catch (Exception ex) {
@@ -279,17 +310,19 @@ namespace LibraryExplorer.Data {
         /// このインスタンスが保持するパスを使用して、一時フォルダを削除します。
         /// </summary>
         public void Delete() {
-            this.Delete(this.Path);
+            this.DeleteFolder(this.Path);
         }
         /// <summary>
         /// パスを指定して、一時フォルダを削除します。
         /// </summary>
         /// <param name="path"></param>
-        protected void Delete(string path) {
+        protected void DeleteFolder(string path) {
             try {
                 if (Directory.Exists(path)) {
                     Directory.Delete(path, true);
                     AppMain.logger.Info($"delete temp folder. path = {path}");
+
+                    this.OnFolderDeleted(EventArgs.Empty);
                 }
             }
             catch (Exception ex) {
