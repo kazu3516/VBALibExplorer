@@ -17,31 +17,61 @@ namespace LibraryExplorer.Data {
 
         #region フィールド(メンバ変数、プロパティ、イベント)
 
-        #region FolderCreatedイベント
+        #region BeforeCreateFolderイベント
+
         /// <summary>
-        /// WorkFolderが作成されたときに発生するイベントです。
+        /// フォルダを作成する直前に発生するイベントです。
         /// </summary>
-        public event EventHandler FolderCreated;
+        public event EventHandler BeforeCreateFolder;
         /// <summary>
-        /// FolderCreatedイベントを発生させます。
+        /// BeforeCreateFolderイベントを発生させます。
         /// </summary>
         /// <param name="e"></param>
-        protected void OnFolderCreated(EventArgs e) {
-            this.FolderCreated?.Invoke(this, e);
+        protected void OnBeforeCreateFolder(EventArgs e) {
+            this.BeforeCreateFolder?.Invoke(this, e);
+        }
+
+        #endregion
+
+        #region BeforeDeleteFolderイベント
+        /// <summary>
+        /// フォルダを削除する直前に発生するイベントです。
+        /// </summary>
+        public event EventHandler BeforeDeleteFolder;
+        /// <summary>
+        /// BeforeDeleteFolderイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnBeforeDeleteFolder(EventArgs e) {
+            this.BeforeDeleteFolder?.Invoke(this, e);
         }
         #endregion
 
-        #region FolderDeletedイベント
+        #region AfterCreateFolderイベント
+        /// <summary>
+        /// WorkFolderが作成されたときに発生するイベントです。
+        /// </summary>
+        public event EventHandler AfterCreateFolder;
+        /// <summary>
+        /// AfterCreateFolderイベントを発生させます。
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnAfterCreateFolder(EventArgs e) {
+            this.AfterCreateFolder?.Invoke(this, e);
+        }
+        #endregion
+
+        #region AfterDeleteFolderイベント
         /// <summary>
         /// フォルダが削除されたときに発生するイベントです。
         /// </summary>
-        public event EventHandler FolderDeleted;
+        public event EventHandler AfterDeleteFolder;
         /// <summary>
-        /// FolderDeletedイベントを発生させます。
+        /// AfterDeleteFolderイベントを発生させます。
         /// </summary>
         /// <param name="e"></param>
-        protected void OnFolderDeleted(EventArgs e) {
-            this.FolderDeleted?.Invoke(this, e);
+        protected void OnAfterDeleteFolder(EventArgs e) {
+            this.AfterDeleteFolder?.Invoke(this, e);
         }
         #endregion
 
@@ -291,10 +321,12 @@ namespace LibraryExplorer.Data {
         protected void CreateFolder(string path) {
             try {
                 if (!Directory.Exists(path)) {
+                    this.OnBeforeCreateFolder(EventArgs.Empty);
+
                     Directory.CreateDirectory(path);
                     AppMain.logger.Info($"create work folder. path = {path}");
 
-                    this.OnFolderCreated(EventArgs.Empty);
+                    this.OnAfterCreateFolder(EventArgs.Empty);
                 }
             }
             catch (Exception ex) {
@@ -319,10 +351,12 @@ namespace LibraryExplorer.Data {
         protected void DeleteFolder(string path) {
             try {
                 if (Directory.Exists(path)) {
+                    this.OnBeforeDeleteFolder(EventArgs.Empty);
+
                     Directory.Delete(path, true);
                     AppMain.logger.Info($"delete temp folder. path = {path}");
 
-                    this.OnFolderDeleted(EventArgs.Empty);
+                    this.OnAfterDeleteFolder(EventArgs.Empty);
                 }
             }
             catch (Exception ex) {

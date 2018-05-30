@@ -854,7 +854,7 @@ namespace LibraryExplorer.Window {
 
                 window.TargetFile = file;
                 //エクスポート済みかどうかを判定し、エクスポートされていて、かつ最新の場合はスキップする。
-                if (file.ExportDate == null || file.UpdateDate > file.ExportDate) {
+                if (file.RequiredReExport) {
                     await window.ExportModules();
                 }
                 this.RefreshDisplay(true);

@@ -517,27 +517,27 @@ namespace LibraryExplorer.Data {
 
             this.m_BackupPathList = new List<string>();
 
+            //WorkspacelFolder
             this.m_WorkspaceFolder = new WorkFolder {
                 BaseFolderPath = AppMain.g_AppMain.WorkspaceFolderPath,
                 DeleteAtClose = false
             };
             this.m_WorkspaceFolder.PathChanged += this.M_WorkspaceFolder_PathChanged;
-            this.m_WorkspaceFolder.FolderCreated += this.M_WorkspaceFolder_FolderCreated;
-            this.m_WorkspaceFolder.FolderDeleted += this.M_WorkspaceFolder_FolderDeleted;
+            this.m_WorkspaceFolder.BeforeDeleteFolder += this.M_WorkspaceFolder_BeforeDeleteFolder;
+            this.m_WorkspaceFolder.AfterCreateFolder += this.M_WorkspaceFolder_AfterCreateFolder;
 
             //FileSystemWatcherのインスタンスはコンストラクタで生成するが、監視は別タイミングで開始する
             this.m_TargetFileWatcher = new FileSystemWatcher();
             this.m_WorkspaceFolderWatcher = new FileSystemWatcher();
 
+            //FileNameの変更タイミングでファイル監視を開始/終了する
             this.FileNameChanged += this.OfficeFile_FileNameChanged;
 
             //Workspaceフォルダ監視のタイミング調整のため、Exportingプロパティを監視
             this.ExportingChanged += this.OfficeFile_ExportingChanged;
-            //同じく、TargetFileの監視タイミング調整のため、Importingプロパティも監視
+            //TargetFileの監視タイミング調整のため、Importingプロパティを監視
             this.ImportingChanged += this.OfficeFile_ImportingChanged;
         }
-
-
 
         /// <summary>
         /// OfficeFileオブジェクトの新しいインスタンスを初期化します。
@@ -557,6 +557,8 @@ namespace LibraryExplorer.Data {
         protected OfficeFile(string filename, string workspaceFolderPath, OfficeFileType fileType) : this(filename, fileType) {
             this.m_WorkspaceFolder.Path = workspaceFolderPath;
 
+            //コンストラクタでWorkspaceFolderのパスを指定された場合、フォルダが既に存在しているため、更新日時のチェックを行う。
+            //以降の変更はFileSystemWatcherでキャッチする。
             this.CheckLatestFileUpdateTime();
         }
 
@@ -668,13 +670,13 @@ namespace LibraryExplorer.Data {
             }
         }
 
-        private void M_WorkspaceFolder_FolderCreated(object sender, EventArgs e) {
+        private void M_WorkspaceFolder_AfterCreateFolder(object sender, EventArgs e) {
             //一時フォルダを作成したので、フォルダ監視を始める
             this.StartFolderWatcher();
         }
 
-        private void M_WorkspaceFolder_FolderDeleted(object sender, EventArgs e) {
-            //一時フォルダを削除したので、フォルダ監視終了
+        private void M_WorkspaceFolder_BeforeDeleteFolder(object sender, EventArgs e) {
+            //フォルダを削除する前にフォルダ監視を終了する。
             this.StopFolderWatcher();
         }
 
