@@ -353,6 +353,16 @@ namespace LibraryExplorer.Data {
         /// </summary>
         public bool ModifiedWorkspace {
             get {
+                if (this.m_ExportDate == null) {
+                    return true;
+                }
+                TimeSpan time = this.m_ExportDate.Value - this.m_LatestFileUpdateTime;
+                double deltaSeconds = Math.Abs(time.TotalSeconds);
+                if (deltaSeconds <= 2) {
+                    //HACK:2秒は決め打ち
+                    //一定秒数以内は同一時刻とみなす
+                    return false;
+                }
                 return this.m_ExportDate < this.m_LatestFileUpdateTime;
             }
         }
@@ -818,8 +828,13 @@ namespace LibraryExplorer.Data {
         /// このファイルを閉じます。
         /// 既定ではテンポラリフォルダを削除します。
         /// </summary>
-        public virtual void Close() {
+        public virtual void Close(bool deleteHistory = false) {
             this.DeleteWorkspaceFolder();
+
+            //履歴の削除
+            if (deleteHistory) {
+                this.DeleteAllHistory();
+            }
         }
         #endregion
 
@@ -951,12 +966,40 @@ namespace LibraryExplorer.Data {
 
         #region historyフォルダ関連
 
-        private void CopyToHistory(string folderName) {            
-            this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, folderName);
+        #region 履歴の保存
+        private void CopyToHistory(string folderName) {
+            bool copySuccess = this.m_WorkspaceFolder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, folderName);
 
-            this.m_BackupPathList.Add(folderName);
+            if (copySuccess) {
+                this.m_BackupPathList.Add(folderName);
+            }
+        } 
+        #endregion
 
+        #region 履歴の削除
+        /// <summary>
+        /// 指定した履歴情報を削除します。
+        /// </summary>
+        /// <param name="folderName"></param>
+        public void DeleteHistory(string folderName) {
+            string path = Path.Combine(AppMain.g_AppMain.HistoryFolderPath, folderName);
+            if (Directory.Exists(path)) {
+                Directory.Delete(path, true);
+            }
+            if (this.m_BackupPathList.Contains(folderName)) {
+                this.m_BackupPathList.Remove(folderName);
+            }
         }
+
+        /// <summary>
+        /// 全ての履歴情報を削除します。
+        /// </summary>
+        private void DeleteAllHistory() {
+            for (int i = this.m_BackupPathList.Count - 1; i >= 0; i--) {
+                this.DeleteHistory(this.m_BackupPathList[i]);
+            }
+        } 
+        #endregion
 
         #endregion
 

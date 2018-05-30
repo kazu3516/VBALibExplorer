@@ -405,9 +405,11 @@ namespace LibraryExplorer.Data {
         #region CloseFile
         /// <summary>
         /// 指定したファイルを閉じます。
+        /// deleteHistoryにtrueを指定した場合、履歴情報も同時に削除します。
         /// </summary>
         /// <param name="file"></param>
-        public void CloseFile(OfficeFile file) {
+        /// <param name="deleteHistory"></param>
+        public void CloseFile(OfficeFile file, bool deleteHistory = false) {
             string filename = file?.FileName ?? "";
 
             //OfficeFile file = this.m_Project.ExcelFiles.FirstOrDefault(x => x.FileName == filename);
@@ -415,7 +417,7 @@ namespace LibraryExplorer.Data {
                 this.ExcelFiles.Remove(file);
 
                 //Closeメソッドを呼び出し、テンポラリフォルダを削除する
-                file.Close();
+                file.Close(deleteHistory);
 
                 //イベント発生
                 this.OnFileClosed(new EventArgs<OfficeFile>(file));

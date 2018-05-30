@@ -71,6 +71,7 @@
     <Compile Include="Common\ExTool\DiffTool.cs" />
     <Compile Include="Common\ExTool\ExternalTool.cs" />
     <Compile Include="Common\ExTool\TextEditor.cs" />
+    <Compile Include="Common\Request\CloseItemRequest.cs" />
     <Compile Include="Common\Request\ExportModuleRequest.cs" />
     <Compile Include="Common\Request\NotifyFileChangedRequest.cs" />
     <Compile Include="Common\Request\NotifyWorkspaceFolderChangedRequest.cs" />

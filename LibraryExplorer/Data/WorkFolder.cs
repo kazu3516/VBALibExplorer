@@ -386,11 +386,12 @@ namespace LibraryExplorer.Data {
         /// </summary>
         /// <param name="destinationPath">コピー先のパス</param>
         /// <param name="destinationName">コピー先のフォルダ名</param>
-        public void CopyFolder(string destinationPath,string destinationName) {
+        public bool CopyFolder(string destinationPath,string destinationName) {
             if (!this.Exist()) {
-                return;
+                return false;
             }
             this.CopyFolder(this.Path, destinationPath, destinationName);
+            return true;
         }
 
         private void CopyFolder(string srcPath,string dstPath,string dstName) {

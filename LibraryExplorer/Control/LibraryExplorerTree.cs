@@ -403,12 +403,7 @@ namespace LibraryExplorer.Control {
             }
         }
         private void CloseItem() {
-            if (this.SelectedFolder != null) {
-                this.TargetProject.CloseFolder(this.SelectedFolder);
-            }
-            if (this.SelectedFile != null) {
-                this.TargetProject.CloseFile(this.SelectedFile);
-            }
+            this.OnNotifyParentRequest(new CloseItemRequestEventArgs(this.GetType().Name));
         }
         private void ExpandAll() {
             this.treeView1.Nodes.Cast<TreeNode>().ToList().ForEach(node => {

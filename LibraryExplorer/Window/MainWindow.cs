@@ -490,6 +490,7 @@ namespace LibraryExplorer.Window {
                     break;
                 case RefreshDisplayRequestData data_refreshDisplay:
                     //表示の更新
+                    //別スレッドからの要求に対応するため、ApplicationMessageQueue経由にする
                     this.m_MessageQueue.AddMessage(() => {
                         this.RefreshDisplay(data_refreshDisplay.KeepDisplay);
                     });
@@ -499,6 +500,10 @@ namespace LibraryExplorer.Window {
                     foreach (string folder in data_openFolder.Folders) {
                         this.OpenFolder(folder);
                     }
+                    break;
+                case CloseItemRequestData data_closeItem:
+                    //閉じる
+                    this.CloseContents();
                     break;
             }
         } 
@@ -873,6 +878,13 @@ namespace LibraryExplorer.Window {
                 return;
             }
 
+            if (targetFile.ModifiedWorkspace) {
+                DialogResult result = MessageBox.Show("エクスポートファイルが変更されています。再エクスポートにより変更内容が失われる可能性があります。再エクスポートしますか？","再エクスポート確認",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+                if (result == DialogResult.No) {
+                    return;
+                }
+            }
+
             string filename = targetFile?.FileName ?? "";
             //ExcelFileModuleListWindow window = (ExcelFileModuleListWindow)this.FindDocument(w=>((w as ExcelFileModuleListWindow)?.TargetFile?.FileName??"") == filename);
             ExcelFileModuleListWindow window = this.FindDocument<ExcelFileModuleListWindow>(w => (w.TargetFile?.FileName ?? "") == filename);
@@ -906,11 +918,23 @@ namespace LibraryExplorer.Window {
         /// 閉じる
         /// </summary>
         private void CloseContents() {
+            //フォルダを閉じる
             if (this.SelectedFolder != null) {
                 this.m_Project.CloseFolder(this.SelectedFolder);
             }
+
+            //ファイルを閉じる
             if (this.SelectedOfficeFile != null) {
-                this.m_Project.CloseFile(this.SelectedOfficeFile);
+                bool deleteHistory = false;
+                //履歴情報の削除確認
+                if (this.SelectedOfficeFile.BackupPathList.Count != 0) {
+                    DialogResult result = MessageBox.Show("インポート/エクスポートの履歴情報があります。履歴情報を削除しますか？", "履歴削除確認", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                    if (result == DialogResult.Yes) {
+                        deleteHistory = true;
+                    }
+                }
+                //ファイルを閉じる
+                this.m_Project.CloseFile(this.SelectedOfficeFile,deleteHistory);
             }
         }
 

@@ -338,17 +338,9 @@ namespace LibraryExplorer.Window.Dialog {
             if (result == DialogResult.OK) {
                 for (int i = this.historyListView1.SelectedItems.Count - 1; i >= 0; i--) {
                     ListViewItem item = this.historyListView1.SelectedItems[i];
-                    this.DeleteHistory(item);
+                    this.TargetOfficeFile.DeleteHistory(item.Text);
+                    this.historyListView1.Items.Remove(item);
                 }
-            }
-        }
-        private void DeleteHistory(ListViewItem item) {
-            this.TargetOfficeFile.BackupPathList.Remove(item.Text);
-            this.historyListView1.Items.Remove(item);
-
-            string path = Path.Combine(AppMain.g_AppMain.HistoryFolderPath, item.Text);
-            if (Directory.Exists(path)) {
-                Directory.Delete(path, true);
             }
         }
         #endregion
