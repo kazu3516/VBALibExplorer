@@ -11,8 +11,6 @@ using LibraryExplorer.Common.Request;
 using System.Windows.Forms;
 namespace LibraryExplorer.Data {
 
-    //TODO:履歴管理のため、Import完了したらhistoryフォルダに丸ごとコピーする
-
     #region OfficeFile
     /// <summary>
     /// Moduleを内部に保持するOfficeファイルを表します。

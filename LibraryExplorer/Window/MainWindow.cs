@@ -28,6 +28,7 @@ namespace LibraryExplorer.Window {
 
 
         //TODO:フォルダ操作機能の実装（新規作成、名前の変更、コピー、切り取り、貼り付け、削除）
+
         //TODO:LibraryFileの操作機能の実装（コピー、切り取り、貼り付け、削除、フォルダ移動）
 
         //TODO:MainMenuの実装
