@@ -495,7 +495,7 @@ namespace LibraryExplorer.Data {
                 DateTime? exportDate = (dateString != "" ? DateTime.Parse(dateString) : (DateTime?)null);
 
                 OfficeFile file = new ExcelFile() { FileName = path,ExportDate = exportDate };
-                file.CreateWorkspaceFolder(exportPath);
+                file.WorkspaceFolderPath = exportPath;
 
                 int backupCount = this.m_ConfigHelper.GetIntValue($"LibraryExplorer.project:Project.OfficeFiles.{i + 1}.BackupCount",0);
                 for (int j = 0; j < backupCount; j++) {

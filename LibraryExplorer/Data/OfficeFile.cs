@@ -275,6 +275,22 @@ namespace LibraryExplorer.Data {
         #endregion
 
 
+        #region WorkspaceFolderPath
+        
+        /// <summary>
+        /// WorkspaceFolderPathを取得、設定します。
+        /// </summary>
+        public string WorkspaceFolderPath {
+            get {
+                return this.m_WorkspaceFolder.Path;
+            }
+            set {
+                this.m_WorkspaceFolder.Path = value;
+            }
+        }
+        #endregion
+
+
 
         #region PropertyChanged/SetProperty
         /// <summary>
