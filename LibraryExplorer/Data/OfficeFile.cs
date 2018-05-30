@@ -282,6 +282,28 @@ namespace LibraryExplorer.Data {
         }
         #endregion
 
+        #region CanExport
+        /// <summary>
+        /// エクスポート可能かどうかを取得します。
+        /// </summary>
+        public bool CanExport {
+            get {
+                return !this.m_Exporting && !this.m_Importing;
+            }
+        }
+        #endregion
+
+        #region CanImport
+        /// <summary>
+        /// インポート可能かどうかを取得します。
+        /// </summary>
+        public bool CanImport {
+            get {
+                return !this.m_Exporting && !this.m_Importing;
+            }
+        } 
+        #endregion
+
 
         #region RequiredReExport
         /// <summary>

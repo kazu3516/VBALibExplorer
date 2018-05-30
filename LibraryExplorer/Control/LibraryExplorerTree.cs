@@ -296,6 +296,7 @@ namespace LibraryExplorer.Control {
         /// <param name="e"></param>
         private void contextMenuStrip1_Opened(object sender, EventArgs e) {
             this.再エクスポートXToolStripMenuItem.Visible = this.SelectedFile != null;
+            this.再エクスポートXToolStripMenuItem.Enabled = this.SelectedFile != null && this.SelectedFile.CanExport;
             this.ファイルの場所を開くFToolStripMenuItem.Visible = this.SelectedFile != null;
 
             this.エクスプローラを開くOToolStripMenuItem.Visible = this.SelectedFolder != null;

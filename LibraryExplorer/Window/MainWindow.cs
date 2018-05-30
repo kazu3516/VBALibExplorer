@@ -694,8 +694,8 @@ namespace LibraryExplorer.Window {
         #region ファイル
         private void ファイルFToolStripMenuItem_DropDownOpened(object sender, EventArgs e) {
             bool selectedFile = (this.SelectedOfficeFile != null);
-            this.再読み込みRToolStripMenuItem.Enabled = selectedFile;
-            this.インポートIToolStripMenuItem.Enabled = selectedFile;
+            this.再読み込みRToolStripMenuItem.Enabled = selectedFile && this.SelectedOfficeFile.CanExport;
+            this.インポートIToolStripMenuItem.Enabled = selectedFile && this.SelectedOfficeFile.CanImport;
         }
 
         /// <summary>
@@ -869,6 +869,10 @@ namespace LibraryExplorer.Window {
         /// 再読み込み
         /// </summary>
         private async Task ReloadFile(OfficeFile targetFile) {
+            if (!targetFile.CanExport) {
+                return;
+            }
+
             string filename = targetFile?.FileName ?? "";
             //ExcelFileModuleListWindow window = (ExcelFileModuleListWindow)this.FindDocument(w=>((w as ExcelFileModuleListWindow)?.TargetFile?.FileName??"") == filename);
             ExcelFileModuleListWindow window = this.FindDocument<ExcelFileModuleListWindow>(w => (w.TargetFile?.FileName ?? "") == filename);
@@ -883,6 +887,9 @@ namespace LibraryExplorer.Window {
         /// </summary>
         /// <param name="targetFile"></param>
         private async Task Import(OfficeFile targetFile) {
+            if (!targetFile.CanImport) {
+                return;
+            }
 
             DialogResult result = MessageBox.Show("Workspaceフォルダに保存されているファイルをインポートします。よろしいですか？", "インポート確認", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             if (result == DialogResult.Yes) {
