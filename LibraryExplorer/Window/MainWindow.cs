@@ -17,6 +17,7 @@ using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
 using LibraryExplorer.Window.DockWindow;
 using LibraryExplorer.Window.Dialog;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using WeifenLuo.WinFormsUI.Docking;
 using WeifenLuo.WinFormsUI.ThemeVS2015;
 namespace LibraryExplorer.Window {
@@ -67,6 +68,7 @@ namespace LibraryExplorer.Window {
         private OptionDialog m_OptionDialog;
         private AboutBox m_AboutBox;
         private LibraryPropertyDialog m_LibraryPropertyDialog;
+        private CommonOpenFileDialog m_OpenFolderDialog;
 
         //その他の内部変数
         private ApplicationMessageQueue m_MessageQueue;
@@ -290,6 +292,9 @@ namespace LibraryExplorer.Window {
             this.m_AboutBox = new AboutBox();
             this.m_LibraryPropertyDialog = new LibraryPropertyDialog();
             this.m_LibraryPropertyDialog.NotifyParentRequest += this.ReceiveNotifyParentRequest;
+            this.m_OpenFolderDialog = new CommonOpenFileDialog {
+                IsFolderPicker = true
+            };
 
             //内部変数
             this.m_FirstShowWindow = true;
@@ -833,10 +838,8 @@ namespace LibraryExplorer.Window {
         /// </summary>
         private void OpenFolder() {
             string initialPath = Application.StartupPath;
-            this.folderBrowserDialog1.Description = "ライブラリのトップフォルダを指定してください。";
-            this.folderBrowserDialog1.SelectedPath = initialPath;
-            if (this.folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
-                string path = this.folderBrowserDialog1.SelectedPath;
+            if (this.m_OpenFolderDialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                string path = this.m_OpenFolderDialog.FileName;
                 //フォルダを開く
                 this.OpenFolder(path);
             }
