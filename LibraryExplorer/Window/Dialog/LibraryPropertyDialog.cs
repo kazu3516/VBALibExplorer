@@ -234,9 +234,6 @@ namespace LibraryExplorer.Window.Dialog {
         #endregion
 
         #region historyListView
-        private void historyListView1_MouseDoubleClick(object sender, MouseEventArgs e) {
-            this.OpenFolder();
-        }
         private void historyListView1_SelectedIndexChanged(object sender, EventArgs e) {
             bool selected = this.historyListView1.SelectedItems.Count > 0;
 

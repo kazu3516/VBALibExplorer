@@ -199,7 +199,6 @@
             this.historyListView1.UseCompatibleStateImageBehavior = false;
             this.historyListView1.View = System.Windows.Forms.View.Details;
             this.historyListView1.SelectedIndexChanged += new System.EventHandler(this.historyListView1_SelectedIndexChanged);
-            this.historyListView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.historyListView1_MouseDoubleClick);
             // 
             // columnHeader1
             // 
@@ -220,7 +219,7 @@
             // 
             // フォルダを開くOToolStripMenuItem
             // 
-            this.フォルダを開くOToolStripMenuItem.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Bold);
+            this.フォルダを開くOToolStripMenuItem.Font = new System.Drawing.Font("Meiryo UI", 9F);
             this.フォルダを開くOToolStripMenuItem.Name = "フォルダを開くOToolStripMenuItem";
             this.フォルダを開くOToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.フォルダを開くOToolStripMenuItem.Text = "フォルダを開く(&O)";
