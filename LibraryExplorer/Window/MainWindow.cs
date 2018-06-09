@@ -832,12 +832,14 @@ namespace LibraryExplorer.Window {
         #region ファイル
         //*******************************************************************************************************
         //*******************************************************************************************************
-        
+
+        #region OpenFolder
         /// <summary>
         /// フォルダを開く
         /// </summary>
         private void OpenFolder() {
             string initialPath = Application.StartupPath;
+            this.m_OpenFolderDialog.InitialDirectory = initialPath;
             if (this.m_OpenFolderDialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 string path = this.m_OpenFolderDialog.FileName;
                 //フォルダを開く
@@ -861,11 +863,15 @@ namespace LibraryExplorer.Window {
             else {
                 MessageBox.Show("指定されたフォルダまたはその一部がすでに登録されているため登録できません。", "重複登録エラー", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
+        } 
+        #endregion
+
         /// <summary>
         /// ファイルを開く
         /// </summary>
         private async Task OpenFile() {
+            string initialPath = Application.StartupPath;
+            this.openFileDialog1.InitialDirectory = initialPath;
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK) {
                 string filename = this.openFileDialog1.FileName;
 
