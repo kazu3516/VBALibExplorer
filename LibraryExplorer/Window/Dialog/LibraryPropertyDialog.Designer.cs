@@ -218,11 +218,11 @@
             // openHistoryFolderButton1
             // 
             this.openHistoryFolderButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.openHistoryFolderButton1.Location = new System.Drawing.Point(143, 18);
+            this.openHistoryFolderButton1.Location = new System.Drawing.Point(130, 18);
             this.openHistoryFolderButton1.Name = "openHistoryFolderButton1";
-            this.openHistoryFolderButton1.Size = new System.Drawing.Size(75, 23);
+            this.openHistoryFolderButton1.Size = new System.Drawing.Size(88, 23);
             this.openHistoryFolderButton1.TabIndex = 1;
-            this.openHistoryFolderButton1.Text = "フォルダを開く";
+            this.openHistoryFolderButton1.Text = "Libraryに登録";
             this.openHistoryFolderButton1.UseVisualStyleBackColor = true;
             this.openHistoryFolderButton1.Click += new System.EventHandler(this.openHistoryFolderButton1_Click);
             // 
@@ -272,7 +272,7 @@
             this.フォルダを開くOToolStripMenuItem.Font = new System.Drawing.Font("Meiryo UI", 9F);
             this.フォルダを開くOToolStripMenuItem.Name = "フォルダを開くOToolStripMenuItem";
             this.フォルダを開くOToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.フォルダを開くOToolStripMenuItem.Text = "フォルダを開く(&O)";
+            this.フォルダを開くOToolStripMenuItem.Text = "Libraryに登録(&O)";
             this.フォルダを開くOToolStripMenuItem.Click += new System.EventHandler(this.フォルダを開くOToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
