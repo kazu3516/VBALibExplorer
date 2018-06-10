@@ -37,6 +37,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// Projectを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryProject Project {
             get {
                 return this.m_Project;

@@ -53,6 +53,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// TargetFileを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFile TargetFile {
             get {
                 return this.m_TargetFile;

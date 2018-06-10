@@ -62,6 +62,8 @@ namespace LibraryExplorer.Control {
         /// <summary>
         /// TargetFolderを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFolder TargetFolder {
             get {
                 return this.m_TargetFolder;
@@ -92,6 +94,8 @@ namespace LibraryExplorer.Control {
         /// <summary>
         /// SelectedItemを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFileListViewItem SelectedItem {
             get {
                 return this.m_SelectedItem;
@@ -111,6 +115,8 @@ namespace LibraryExplorer.Control {
         /// <summary>
         /// SelectedFileを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFile SelectedFile {
             get {
                 return this.SelectedItem?.LibraryFile;
