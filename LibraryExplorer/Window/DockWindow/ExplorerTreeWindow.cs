@@ -75,6 +75,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// TargetProjectを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryProject TargetProject {
             get {
                 return this.libraryExplorerTree1.TargetProject;
@@ -91,6 +93,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// SelectedFolderPathを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFolder SelectedFolder {
             get {
                 return this.libraryExplorerTree1.SelectedFolder;
@@ -105,6 +109,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// SelectedFileを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public OfficeFile SelectedFile {
             get {
                 return this.libraryExplorerTree1.SelectedFile;
@@ -133,6 +139,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// SelectedNodeを取得します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public ExplorerTreeNode SelectedNode {
             get {
                 return this.libraryExplorerTree1.SelectedNode;

@@ -81,6 +81,8 @@ namespace LibraryExplorer.Control {
         /// <summary>
         /// TargetProjectを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryProject TargetProject {
             get {
                 return this.m_TargetProject;
@@ -99,6 +101,8 @@ namespace LibraryExplorer.Control {
         /// <summary>
         /// SelectedFolderPathを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFolder SelectedFolder {
             get {
                 return (this.SelectedNode as LibraryFolderTreeNode)?.LibraryFolder;
@@ -123,10 +127,12 @@ namespace LibraryExplorer.Control {
         #endregion
 
         #region SelectedFile
-        
+
         /// <summary>
         /// SelectedFileを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public OfficeFile SelectedFile {
             get {
                 return (this.SelectedNode as OfficeFileTreeNode)?.TargetFile;
@@ -166,6 +172,8 @@ namespace LibraryExplorer.Control {
         /// <summary>
         /// SelectedNodeを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public ExplorerTreeNode SelectedNode {
             get {
                 return this.m_SelectedNode;
@@ -255,7 +263,6 @@ namespace LibraryExplorer.Control {
         }
 
         private void Initialize() {
-            this.m_TargetProject = new LibraryProject();
             this.TargetProjectChanged += this.ExplorerTreeWindow_TargetProjectChanged;
             this.SelectedNodeChanged += this.LibraryExplorerTree_SelectedNodeChanged;
 
