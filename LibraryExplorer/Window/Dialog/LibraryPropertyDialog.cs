@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Kucl.Forms.Controls;
 using LibraryExplorer.Common;
 using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
