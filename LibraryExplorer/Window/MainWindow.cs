@@ -61,6 +61,8 @@ namespace LibraryExplorer.Window {
         private ExplorerTreeWindow m_ExplorerTreeWindow;
         private PreviewWindow m_PreviewWindow;
         private OutputLogWindow m_OutputLogWindow;
+        private HistoryViewWindow m_HistoryViewWindow;
+
 
         private List<ExcelFileModuleListWindow> m_ExcelFileModuleListWindows;
 
@@ -685,6 +687,20 @@ namespace LibraryExplorer.Window {
 
         #endregion
 
+        #region HistoryViewWindow
+        //*******************************************************************************************************
+        private void M_HistoryViewWindow_FormClosed(object sender, FormClosedEventArgs e) {
+            this.m_HistoryViewWindow.VisibleChanged -= this.M_HistoryViewWindow_VisibleChanged;
+
+            this.m_HistoryViewWindow = null;
+        }
+
+        private void M_HistoryViewWindow_VisibleChanged(object sender, EventArgs e) {
+            this.履歴ビューアHToolStripMenuItem.Checked = this.m_HistoryViewWindow?.Visible ?? false;
+        }
+
+        #endregion
+
         #endregion
 
         #region LibraryProject
@@ -765,6 +781,10 @@ namespace LibraryExplorer.Window {
 
         private void 出力OToolStripMenuItem_Click(object sender, EventArgs e) {
             this.ShowOutput();
+        }
+
+        private void 履歴ビューアHToolStripMenuItem_Click(object sender, EventArgs e) {
+            this.ShowHistory();
         }
 
         private void 最新の情報に更新RToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -1036,6 +1056,20 @@ namespace LibraryExplorer.Window {
                 this.ShowOutputLogWindow(window, suspendRefreshDisplay);
             }
         }
+        /// <summary>
+        /// 履歴ビューア
+        /// </summary>
+        /// <param name="suspendRefreshDisplay"></param>
+        private void ShowHistory(bool suspendRefreshDisplay = false) {
+            HistoryViewWindow window = this.CreateHistoryViewWindow();
+            if (window.Visible) {
+                window.Hide();
+            }
+            else {
+                this.ShowHistoryViewWindow(window);
+            }
+        }
+
         /// <summary>
         /// 最新の情報に更新
         /// </summary>
@@ -1323,6 +1357,32 @@ namespace LibraryExplorer.Window {
         }
         #endregion
 
+        #region FolderCompareWindow
+
+        private HistoryViewWindow CreateHistoryViewWindow() {
+            if (this.m_HistoryViewWindow == null) {
+                this.m_HistoryViewWindow = new HistoryViewWindow();
+
+                this.m_HistoryViewWindow.Project = this.m_Project;
+
+                this.m_HistoryViewWindow.FormClosed += this.M_HistoryViewWindow_FormClosed;
+                this.m_HistoryViewWindow.VisibleChanged += this.M_HistoryViewWindow_VisibleChanged;
+            }
+
+            return this.m_HistoryViewWindow;
+        }
+
+
+        private void ShowHistoryViewWindow(HistoryViewWindow window, bool suspendRefreshDisplay = false) {
+            window.Show(this.dockPanel, DockState.Document);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
+        }
+        #endregion
+
+
         #endregion
 
         #region デバッグメニュー
@@ -1435,7 +1495,11 @@ namespace LibraryExplorer.Window {
         private void fileSystemWatcher_EventHandler(object sender, FileSystemEventArgs e) {
             Console.WriteLine($"{e.ChangeType.ToString()} : path={e.FullPath}");
         }
-
+        //デバッグ用
+        private void historyViewWindowの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
+            HistoryViewWindow window = this.CreateHistoryViewWindow();
+            this.ShowHistoryViewWindow(window);
+        }
         #endregion
 
     }

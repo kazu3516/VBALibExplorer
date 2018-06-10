@@ -82,6 +82,9 @@
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.ヘルプLToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.historyViewWindowの表示ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.履歴ビューアHToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -263,6 +266,8 @@
             this.プレビューPToolStripMenuItem,
             this.出力OToolStripMenuItem,
             this.toolStripMenuItem1,
+            this.履歴ビューアHToolStripMenuItem,
+            this.toolStripMenuItem6,
             this.最新の情報に更新RToolStripMenuItem});
             this.表示VToolStripMenuItem.Name = "表示VToolStripMenuItem";
             this.表示VToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -387,7 +392,8 @@
             this.applicationMessageQueueのテストToolStripMenuItem,
             this.folderCompareWizardの表示ToolStripMenuItem,
             this.fileSystemWatcherのテスト開始ToolStripMenuItem,
-            this.fileSystemWatcherのテスト停止ToolStripMenuItem});
+            this.fileSystemWatcherのテスト停止ToolStripMenuItem,
+            this.historyViewWindowの表示ToolStripMenuItem});
             this.デバッグメニューDToolStripMenuItem.Name = "デバッグメニューDToolStripMenuItem";
             this.デバッグメニューDToolStripMenuItem.Size = new System.Drawing.Size(109, 20);
             this.デバッグメニューDToolStripMenuItem.Text = "デバッグメニュー(&D)";
@@ -571,6 +577,25 @@
             this.openFileDialog1.Filter = "Excelファイル(*.xls;xlsm;xla;xlam;*.xlt;*.xltm)|*.xls;*.xlsm;*.xla;*.xlam;*.xlt;*.xlt" +
     "m";
             // 
+            // historyViewWindowの表示ToolStripMenuItem
+            // 
+            this.historyViewWindowの表示ToolStripMenuItem.Name = "historyViewWindowの表示ToolStripMenuItem";
+            this.historyViewWindowの表示ToolStripMenuItem.Size = new System.Drawing.Size(309, 22);
+            this.historyViewWindowの表示ToolStripMenuItem.Text = "HistoryViewWindowの表示";
+            this.historyViewWindowの表示ToolStripMenuItem.Click += new System.EventHandler(this.historyViewWindowの表示ToolStripMenuItem_Click);
+            // 
+            // 履歴ビューアHToolStripMenuItem
+            // 
+            this.履歴ビューアHToolStripMenuItem.Name = "履歴ビューアHToolStripMenuItem";
+            this.履歴ビューアHToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.履歴ビューアHToolStripMenuItem.Text = "履歴ビューア(&H)";
+            this.履歴ビューアHToolStripMenuItem.Click += new System.EventHandler(this.履歴ビューアHToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(180, 6);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -654,5 +679,8 @@
         private System.Windows.Forms.ToolStripMenuItem インポートIToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem プロジェクトPToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 初期化IToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem historyViewWindowの表示ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 履歴ビューアHToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
     }
 }
