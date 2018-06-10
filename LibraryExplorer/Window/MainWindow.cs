@@ -1389,6 +1389,19 @@ namespace LibraryExplorer.Window {
         //■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         //デバッグ用
+        private void configの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
+            //表示するConfigを収集
+            Kucl.Xml.XmlCfg.XmlConfigModel configModel = new Kucl.Xml.XmlCfg.XmlConfigModel();
+            AppMain.g_AppMain.AppInfo.ReflectConfig(configModel);
+            this.m_Project.ReflectConfig(configModel);
+            //Viewerを作成
+            Kucl.Xml.XmlContentsModelViewer viewer = new Kucl.Xml.XmlContentsModelViewer {
+                TargetModel = configModel
+            };
+            viewer.ShowDialog();
+        }
+
+        //デバッグ用
         private void explorerTreeViewの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
             ExplorerTreeWindow window = this.CreateExplorerTreeWindow();
             this.ShowExplorerTreeWindow(window);
