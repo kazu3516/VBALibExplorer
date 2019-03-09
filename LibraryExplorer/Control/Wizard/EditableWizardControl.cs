@@ -16,8 +16,8 @@ namespace LibraryExplorer.Control.Wizard {
     /// Startメソッドを呼ぶと、TabControlを非表示にし、TabPageの内容を順に表示します。
     /// 
     /// 
+    /// <para>Anchorプロパティ等を使用したレイアウトをコントロールするためには、TabPage直下にPanelを定義し、ユーザはPanel上にコントロールを配置してください。</para>
     /// </summary>
-    /// <remarks>Anchorプロパティ等を使用したレイアウトをコントロールするためには、TabPage直下にPanelを定義し、ユーザはPanel上にコントロールを配置してください。</remarks>
     public partial class EditableWizardControl : UserControl {
 
         //NOTE:InitializePageで各TabPageのコントロールをPanelに移し替えているが、Anchor等のレイアウトが一致しない。手動でPanelを追加し、その上にレイアウトすることで、パネルの移し替えが発生しなくなるため、回避できる。（条件：TabPage.Controls.Count == 1 && TabPage.Controls[0] is Panelであること）
