@@ -26,7 +26,7 @@ namespace LibraryExplorer.Window.DockWindow {
         #region フィールド(メンバ変数、プロパティ、イベント)
 
 
-        #region SelectedItemChanged
+        #region SelectedItemChangedイベント
         /// <summary>
         /// 選択されているアイテムが変更されたときに発生するイベントです。
         /// </summary>
@@ -36,9 +36,7 @@ namespace LibraryExplorer.Window.DockWindow {
         /// </summary>
         /// <param name="e"></param>
         protected void OnSelectedItemChanged(LibraryExplorerList.EventArgs<LibraryFileListViewItem> e) {
-            if (this.SelectedItemChanged != null) {
-                this.SelectedItemChanged(this, e);
-            }
+            this.SelectedItemChanged?.Invoke(this, e);
         }
         #endregion
 
@@ -62,6 +60,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// TargetFolderを取得または設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFolder TargetFolder {
             get {
                 return this.libraryExplorerList1.TargetFolder;
@@ -76,6 +76,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// SelectedItemを取得または設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFileListViewItem SelectedItem {
             get {
                 return this.libraryExplorerList1.SelectedItem;
@@ -91,6 +93,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// SelectedFileを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public LibraryFile SelectedFile {
             get {
                 return this.libraryExplorerList1.SelectedFile;

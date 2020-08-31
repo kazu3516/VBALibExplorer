@@ -40,6 +40,8 @@ namespace LibraryExplorer.Window.DockWindow {
         /// <summary>
         /// TargetFileを取得、設定します。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public ExcelFile TargetFile {
             get {
                 return this.m_TargetFile;

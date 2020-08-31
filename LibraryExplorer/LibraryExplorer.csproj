@@ -36,11 +36,18 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Kucl">
-      <HintPath>..\..\Kucl1.0.9.0\Kucl\bin\Release\Kucl.dll</HintPath>
+    <Reference Include="Kucl, Version=1.0.9.12, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Kucl1.1.0.0\Kucl\bin\Release\Kucl.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -157,6 +164,13 @@
     <Compile Include="Window\DockWindow\FolderCompareWindow.Designer.cs">
       <DependentUpon>FolderCompareWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Window\DockWindow\HistoryViewWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Window\DockWindow\HistoryViewWindow.Designer.cs">
+      <DependentUpon>HistoryViewWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Window\DockWindow\IRefreshDisplay.cs" />
     <Compile Include="Window\DockWindow\LibraryFileListWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -235,6 +249,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Window\DockWindow\FolderCompareWindow.resx">
       <DependentUpon>FolderCompareWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Window\DockWindow\HistoryViewWindow.resx">
+      <DependentUpon>HistoryViewWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Window\DockWindow\LibraryFileListWindow.resx">
       <DependentUpon>LibraryFileListWindow.cs</DependentUpon>

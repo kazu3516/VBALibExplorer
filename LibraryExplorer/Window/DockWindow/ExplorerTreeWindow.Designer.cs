@@ -23,7 +23,6 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            LibraryExplorer.Data.LibraryProject libraryProject1 = new LibraryExplorer.Data.LibraryProject();
             this.panel1 = new System.Windows.Forms.Panel();
             this.libraryExplorerTree1 = new LibraryExplorer.Control.LibraryExplorerTree();
             this.panel1.SuspendLayout();
@@ -47,7 +46,6 @@
             this.libraryExplorerTree1.SelectedFolder = null;
             this.libraryExplorerTree1.Size = new System.Drawing.Size(390, 406);
             this.libraryExplorerTree1.TabIndex = 0;
-            this.libraryExplorerTree1.TargetProject = libraryProject1;
             this.libraryExplorerTree1.NotifyParentRequest += new LibraryExplorer.Common.Request.RequestEventHandler(this.libraryExplorerTree1_NotifyParentRequest);
             // 
             // ExplorerTreeWindow

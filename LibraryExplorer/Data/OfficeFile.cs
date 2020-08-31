@@ -11,8 +11,6 @@ using LibraryExplorer.Common.Request;
 using System.Windows.Forms;
 namespace LibraryExplorer.Data {
 
-    //TODO:履歴管理のため、Import完了したらhistoryフォルダに丸ごとコピーする
-
     #region OfficeFile
     /// <summary>
     /// Moduleを内部に保持するOfficeファイルを表します。
@@ -973,7 +971,27 @@ namespace LibraryExplorer.Data {
             if (copySuccess) {
                 this.m_BackupPathList.Add(folderName);
             }
-        } 
+        }
+        #endregion
+
+        #region 履歴の追加
+        /// <summary>
+        /// 指定したフォルダを履歴情報に追加します。
+        /// </summary>
+        /// <param name="folderName"></param>
+        public void AddHistory(string folderName) {
+            if (Directory.Exists(folderName)) {
+                string name = Path.GetFileName(folderName);
+                string path = Path.Combine(AppMain.g_AppMain.HistoryFolderPath, name);
+
+                if (path != folderName) {
+                    //folderNameがHistoryFolder直下ではない場合、フォルダコピー
+                    WorkFolder folder = new WorkFolder() { Path = folderName ,DeleteAtClose = false};
+                    folder.CopyFolder(AppMain.g_AppMain.HistoryFolderPath, name);
+                }
+                this.m_BackupPathList.Add(name);
+            }
+        }
         #endregion
 
         #region 履歴の削除

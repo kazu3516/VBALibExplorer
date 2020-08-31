@@ -511,7 +511,10 @@ namespace LibraryExplorer.Data {
             int folder_count = this.m_ConfigHelper.GetIntValue("LibraryExplorer.project:Project.LibraryFolders.Count");
             for (int i = 0; i < folder_count; i++) {
                 string path = this.m_ConfigHelper.GetStringValue($"LibraryExplorer.project:Project.LibraryFolders.Folders.{i + 1}");
-                this.m_Libraries.Add(Library.FromFolder(path));
+                Library lib = Library.FromFolder(path);
+                if (lib != null) {
+                    this.m_Libraries.Add(lib);
+                }
             }
             //OfficeFiles
             this.m_ExcelFiles.Clear();

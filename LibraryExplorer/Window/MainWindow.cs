@@ -17,6 +17,7 @@ using LibraryExplorer.Common.Request;
 using LibraryExplorer.Data;
 using LibraryExplorer.Window.DockWindow;
 using LibraryExplorer.Window.Dialog;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using WeifenLuo.WinFormsUI.Docking;
 using WeifenLuo.WinFormsUI.ThemeVS2015;
 namespace LibraryExplorer.Window {
@@ -28,6 +29,7 @@ namespace LibraryExplorer.Window {
 
 
         //TODO:フォルダ操作機能の実装（新規作成、名前の変更、コピー、切り取り、貼り付け、削除）
+
         //TODO:LibraryFileの操作機能の実装（コピー、切り取り、貼り付け、削除、フォルダ移動）
 
         //TODO:MainMenuの実装
@@ -59,6 +61,8 @@ namespace LibraryExplorer.Window {
         private ExplorerTreeWindow m_ExplorerTreeWindow;
         private PreviewWindow m_PreviewWindow;
         private OutputLogWindow m_OutputLogWindow;
+        private HistoryViewWindow m_HistoryViewWindow;
+
 
         private List<ExcelFileModuleListWindow> m_ExcelFileModuleListWindows;
 
@@ -66,6 +70,7 @@ namespace LibraryExplorer.Window {
         private OptionDialog m_OptionDialog;
         private AboutBox m_AboutBox;
         private LibraryPropertyDialog m_LibraryPropertyDialog;
+        private CommonOpenFileDialog m_OpenFolderDialog;
 
         //その他の内部変数
         private ApplicationMessageQueue m_MessageQueue;
@@ -289,6 +294,9 @@ namespace LibraryExplorer.Window {
             this.m_AboutBox = new AboutBox();
             this.m_LibraryPropertyDialog = new LibraryPropertyDialog();
             this.m_LibraryPropertyDialog.NotifyParentRequest += this.ReceiveNotifyParentRequest;
+            this.m_OpenFolderDialog = new CommonOpenFileDialog {
+                IsFolderPicker = true
+            };
 
             //内部変数
             this.m_FirstShowWindow = true;
@@ -679,6 +687,20 @@ namespace LibraryExplorer.Window {
 
         #endregion
 
+        #region HistoryViewWindow
+        //*******************************************************************************************************
+        private void M_HistoryViewWindow_FormClosed(object sender, FormClosedEventArgs e) {
+            this.m_HistoryViewWindow.VisibleChanged -= this.M_HistoryViewWindow_VisibleChanged;
+
+            this.m_HistoryViewWindow = null;
+        }
+
+        private void M_HistoryViewWindow_VisibleChanged(object sender, EventArgs e) {
+            this.履歴ビューアHToolStripMenuItem.Checked = this.m_HistoryViewWindow?.Visible ?? false;
+        }
+
+        #endregion
+
         #endregion
 
         #region LibraryProject
@@ -761,6 +783,10 @@ namespace LibraryExplorer.Window {
             this.ShowOutput();
         }
 
+        private void 履歴ビューアHToolStripMenuItem_Click(object sender, EventArgs e) {
+            this.ShowHistory();
+        }
+
         private void 最新の情報に更新RToolStripMenuItem_Click(object sender, EventArgs e) {
             this.RefreshDisplay();
         }
@@ -826,16 +852,16 @@ namespace LibraryExplorer.Window {
         #region ファイル
         //*******************************************************************************************************
         //*******************************************************************************************************
-        
+
+        #region OpenFolder
         /// <summary>
         /// フォルダを開く
         /// </summary>
         private void OpenFolder() {
             string initialPath = Application.StartupPath;
-            this.folderBrowserDialog1.Description = "ライブラリのトップフォルダを指定してください。";
-            this.folderBrowserDialog1.SelectedPath = initialPath;
-            if (this.folderBrowserDialog1.ShowDialog() == DialogResult.OK) {
-                string path = this.folderBrowserDialog1.SelectedPath;
+            this.m_OpenFolderDialog.InitialDirectory = initialPath;
+            if (this.m_OpenFolderDialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                string path = this.m_OpenFolderDialog.FileName;
                 //フォルダを開く
                 this.OpenFolder(path);
             }
@@ -857,11 +883,15 @@ namespace LibraryExplorer.Window {
             else {
                 MessageBox.Show("指定されたフォルダまたはその一部がすでに登録されているため登録できません。", "重複登録エラー", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
+        } 
+        #endregion
+
         /// <summary>
         /// ファイルを開く
         /// </summary>
         private async Task OpenFile() {
+            string initialPath = Application.StartupPath;
+            this.openFileDialog1.InitialDirectory = initialPath;
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK) {
                 string filename = this.openFileDialog1.FileName;
 
@@ -1026,6 +1056,20 @@ namespace LibraryExplorer.Window {
                 this.ShowOutputLogWindow(window, suspendRefreshDisplay);
             }
         }
+        /// <summary>
+        /// 履歴ビューア
+        /// </summary>
+        /// <param name="suspendRefreshDisplay"></param>
+        private void ShowHistory(bool suspendRefreshDisplay = false) {
+            HistoryViewWindow window = this.CreateHistoryViewWindow();
+            if (window.Visible) {
+                window.Hide();
+            }
+            else {
+                this.ShowHistoryViewWindow(window);
+            }
+        }
+
         /// <summary>
         /// 最新の情報に更新
         /// </summary>
@@ -1313,10 +1357,49 @@ namespace LibraryExplorer.Window {
         }
         #endregion
 
+        #region FolderCompareWindow
+
+        private HistoryViewWindow CreateHistoryViewWindow() {
+            if (this.m_HistoryViewWindow == null) {
+                this.m_HistoryViewWindow = new HistoryViewWindow();
+
+                this.m_HistoryViewWindow.Project = this.m_Project;
+
+                this.m_HistoryViewWindow.FormClosed += this.M_HistoryViewWindow_FormClosed;
+                this.m_HistoryViewWindow.VisibleChanged += this.M_HistoryViewWindow_VisibleChanged;
+            }
+
+            return this.m_HistoryViewWindow;
+        }
+
+
+        private void ShowHistoryViewWindow(HistoryViewWindow window, bool suspendRefreshDisplay = false) {
+            window.Show(this.dockPanel, DockState.Document);
+
+            if (!suspendRefreshDisplay) {
+                this.RefreshDisplay(true);
+            }
+        }
+        #endregion
+
+
         #endregion
 
         #region デバッグメニュー
         //■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        //デバッグ用
+        private void configの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
+            //表示するConfigを収集
+            Kucl.Xml.XmlCfg.XmlConfigModel configModel = new Kucl.Xml.XmlCfg.XmlConfigModel();
+            AppMain.g_AppMain.AppInfo.ReflectConfig(configModel);
+            this.m_Project.ReflectConfig(configModel);
+            //Viewerを作成
+            Kucl.Xml.XmlContentsModelViewer viewer = new Kucl.Xml.XmlContentsModelViewer {
+                TargetModel = configModel
+            };
+            viewer.ShowDialog();
+        }
 
         //デバッグ用
         private void explorerTreeViewの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -1425,22 +1508,16 @@ namespace LibraryExplorer.Window {
         private void fileSystemWatcher_EventHandler(object sender, FileSystemEventArgs e) {
             Console.WriteLine($"{e.ChangeType.ToString()} : path={e.FullPath}");
         }
-
+        //デバッグ用
+        private void historyViewWindowの表示ToolStripMenuItem_Click(object sender, EventArgs e) {
+            HistoryViewWindow window = this.CreateHistoryViewWindow();
+            this.ShowHistoryViewWindow(window);
+        }
         #endregion
 
     }
 
 
-    /// <summary>
-    /// [最新の情報に更新]が使用できるオブジェクトであることを表すインターフェースです。
-    /// </summary>
-    public interface IRefreshDisplay {
-        /// <summary>
-        /// 表示を更新します。
-        /// </summary>
-        /// <param name="keep"></param>
-        void RefreshDisplay(bool keep = false);
-    }
 
 
 }

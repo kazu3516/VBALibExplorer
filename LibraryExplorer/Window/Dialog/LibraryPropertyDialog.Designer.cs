@@ -34,13 +34,21 @@
             this.nameLabel1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.historyGroupBox1 = new System.Windows.Forms.GroupBox();
+            this.downToHistoryButton1 = new System.Windows.Forms.Button();
+            this.upToHisotryButton1 = new System.Windows.Forms.Button();
             this.deleteHistoryButton1 = new System.Windows.Forms.Button();
+            this.importHistoryButton1 = new System.Windows.Forms.Button();
             this.openHistoryFolderButton1 = new System.Windows.Forms.Button();
             this.historyListView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.フォルダを開くOToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.インポートIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.上へ移動UToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.下へ移動DToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.削除DToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.すべて選択AToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -150,7 +158,10 @@
             this.historyGroupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.historyGroupBox1.Controls.Add(this.downToHistoryButton1);
+            this.historyGroupBox1.Controls.Add(this.upToHisotryButton1);
             this.historyGroupBox1.Controls.Add(this.deleteHistoryButton1);
+            this.historyGroupBox1.Controls.Add(this.importHistoryButton1);
             this.historyGroupBox1.Controls.Add(this.openHistoryFolderButton1);
             this.historyGroupBox1.Controls.Add(this.historyListView1);
             this.historyGroupBox1.Location = new System.Drawing.Point(10, 68);
@@ -159,6 +170,28 @@
             this.historyGroupBox1.TabIndex = 4;
             this.historyGroupBox1.TabStop = false;
             this.historyGroupBox1.Text = "履歴";
+            // 
+            // downToHistoryButton1
+            // 
+            this.downToHistoryButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.downToHistoryButton1.Location = new System.Drawing.Point(357, 148);
+            this.downToHistoryButton1.Name = "downToHistoryButton1";
+            this.downToHistoryButton1.Size = new System.Drawing.Size(23, 23);
+            this.downToHistoryButton1.TabIndex = 1;
+            this.downToHistoryButton1.Text = "↓";
+            this.downToHistoryButton1.UseVisualStyleBackColor = true;
+            this.downToHistoryButton1.Click += new System.EventHandler(this.downToHistoryButton1_Click);
+            // 
+            // upToHisotryButton1
+            // 
+            this.upToHisotryButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.upToHisotryButton1.Location = new System.Drawing.Point(357, 119);
+            this.upToHisotryButton1.Name = "upToHisotryButton1";
+            this.upToHisotryButton1.Size = new System.Drawing.Size(23, 23);
+            this.upToHisotryButton1.TabIndex = 1;
+            this.upToHisotryButton1.Text = "↑";
+            this.upToHisotryButton1.UseVisualStyleBackColor = true;
+            this.upToHisotryButton1.Click += new System.EventHandler(this.upToHisotryButton1_Click);
             // 
             // deleteHistoryButton1
             // 
@@ -171,14 +204,25 @@
             this.deleteHistoryButton1.UseVisualStyleBackColor = true;
             this.deleteHistoryButton1.Click += new System.EventHandler(this.deleteHistoryButton1_Click);
             // 
+            // importHistoryButton1
+            // 
+            this.importHistoryButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.importHistoryButton1.Location = new System.Drawing.Point(224, 18);
+            this.importHistoryButton1.Name = "importHistoryButton1";
+            this.importHistoryButton1.Size = new System.Drawing.Size(75, 23);
+            this.importHistoryButton1.TabIndex = 1;
+            this.importHistoryButton1.Text = "インポート";
+            this.importHistoryButton1.UseVisualStyleBackColor = true;
+            this.importHistoryButton1.Click += new System.EventHandler(this.importHistoryButton1_Click);
+            // 
             // openHistoryFolderButton1
             // 
             this.openHistoryFolderButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.openHistoryFolderButton1.Location = new System.Drawing.Point(224, 18);
+            this.openHistoryFolderButton1.Location = new System.Drawing.Point(130, 18);
             this.openHistoryFolderButton1.Name = "openHistoryFolderButton1";
-            this.openHistoryFolderButton1.Size = new System.Drawing.Size(75, 23);
+            this.openHistoryFolderButton1.Size = new System.Drawing.Size(88, 23);
             this.openHistoryFolderButton1.TabIndex = 1;
-            this.openHistoryFolderButton1.Text = "フォルダを開く";
+            this.openHistoryFolderButton1.Text = "Libraryに登録";
             this.openHistoryFolderButton1.UseVisualStyleBackColor = true;
             this.openHistoryFolderButton1.Click += new System.EventHandler(this.openHistoryFolderButton1_Click);
             // 
@@ -192,14 +236,14 @@
             this.historyListView1.ContextMenuStrip = this.contextMenuStrip1;
             this.historyListView1.FullRowSelect = true;
             this.historyListView1.GridLines = true;
+            this.historyListView1.HideSelection = false;
             this.historyListView1.Location = new System.Drawing.Point(6, 47);
             this.historyListView1.Name = "historyListView1";
-            this.historyListView1.Size = new System.Drawing.Size(374, 252);
+            this.historyListView1.Size = new System.Drawing.Size(345, 252);
             this.historyListView1.TabIndex = 0;
             this.historyListView1.UseCompatibleStateImageBehavior = false;
             this.historyListView1.View = System.Windows.Forms.View.Details;
             this.historyListView1.SelectedIndexChanged += new System.EventHandler(this.historyListView1_SelectedIndexChanged);
-            this.historyListView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.historyListView1_MouseDoubleClick);
             // 
             // columnHeader1
             // 
@@ -211,25 +255,61 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.フォルダを開くOToolStripMenuItem,
             this.toolStripMenuItem1,
+            this.インポートIToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.上へ移動UToolStripMenuItem,
+            this.下へ移動DToolStripMenuItem,
+            this.toolStripMenuItem3,
             this.削除DToolStripMenuItem,
             this.toolStripMenuItem2,
             this.すべて選択AToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(192, 82);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(192, 160);
             this.contextMenuStrip1.Opened += new System.EventHandler(this.contextMenuStrip1_Opened);
             // 
             // フォルダを開くOToolStripMenuItem
             // 
-            this.フォルダを開くOToolStripMenuItem.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Bold);
+            this.フォルダを開くOToolStripMenuItem.Font = new System.Drawing.Font("Meiryo UI", 9F);
             this.フォルダを開くOToolStripMenuItem.Name = "フォルダを開くOToolStripMenuItem";
             this.フォルダを開くOToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.フォルダを開くOToolStripMenuItem.Text = "フォルダを開く(&O)";
+            this.フォルダを開くOToolStripMenuItem.Text = "Libraryに登録(&O)";
             this.フォルダを開くOToolStripMenuItem.Click += new System.EventHandler(this.フォルダを開くOToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(188, 6);
+            // 
+            // インポートIToolStripMenuItem
+            // 
+            this.インポートIToolStripMenuItem.Name = "インポートIToolStripMenuItem";
+            this.インポートIToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.インポートIToolStripMenuItem.Text = "インポート(&I)...";
+            this.インポートIToolStripMenuItem.Click += new System.EventHandler(this.インポートIToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(188, 6);
+            // 
+            // 上へ移動UToolStripMenuItem
+            // 
+            this.上へ移動UToolStripMenuItem.Name = "上へ移動UToolStripMenuItem";
+            this.上へ移動UToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.上へ移動UToolStripMenuItem.Text = "上へ移動(&U)";
+            this.上へ移動UToolStripMenuItem.Click += new System.EventHandler(this.上へ移動UToolStripMenuItem_Click);
+            // 
+            // 下へ移動DToolStripMenuItem
+            // 
+            this.下へ移動DToolStripMenuItem.Name = "下へ移動DToolStripMenuItem";
+            this.下へ移動DToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.下へ移動DToolStripMenuItem.Text = "下へ移動(&D)";
+            this.下へ移動DToolStripMenuItem.Click += new System.EventHandler(this.下へ移動DToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(188, 6);
             // 
             // 削除DToolStripMenuItem
             // 
@@ -335,5 +415,13 @@
         private System.Windows.Forms.ToolStripMenuItem 削除DToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem すべて選択AToolStripMenuItem;
+        private System.Windows.Forms.Button importHistoryButton1;
+        private System.Windows.Forms.ToolStripMenuItem インポートIToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.Button downToHistoryButton1;
+        private System.Windows.Forms.Button upToHisotryButton1;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem 上へ移動UToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 下へ移動DToolStripMenuItem;
     }
 }
